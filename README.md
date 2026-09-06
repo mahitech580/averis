@@ -32,9 +32,9 @@ The goal is to demonstrate how a modern healthcare operations platform could loo
 
 ## 🚀 Live Demo
 
-**Demo:** `https://USERNAME.github.io/REPOSITORY/`
+Experience the live Averis healthcare coordination platform:
 
-> Replace the URL above with the actual GitHub Pages deployment URL.
+**[Open Averis →](https://mahitech580.github.io/averis/)**
 
 ### Demo Credentials
 
