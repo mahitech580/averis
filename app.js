@@ -93,19 +93,16 @@ return '<section class="rich-command-grid"><section class="card pad departments-
 }
 
 function today(){
-const open=state.tasks.filter(t=>t.status!=="Done").length;
-const overdue=state.tasks.filter(t=>/overdue/i.test(t.status)).length;
 const unread=state.messages.filter(m=>!m.read).length;
-const load=Math.round(state.resources.reduce((a,r)=>a+r.util,0)/state.resources.length);
 const incidents=state.incidents.filter(i=>i.state!=="Resolved").length;
 return '<section class="landing-hero website-section-bg hero-bg"><div class="section-overlay"></div><div class="landing-hero-inner">'+
-'<div class="landing-hero-copy"><span class="eyebrow">AVERIS · HOME</span><div class="hero-kicker"><span class="led"></span> SYNTHETIC HEALTHCARE OPERATIONS · BROWSER LOCAL</div><h1>Understand AVERIS <span>at a glance.</span></h1><p class="landing-lead">AVERIS is a browser-local healthcare operations website that brings people, journeys, workflow, schedules, capacity, communication, incidents, intelligence, reports and governance into one connected operating environment. Start here to understand the whole website, then open a workspace to explore each area in detail.</p><div class="landing-actions">'+btn("go-people","Explore operations","primary")+btn("go-insights","Explore intelligence","ghost")+btn("open-command","⌕ Search AVERIS","ghost")+'</div>'+
+'<div class="landing-hero-copy"><span class="eyebrow">AVERIS · WEBSITE OVERVIEW</span><div class="hero-kicker"><span class="led"></span> SYNTHETIC HEALTHCARE OPERATIONS · BROWSER LOCAL</div><h1>Understand the entire <span>AVERIS website.</span></h1><p class="landing-lead">AVERIS is a browser-local healthcare operations website organized into connected workspaces for people, journeys, workflow, schedules, capacity, communication, incidents, intelligence, reports and governance. Start here for the complete picture, then open any workspace to see how that part of the operation works.</p><div class="landing-actions">'+btn("go-people","Explore operations","primary")+btn("go-insights","Explore intelligence","ghost")+btn("open-command","⌕ Search AVERIS","ghost")+'</div>'+
 '<div class="landing-trust"><span>18 workspaces</span><span>Local persistence</span><span>Synthetic by design</span></div></div>'+
 '<div class="landing-hero-visual"><div class="hero-image-window"><img src="https://www.ihhhealthcare.com/images/default-source/ihh/occ-2.jpg?sfvrsn=2801dfb4_1" alt="Healthcare operations command center"></div>'+
 ''+
 '</div></div></section>'+
 '<section class="landing-metric-band website-section-bg metrics-bg"><div class="section-overlay"></div><div class="landing-metrics-inner">'+
-'<div><span>OPEN WORK</span><b>'+open+'</b><small>'+overdue+' overdue in the sample</small></div><div><span>RESOURCE LOAD</span><b>'+load+'%</b><small>Across local capacity lanes</small></div><div><span>UNREAD</span><b>'+unread+'</b><small>Responses waiting locally</small></div><div><span>ACTIVE INCIDENTS</span><b>'+incidents+'</b><small>Synthetic lifecycle records</small></div></div></section>'+
+'<div><span>UNREAD</span><b>'+unread+'</b><small>Responses waiting locally</small></div><div><span>ACTIVE INCIDENTS</span><b>'+incidents+'</b><small>Synthetic lifecycle records</small></div></div></section>'+
 '<section class="landing-intro website-section-bg capabilities-bg"><div class="section-overlay"></div><div class="section-inner"><div class="center-heading"><span class="section-kicker">01 / CAPABILITIES</span><h2>One operating surface.<br><span>Every important signal.</span></h2><p>Instead of isolated screens, AVERIS links the operational story from people and journeys through execution, capacity, communication and governance.</p></div>'+
 '<div class="capability-grid">'+[
 ["People","Ownership, attention, context and coordination history.","go-people","◉"],
