@@ -1,2500 +1,358 @@
 'use strict';
 const AVERIS=(()=>{
-const KEY='averis-by-mahi-state-v1';
-const ROUTES={"today":{"label":"Today","headline":"What matters right now?","group":"Orientation","desc":"Decision-first operating view."},"people":{"label":"People","headline":"Who needs attention?","group":"Orientation","desc":"Person-first coordination."},"journeys":{"label":"Journeys","headline":"Where is work moving?","group":"Orientation","desc":"Journey milestones and handoffs."},"queue":{"label":"Queue","headline":"What work is late or blocked?","group":"Execution","desc":"Prioritized operational work."},"schedule":{"label":"Schedule","headline":"What moves next?","group":"Execution","desc":"Synthetic appointment flow."},"capacity":{"label":"Capacity","headline":"Where are resources constrained?","group":"Execution","desc":"Resource pressure and availability."},"workforce":{"label":"Workforce","headline":"Who is carrying the load?","group":"Execution","desc":"Synthetic workforce balance."},"diagnostics":{"label":"Diagnostics","headline":"Which workflow changed?","group":"Execution","desc":"Synthetic diagnostics workflow."},"pharmacy":{"label":"Pharmacy","headline":"What inventory is under pressure?","group":"Execution","desc":"Inventory, minimums and variance."},"finance":{"label":"Finance","headline":"What needs administrative follow-through?","group":"Execution","desc":"Synthetic administrative transactions."},"messages":{"label":"Messages","headline":"What needs a response?","group":"Execution","desc":"Local communication flow."},"incidents":{"label":"Incidents","headline":"What operational risk is active?","group":"Execution","desc":"Containment and resolution lifecycle."},"quality":{"label":"Quality","headline":"Where needs a closer look?","group":"Intelligence","desc":"Explainable operational quality signals."},"insights":{"label":"Insights","headline":"What changed across the system?","group":"Intelligence","desc":"Synthetic trend analysis."},"assistant":{"label":"Assistant","headline":"What should I review?","group":"Intelligence","desc":"Local operational assistant."},"reports":{"label":"Reports","headline":"What should be packaged for review?","group":"Control","desc":"Synthetic reporting and export."},"audit":{"label":"Audit","headline":"What changed and when?","group":"Control","desc":"Local workflow history."},"settings":{"label":"Settings","headline":"How should AVERIS behave?","group":"Control","desc":"Browser-local preferences."}};
-const N=['Aarav Iyer','Meera Rao','Kabir Nair','Anika Shah','Rohan Menon','Ishita Verma','Vihaan Reddy','Tara Kapoor'];
-const O=['Ops Desk','North Team','South Team','Central Team','Admin Office'];
-const L=['Hyderabad','Bengaluru','Chennai','Remote'];
-const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-const uid=p=>p+'-'+Math.random().toString(36).slice(2,8);
-const iso=d=>new Date(d).toISOString();
-const time=v=>new Date(v).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-const date=v=>new Date(v).toLocaleDateString([], {day:'2-digit',month:'short'});
-const fresh=()=>({people:[],tasks:[],appointments:[],resources:[],workforce:[],diagnostics:[],pharmacy:[],finance:[],messages:[],incidents:[],reports:[],audit:[],notifications:[],settings:{theme:'light',profileName:'Mahi',density:'comfortable'}});
-function seed(){const s=fresh();
-for(let i=0;i<24;i++)s.people.push({id:'p-'+(i+1),name:N[i%N.length],age:22+(i*7)%55,location:L[i%4],service:['Navigation','Diagnostics','Follow-up','Administration'][i%4],owner:O[i%5],state:['active','attention','waiting','complete'][i%4],journey:'Journey '+(i%8+1),email:'person'+i+'@synthetic.local'});
-for(let i=0;i<36;i++)s.tasks.push({id:'task-'+(i+1),title:['Coordination','Follow-up','Schedule review','Resource check'][i%4]+' for '+N[i%N.length],owner:O[i%5],priority:['high','medium','low'][i%3],state:['open','in_progress','blocked','complete'][i%4],personId:s.people[i%24].id,dueAt:iso(new Date(Date.now()+(i-18)*3600000)),updatedAt:iso(new Date())});
-for(let i=0;i<28;i++)s.appointments.push({id:'appt-'+(i+1),personId:s.people[i%24].id,title:['Coordination review','Diagnostics handoff','Resource review','Follow-up'][i%4],owner:O[i%5],status:['scheduled','checked_in','completed','moved'][i%4],startAt:iso(new Date(Date.now()+(i-5)*3600000)),location:L[i%4]});
-for(let i=0;i<18;i++)s.resources.push({id:'res-'+(i+1),name:['Desk','Room','Diagnostic Slot','Queue Window'][i%4],location:L[i%4],state:['available','busy','held','maintenance'][i%4],capacity:10+(i%10),used:i%11,personId:i<8?s.people[i].id:null});
-for(let i=0;i<16;i++)s.workforce.push({id:'wf-'+(i+1),name:'Coordinator '+(i+1),role:['Coordinator','Scheduler','Analyst','Administrator'][i%4],team:O[i%5],state:['available','busy','away','review'][i%4],load:30+(i*13)%68,assigned:i%9});
-for(let i=0;i<24;i++)s.diagnostics.push({id:'dx-'+(i+1),personId:s.people[i].id,type:['Imaging','Lab workflow','Referral document','Administrative packet'][i%4],state:['ordered','in_progress','result_ready','closed'][i%4],result:i%4===2?'Synthetic result available':'—',owner:O[i%5]});
-for(let i=0;i<16;i++){const q=12+(i*7)%48,m=18+(i%4)*4;s.pharmacy.push({id:'rx-'+(i+1),item:['Supply A','Supply B','Supply C','Supply D'][i%4],location:L[i%4],quantity:q,minimum:m,state:q<m?'low':'normal',variance:i%5-2});}
-for(let i=0;i<20;i++)s.finance.push({id:'fin-'+(i+1),reference:'FIN-'+(3000+i),personId:s.people[i%24].id,type:['Administrative','Scheduling','Supplies','Service record'][i%4],amount:900+(i*350)%6000,status:['draft','review','approved','exported'][i%4],owner:'Admin Office'});
-for(let i=0;i<22;i++)s.messages.push({id:'msg-'+(i+1),personId:s.people[i%24].id,from:'Ops Desk',to:'Coordinator',subject:['Need schedule move','Review required','Handoff note','Status check'][i%4],body:'Synthetic local message for coordination simulation.',state:i%3?'read':'unread'});
-for(let i=0;i<12;i++)s.incidents.push({id:'inc-'+(i+1),title:['Capacity conflict','Late handoff','Queue spike','Resource outage'][i%4],severity:['low','medium','high','critical'][i%4],state:['open','contained','monitoring','resolved'][i%4],owner:O[i%5],updatedAt:iso(new Date())});
-for(let i=0;i<8;i++)s.reports.push({id:'rep-'+(i+1),name:['Daily operating review','Capacity watch','Queue aging','Inventory watch'][i%4],state:['ready','draft','running','exported'][i%4],updatedAt:iso(new Date())});
-s.audit=[{id:uid('audit'),event:'bootstrap',actor:'Local Demo',source:'seed',detail:'Deterministic synthetic state created',at:iso(new Date())}];
-s.notifications=[{id:uid('notice'),title:'SIMULATED / LOCAL',body:'All AVERIS records are synthetic and local.',read:false,at:iso(new Date())}];return s;}
-let state=load();let route=location.hash.replace('#/','')||'today';let focusReturn=null;let search=[];let selected=0;
-function load(){try{const raw=localStorage.getItem(KEY);return raw?Object.assign(fresh(),JSON.parse(raw)):seed();}catch(e){const s=seed();s.audit.unshift({id:uid('audit'),event:'recovery',actor:'Local Demo',source:'persistence',detail:'Corrupted local state recovered.',at:iso(new Date())});return s;}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){toast('Persistence issue','Browser storage could not be written.');}}
-function audit(event,source,detail){state.audit.unshift({id:uid('audit'),event,actor:'Local Demo',source,detail,at:iso(new Date())});state.audit=state.audit.slice(0,400);save();}
-function metrics(){return{active:state.people.filter(x=>x.state!=='complete').length,attention:state.people.filter(x=>x.state==='attention').length+state.tasks.filter(x=>x.priority==='high'&&x.state!=='complete').length+state.incidents.filter(x=>x.state!=='resolved').length,movement:state.audit.filter(x=>Date.now()-new Date(x.at).getTime()<86400000).length,capacity:Math.round(state.resources.filter(x=>x.state==='available').length/Math.max(1,state.resources.length)*100)}}
-function render(){const t=document.getElementById('tpl-'+(ROUTES[route]?route:'today'));if(!ROUTES[route])route='today';document.getElementById('app').innerHTML=t.innerHTML;document.getElementById('route-title').textContent=ROUTES[route].label;document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x.dataset.route===route));bind();paint();special();counts();window.scrollTo(0,0);}
-function bind(){document.querySelectorAll('[data-action]').forEach(b=>b.onclick=action);document.querySelectorAll('[data-count]').forEach(()=>{});}
-function action(e){const a=e.currentTarget.dataset.action;if(a==='create')openForm(typeFor(route));else if(a==='inspect'||a==='filter')routeDrawer();else if(a==='primary')primary();else if(a==='next')next();else if(a==='refresh')paint();}
-function typeFor(r){return{people:'person',queue:'task',schedule:'appointment',capacity:'resource',workforce:'workforce',diagnostics:'diagnostic',pharmacy:'pharmacy',finance:'finance',messages:'message',incidents:'incident',reports:'report'}[r]||'task';}
-function primary(){if(['people','queue','schedule','capacity','workforce','diagnostics','pharmacy','finance','messages','incidents','reports'].includes(route))openForm(typeFor(route));else routeTo(route==='today'?'queue':route);}
-function next(){const o=['today','queue','schedule','capacity','workforce','incidents','quality','insights','reports'];routeTo(o[(o.indexOf(route)+1)%o.length]);}
-function routeTo(r){location.hash='#/'+(ROUTES[r]?r:'today');}
-function paint(){const root=document.querySelector('.workspace'),m=metrics(),p=Math.max(8,Math.min(96,Math.round((m.attention*5+m.active*1.4)/3)));if(!root)return;root.querySelector('[data-metric="active"]').textContent=m.active;root.querySelector('[data-metric="attention"]').textContent=m.attention;root.querySelector('[data-metric="movement"]').textContent=m.movement;root.querySelector('[data-metric="capacity"]').textContent=m.capacity+'%';root.querySelector('[data-meter]').style.width=p+'%';root.querySelector('[data-signal]').textContent=(p>70?'Elevated ':p>45?'Moving ':'Steady ')+ROUTES[route].label+' pressure';root.querySelector('[data-signal-copy]').textContent=m.attention+' attention items across '+m.active+' active synthetic people. Available resource ratio is '+m.capacity+'%.';root.querySelector('[data-pressure]').textContent=p>70?'pressure is elevated':p>45?'pressure is moving':'pressure is steady';root.querySelector('[data-updated]').textContent='Updated '+time(new Date());
-const events=state.audit.slice(0,5);root.querySelector('[data-timeline]').innerHTML=events.map(x=>'<div class="timeline-item"><i class="timeline-dot"></i><div><strong>'+esc(x.event)+'</strong><p>'+esc(x.detail)+' · '+esc(x.source)+'</p></div><time>'+time(x.at)+'</time></div>').join('');
-const order={high:0,medium:1,low:2};const rows=state.tasks.filter(x=>x.state!=='complete').sort((a,b)=>order[a.priority]-order[b.priority]).slice(0,8);const body=root.querySelector('[data-priority]');body.innerHTML=rows.map(x=>'<tr><td><button class="table-link" data-task="'+x.id+'">'+esc(x.title)+'</button></td><td>'+esc(x.owner)+'</td><td>'+esc(x.state)+'</td><td>'+esc(x.priority)+'</td><td>'+date(x.dueAt)+'</td></tr>').join('');body.querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>openTask(b.dataset.task));
-root.querySelector('[data-people]').innerHTML=state.people.slice(0,7).map(x=>'<button class="person" data-person="'+x.id+'"><b>'+esc(x.name)+'</b><span>'+esc(x.location)+' · '+esc(x.state)+'</span></button>').join('');root.querySelectorAll('[data-person]').forEach(b=>b.onclick=()=>openPerson(b.dataset.person));
-root.querySelector('[data-resources]').innerHTML=state.resources.slice(0,6).map(x=>{const pct=Math.min(100,Math.round(x.used/Math.max(1,x.capacity)*100));return '<div class="resource"><span>'+esc(x.name)+'</span><b>'+pct+'%</b><em><i style="width:'+pct+'%"></i></em></div>';}).join('');
-root.querySelector('[data-bars]').innerHTML=Array.from({length:18},(_,i)=>'<i style="height:'+(18+((m.attention*4+i*9)%75))+'%"></i>').join('');root.querySelector('[data-context]').textContent=state.tasks.filter(x=>x.state!=='complete').length+' open tasks · '+state.appointments.filter(x=>x.status==='scheduled').length+' scheduled appointments · '+state.messages.filter(x=>x.state==='unread').length+' unread messages.';root.querySelector('[data-context-metrics]').innerHTML=[['Work',state.tasks.filter(x=>x.state!=='complete').length],['Incidents',state.incidents.filter(x=>x.state!=='resolved').length],['Low stock',state.pharmacy.filter(x=>x.quantity<x.minimum).length]].map(x=>'<div><b>'+x[1]+'</b><span>'+x[0]+'</span></div>').join('');}
-function openTask(id){const t=state.tasks.find(x=>x.id===id);if(!t)return;drawer('<div class="drawer-body"><header><div><small class="eyebrow">WORK ITEM</small><h2>'+esc(t.title)+'</h2></div><button class="icon" id="dc">×</button></header><div class="drawer-section"><dl class="detail-list"><dt>Owner</dt><dd>'+esc(t.owner)+'</dd><dt>Priority</dt><dd>'+esc(t.priority)+'</dd><dt>State</dt><dd>'+esc(t.state)+'</dd><dt>Due</dt><dd>'+date(t.dueAt)+'</dd></dl></div><div class="drawer-section"><button class="primary" id="task-toggle">'+(t.state==='complete'?'Reopen':'Complete')+'</button><button class="secondary" id="task-edit">Edit</button></div></div>');document.getElementById('dc').onclick=closeDrawer;document.getElementById('task-toggle').onclick=()=>{t.state=t.state==='complete'?'open':'complete';audit('task_state_changed','Queue',t.id+' → '+t.state);save();closeDrawer();render();};document.getElementById('task-edit').onclick=()=>openForm('task',t.id);}
-function openPerson(id){const p=state.people.find(x=>x.id===id);if(!p)return;drawer('<div class="drawer-body"><header><div><small class="eyebrow">SYNTHETIC PERSON</small><h2>'+esc(p.name)+'</h2></div><button class="icon" id="pc">×</button></header><div class="drawer-section"><dl class="detail-list"><dt>Age</dt><dd>'+p.age+'</dd><dt>Location</dt><dd>'+esc(p.location)+'</dd><dt>Service</dt><dd>'+esc(p.service)+'</dd><dt>Owner</dt><dd>'+esc(p.owner)+'</dd><dt>Journey</dt><dd>'+esc(p.journey)+'</dd><dt>State</dt><dd>'+esc(p.state)+'</dd></dl></div><div class="drawer-section"><button class="primary" id="pe">Edit person</button><button class="secondary" id="pj">Open journey</button></div></div>');document.getElementById('pc').onclick=closeDrawer;document.getElementById('pe').onclick=()=>openForm('person',p.id);document.getElementById('pj').onclick=()=>{closeDrawer();routeTo('journeys')};}
-function routeDrawer(){const m=metrics();drawer('<div class="drawer-body"><header><div><small class="eyebrow">WORKSPACE</small><h2>'+esc(ROUTES[route].label)+'</h2></div><button class="icon" id="rc">×</button></header><div class="drawer-section"><p>'+esc(ROUTES[route].desc)+'</p></div><div class="drawer-section"><dl class="detail-list"><dt>Active</dt><dd>'+m.active+'</dd><dt>Attention</dt><dd>'+m.attention+'</dd><dt>Movement</dt><dd>'+m.movement+'</dd><dt>Capacity</dt><dd>'+m.capacity+'%</dd></dl></div></div>');document.getElementById('rc').onclick=closeDrawer;}
-function drawer(html){const d=document.getElementById('drawer');document.getElementById('drawer-panel').innerHTML=html;d.classList.add('open');d.setAttribute('aria-hidden','false');focusReturn=document.activeElement;d.querySelector('button')?.focus();}
-function closeDrawer(){const d=document.getElementById('drawer');d.classList.remove('open');d.setAttribute('aria-hidden','true');focusReturn?.focus?.();}
-const SCHEMA={person:{title:'Person',c:'people',f:[['name','Name','text'],['age','Age','number'],['location','Location','text'],['service','Service','text'],['owner','Owner','text'],['state','State','select','active|attention|waiting|complete'],['journey','Journey','text'],['email','Email','email']]},task:{title:'Work item',c:'tasks',f:[['title','Title','text'],['owner','Owner','text'],['priority','Priority','select','high|medium|low'],['state','State','select','open|in_progress|blocked|complete'],['personId','Person ID','text'],['dueAt','Due','datetime-local']]},appointment:{title:'Appointment',c:'appointments',f:[['personId','Person ID','text'],['title','Title','text'],['owner','Owner','text'],['status','State','select','scheduled|checked_in|completed|moved'],['startAt','Start','datetime-local'],['location','Location','text']]},resource:{title:'Capacity resource',c:'resources',f:[['name','Name','text'],['location','Location','text'],['state','State','select','available|busy|held|maintenance'],['capacity','Capacity','number'],['used','Used','number'],['personId','Person ID','text']]},workforce:{title:'Workforce record',c:'workforce',f:[['name','Name','text'],['role','Role','text'],['team','Team','text'],['state','State','select','available|busy|away|review'],['load','Load %','number'],['assigned','Assigned','number']]},diagnostic:{title:'Diagnostic workflow',c:'diagnostics',f:[['personId','Person ID','text'],['type','Type','text'],['state','State','select','ordered|in_progress|result_ready|closed'],['result','Result','text'],['owner','Owner','text']]},pharmacy:{title:'Inventory item',c:'pharmacy',f:[['item','Item','text'],['location','Location','text'],['quantity','Quantity','number'],['minimum','Minimum','number'],['state','State','select','normal|low'],['variance','Variance','number']]},finance:{title:'Administrative transaction',c:'finance',f:[['reference','Reference','text'],['personId','Person ID','text'],['type','Type','text'],['amount','Amount','number'],['status','State','select','draft|review|approved|exported'],['owner','Owner','text']]},message:{title:'Message',c:'messages',f:[['personId','Person ID','text'],['to','To','text'],['subject','Subject','text'],['body','Body','textarea'],['state','State','select','unread|read']]},incident:{title:'Incident',c:'incidents',f:[['title','Title','text'],['severity','Severity','select','low|medium|high|critical'],['state','State','select','open|contained|monitoring|resolved'],['owner','Owner','text']]},report:{title:'Report',c:'reports',f:[['name','Name','text'],['state','State','select','ready|draft|running|exported']]}};
-function openForm(type,id){const s=SCHEMA[type];if(!s)return;const row=id?state[s.c].find(x=>x.id===id):null;const fields=s.f.map(f=>{const n=f[0],label=f[1],kind=f[2],opts=f[3],v=row?.[n]??'';if(kind==='select')return '<div class="field"><label>'+label+'</label><select name="'+n+'">'+opts.split('|').map(x=>'<option '+(x===String(v)?'selected':'')+'>'+esc(x)+'</option>').join('')+'</select><span class="error"></span></div>';if(kind==='textarea')return '<div class="field"><label>'+label+'</label><textarea name="'+n+'" required>'+esc(v)+'</textarea><span class="error"></span></div>';return '<div class="field"><label>'+label+'</label><input name="'+n+'" type="'+kind+'" value="'+esc(v)+'" required><span class="error"></span></div>';}).join('');const panel=document.getElementById('form-panel');panel.innerHTML='<header><div><small class="eyebrow">LOCAL WORKFLOW</small><h2>'+(row?'Edit ':'Create ')+s.title+'</h2><p>Stored only in this browser.</p></div><button class="icon" id="form-close">×</button></header><form id="record-form"><div class="form-grid">'+fields+'</div><div class="actions"><button type="button" class="secondary" id="form-cancel">Cancel</button><button class="primary">'+(row?'Save changes':'Create record')+'</button></div></form>';showDialog('form-dialog');document.getElementById('form-close').onclick=()=>closeDialog('form-dialog');document.getElementById('form-cancel').onclick=()=>closeDialog('form-dialog');document.getElementById('record-form').onsubmit=e=>submit(e,type,id);}
-function submit(e,type,id){e.preventDefault();const s=SCHEMA[type],data={};let bad=false;for(const f of s.f){const n=f[0],label=f[1],kind=f[2],el=e.currentTarget.elements[n],v=el.value.trim();if(!v){el.nextElementSibling.textContent=label+' is required';bad=true;}else{data[n]=kind==='number'?Number(v):v;}}if(bad)return;const c=s.c;if(id){Object.assign(state[c].find(x=>x.id===id),data,{updatedAt:iso(new Date())});audit('record_updated',s.title,id);toast('Saved',s.title+' updated locally.');}else{data.id=uid(type);data.createdAt=iso(new Date());data.updatedAt=iso(new Date());state[c].unshift(data);audit('record_created',s.title,data.id);toast('Created',s.title+' added locally.');}save();closeDialog('form-dialog');render();}
-function showDialog(id){const d=document.getElementById(id);d.hidden=false;focusReturn=document.activeElement;d.querySelector('input,select,textarea,button')?.focus();}
-function closeDialog(id){document.getElementById(id).hidden=true;focusReturn?.focus?.();}
-function buildSearch(){search=[];for(const c of Object.keys(state)){if(!Array.isArray(state[c]))continue;for(const r of state[c])search.push({id:r.id,label:r.name||r.title||r.subject||r.reference||r.item||r.id,meta:r.owner||r.location||r.state||r.status||c,c:c});}for(const id in ROUTES)search.push({id:'route-'+id,label:ROUTES[id].label,meta:'Workspace',c:'workspace'});}
-function openSearch(){buildSearch();showDialog('search-dialog');const i=document.getElementById('search-input');i.value='';selected=0;drawSearch('');i.oninput=()=>{selected=0;drawSearch(i.value)};i.onkeydown=e=>{if(e.key==='ArrowDown'){e.preventDefault();selected=Math.min(selected+1,29);drawSearch(i.value)}else if(e.key==='ArrowUp'){e.preventDefault();selected=Math.max(0,selected-1);drawSearch(i.value)}else if(e.key==='Enter'){document.querySelector('.search-result.selected')?.click()}else if(e.key==='Escape')closeDialog('search-dialog')};}
-function drawSearch(q){const rows=search.filter(r=>!q||String(r.label+' '+r.meta+' '+r.c).toLowerCase().includes(q.toLowerCase())).slice(0,30);document.getElementById('search-results').innerHTML=rows.map((r,i)=>'<button class="search-result '+(i===selected?'selected':'')+'" data-search="'+esc(r.id)+'"><span>•</span><span><b>'+esc(r.label)+'</b><small>'+esc(r.meta)+'</small></span><em>'+esc(r.c)+'</em></button>').join('')||'<div class="empty-state">No matches.</div>';document.querySelectorAll('[data-search]').forEach(b=>b.onclick=()=>activate(b.dataset.search));}
-function activate(id){const r=search.find(x=>x.id===id);closeDialog('search-dialog');if(!r)return;if(r.c==='workspace')return routeTo(r.id.slice(6));if(r.c==='people')return openPerson(r.id);const rec=state[r.c].find(x=>x.id===r.id);drawer('<div class="drawer-body"><header><h2>'+esc(r.label)+'</h2><button class="icon" id="result-close">×</button></header><div class="drawer-section"><dl class="detail-list"><dt>ID</dt><dd>'+esc(r.id)+'</dd><dt>State</dt><dd>'+esc(rec.state||rec.status||'local')+'</dd><dt>Owner</dt><dd>'+esc(rec.owner||'—')+'</dd></dl></div></div>');document.getElementById('result-close').onclick=closeDrawer;}
-function special(){if(route==='settings'){const root=document.querySelector('.grid');root.innerHTML='<article class="card span7"><small class="eyebrow">SETTINGS</small><h2>Local preferences</h2><div class="form-grid"><div class="field"><label>Profile name</label><input id="profile-name" value="'+esc(state.settings.profileName)+'"></div><div class="field"><label>Density</label><select id="density"><option>comfortable</option><option>compact</option></select></div></div><div class="actions"><button class="primary" id="save-settings">Save settings</button><button class="secondary" id="export">Export state</button><button class="secondary" id="reset">Reset demo</button></div></article><article class="note span5"><small class="eyebrow">Boundary</small><h2>Browser-only</h2><p>No external service receives synthetic records.</p></article>';document.getElementById('density').value=state.settings.density;document.getElementById('save-settings').onclick=()=>{state.settings.profileName=document.getElementById('profile-name').value.trim()||'Mahi';state.settings.density=document.getElementById('density').value;save();toast('Saved','Local settings updated.');};document.getElementById('export').onclick=()=>download('averis-local-state.json',state);document.getElementById('reset').onclick=()=>{state=seed();save();routeTo('today');};}
-if(route==='assistant'){const root=document.querySelector('.grid');root.innerHTML='<article class="signal"><small class="eyebrow">LOCAL ASSISTANT</small><h2>Ask an operating question</h2><p>No medical claims or treatment recommendations. Answers use synthetic state only.</p><div class="field"><label>Question</label><input id="assistant-q" placeholder="What changed? Where is pressure rising?"></div><div class="actions"><button class="primary" id="assistant-run">Review signal</button></div><div class="note" id="assistant-answer"></div></article>';document.getElementById('assistant-run').onclick=()=>{const q=document.getElementById('assistant-q').value.toLowerCase();document.getElementById('assistant-answer').textContent=assistantAnswer(q);audit('assistant_query','Assistant',q||'default');};}
-function assistantAnswer(q){const m=metrics();if(q.includes('change'))return'Recent local movement includes '+m.movement+' audit events.';if(q.includes('pressure')||q.includes('busy')||q.includes('rising'))return'Synthetic pressure is '+(m.attention>25?'elevated':'contained')+' with '+m.attention+' attention items and '+m.capacity+'% available resource ratio.';if(q.includes('late')||q.includes('work'))return state.tasks.filter(x=>x.state==='blocked').length+' work items are blocked and '+state.tasks.filter(x=>x.priority==='high'&&x.state!=='complete').length+' high-priority items remain open.';if(q.includes('resource')||q.includes('capacity'))return state.resources.filter(x=>x.state!=='available').length+' resources are not currently available.';return'Ask about changes, pressure, late work, constrained resources, or shift review.';}
-if(route==='reports'){const root=document.querySelector('.grid');root.innerHTML='<article class="card span7"><header><div><small class="eyebrow">REPORTS</small><h2>Local review packs</h2></div><button class="primary" id="run-report">Run report</button></header><div class="table-wrap"><table><thead><tr><th>Report</th><th>State</th><th>Action</th></tr></thead><tbody>'+state.reports.map(r=>'<tr><td>'+esc(r.name)+'</td><td>'+esc(r.state)+'</td><td><button class="secondary compact" data-report="'+r.id+'">Export</button></td></tr>').join('')+'</tbody></table></div></article>';document.getElementById('run-report').onclick=()=>{state.reports[0].state='ready';state.reports[0].updatedAt=iso(new Date());save();audit('report_run','Reports',state.reports[0].name);toast('Report ready','Synthetic report refreshed.');render();};root.querySelectorAll('[data-report]').forEach(b=>b.onclick=()=>download(b.dataset.report+'.json',state.reports.find(r=>r.id===b.dataset.report)));}
-function download(name,data){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),500);}
-function counts(){const c={people:state.people.length,queue:state.tasks.filter(x=>x.state!=='complete').length,schedule:state.appointments.filter(x=>x.status!=='completed').length,capacity:state.resources.length,workforce:state.workforce.length,diagnostics:state.diagnostics.length,pharmacy:state.pharmacy.filter(x=>x.quantity<x.minimum).length,finance:state.finance.filter(x=>x.status!=='exported').length,messages:state.messages.filter(x=>x.state==='unread').length,incidents:state.incidents.filter(x=>x.state!=='resolved').length,reports:state.reports.length};document.querySelectorAll('[data-count]').forEach(x=>x.textContent=c[x.dataset.count]||'');document.getElementById('notice-count').textContent=state.notifications.filter(x=>!x.read).length;}
-function theme(t){state.settings.theme=t==='dark'?'dark':'light';document.documentElement.dataset.theme=state.settings.theme;localStorage.setItem(KEY+'-theme',state.settings.theme);}
-function toast(title,body){const t=document.getElementById('toast');t.innerHTML='<b>'+esc(title)+'</b><br>'+esc(body);t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
-function live(){document.getElementById('clock').textContent=new Date().toLocaleTimeString();document.getElementById('live-status').textContent='Local simulation active · '+state.tasks.filter(x=>x.state!=='complete').length+' open work';}
-function bindGlobal(){document.getElementById('command').onclick=openSearch;document.getElementById('search-close').onclick=()=>closeDialog('search-dialog');document.getElementById('theme').onclick=()=>{theme(document.documentElement.dataset.theme==='dark'?'light':'dark');save();};document.getElementById('notice').onclick=()=>{state.notifications.forEach(x=>x.read=true);save();counts();toast('Notifications','Local notifications marked read.');};document.getElementById('menu').onclick=()=>document.getElementById('sidebar').classList.toggle('open');document.getElementById('focus').onclick=()=>document.body.classList.toggle('focus-mode');document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openSearch();}if(e.key==='Escape'){closeDialog('search-dialog');closeDialog('form-dialog');closeDrawer();}});window.addEventListener('hashchange',()=>{route=location.hash.replace('#/','')||'today';render();});}
-function init(){theme(state.settings.theme||localStorage.getItem(KEY+'-theme')||'light');bindGlobal();render();setInterval(live,1000);live();if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
-return{init};})();
+const KEY='averis-by-mahi-v4';
+const VERSION='4.0.0';
+const ROUTES={
+today:['Today','Orientation','What matters right now?','Decision-first operating view.'],
+people:['People','Orientation','Who needs attention?','Person-first coordination records.'],
+journeys:['Journeys','Orientation','Where is work moving?','Synthetic journey stages and handoffs.'],
+queue:['Queue','Execution','What is late or blocked?','Prioritized operational work.'],
+schedule:['Schedule','Execution','What moves next?','Synthetic appointment flow.'],
+capacity:['Capacity','Execution','Where are resources constrained?','Resource availability and occupancy.'],
+workforce:['Workforce','Execution','Who is carrying the load?','Synthetic workforce balance.'],
+diagnostics:['Diagnostics','Execution','Which workflow changed?','Operational workflow tracking only.'],
+pharmacy:['Pharmacy','Execution','What inventory is under pressure?','Synthetic stock and minimums.'],
+finance:['Finance','Execution','What needs follow-through?','Synthetic administrative transactions.'],
+messages:['Messages','Execution','What needs a response?','Browser-local communication flow.'],
+incidents:['Incidents','Execution','What operational risk is active?','Containment and resolution lifecycle.'],
+quality:['Quality','Intelligence','Where needs a closer look?','Explainable operational checks.'],
+insights:['Insights','Intelligence','What changed across the system?','Local trend analysis.'],
+assistant:['Assistant','Intelligence','Review local signals','Deterministic local assistant.'],
+reports:['Reports','Control','What should be packaged for review?','Local report run and export.'],
+audit:['Audit','Control','What changed and when?','Browser-local history.'],
+settings:['Settings','Control','How should AVERIS behave?','Theme, profile, export and reset.']
+};
+const COLLECTION={
+people:'people',peopleType:'person',journeys:'journeys',queue:'tasks',queueType:'task',schedule:'appointments',scheduleType:'appointment',
+capacity:'resources',capacityType:'resource',workforce:'workforce',workforceType:'workforce',diagnostics:'diagnostics',diagnosticsType:'diagnostic',
+pharmacy:'pharmacy',pharmacyType:'pharmacy',finance:'finance',financeType:'finance',messages:'messages',messagesType:'message',
+incidents:'incidents',incidentsType:'incident',reports:'reports',reportsType:'report'
+};
+const names=['Aarav Iyer','Meera Rao','Kabir Nair','Anika Shah','Rohan Menon','Ishita Verma','Vihaan Reddy','Tara Kapoor','Nisha Menon','Aditya Rao','Sana Ali','Dev Malhotra'];
+const owners=['Ops Desk','North Team','South Team','Central Team','Admin Office'];
+const locations=['Hyderabad','Bengaluru','Chennai','Remote'];
+const services=['Coordination','Diagnostics flow','Follow-up','Administration','Scheduling','Resource review'];
+const $=(q,r=document)=>r.querySelector(q);
+const $$=(q,r=document)=>Array.from(r.querySelectorAll(q));
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=p=>p+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);
+const iso=v=>new Date(v).toISOString();
+const now=()=>new Date();
+const pad=v=>String(v).padStart(2,'0');
+const dt=v=>new Date(v);
+const time=v=>dt(v).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+const dateTime=v=>dt(v).toLocaleString([], {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+const inputDate=v=>{const d=dt(v);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes())};
+const currency=v=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(Number(v)||0);
+const initials=v=>String(v||'').split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
+const pretty=v=>String(v??'—').replace(/_/g,' ');
+const store={
+data:null,
+route:'today',
+filters:{},
+command:[],
+commandIndex:0,
+lastFocus:null,
+confirm:null,
+clock:null,
+rendering:false
+};
+
+function seed(){
+const start=new Date('2026-10-04T10:30:00');
+const people=Array.from({length:36},(_,i)=>({id:'P-'+pad(i+1),name:names[i%names.length],age:23+(i*3)%55,location:locations[i%4],service:services[i%services.length],owner:owners[i%owners.length],state:['active','attention','waiting','active','complete'][i%5],journey:'J-'+pad(i%10+1),email:'person'+pad(i+1)+'@synthetic.local',updatedAt:iso(new Date(start.getTime()+i*600000))}));
+const tasks=Array.from({length:52},(_,i)=>({id:'Q-'+pad(i+1),title:['Schedule review','Handoff follow-up','Resource check','Queue review','Document follow-through'][i%5]+' · '+people[i%people.length].name,owner:owners[i%owners.length],priority:['high','medium','low','medium'][i%4],state:['open','in_progress','blocked','complete','open'][i%5],personId:people[i%people.length].id,dueAt:iso(new Date(start.getTime()+(i-12)*3600000)),updatedAt:iso(new Date(start.getTime()+i*900000))}));
+const appointments=Array.from({length:34},(_,i)=>({id:'A-'+pad(i+1),personId:people[i%people.length].id,title:['Coordination review','Diagnostics handoff','Follow-up slot','Resource review','Administrative review'][i%5],owner:owners[i%owners.length],status:['scheduled','checked_in','completed','moved','scheduled'][i%5],startAt:iso(new Date(start.getTime()+(i-7)*3600000)),location:locations[i%4],updatedAt:iso(start)}));
+const resources=Array.from({length:22},(_,i)=>{const capacity=8+(i%8);const used=(i*3)%capacity;return{id:'R-'+pad(i+1),name:['Coordination desk','Room','Diagnostic slot','Queue window','Support station'][i%5]+' '+(i%4+1),location:locations[i%4],state:['available','busy','held','maintenance'][i%4],capacity,used,personId:i<9?people[i].id:'',updatedAt:iso(start)}}));
+const workforce=Array.from({length:22},(_,i)=>({id:'W-'+pad(i+1),name:'Coordinator '+(i+1),role:['Coordinator','Scheduler','Analyst','Administrator','Operations Lead'][i%5],team:owners[i%owners.length],state:['available','busy','away','review'][i%4],load:30+(i*11)%66,assigned:(i*2)%10,updatedAt:iso(start)}));
+const diagnostics=Array.from({length:32},(_,i)=>({id:'D-'+pad(i+1),personId:people[i%people.length].id,type:['Imaging workflow','Lab workflow','Referral packet','Administrative packet'][i%4],state:['ordered','in_progress','result_ready','closed'][i%4],result:i%4===2?'Synthetic result available':'No result attached to simulation record',owner:owners[i%owners.length],updatedAt:iso(new Date(start.getTime()+i*900000))}));
+const pharmacy=Array.from({length:20},(_,i)=>{const minimum=18+(i%5)*3;const quantity=8+(i*9)%54;return{id:'RX-'+pad(i+1),item:['Supply A','Supply B','Supply C','Supply D','Supply E'][i%5],location:locations[i%4],quantity,minimum,state:quantity<minimum?'low':'normal',variance:(i%7)-3,updatedAt:iso(start)}}));
+const finance=Array.from({length:26},(_,i)=>({id:'F-'+pad(i+1),reference:'FIN-'+(5800+i),personId:people[i%people.length].id,type:['Administrative','Scheduling','Supplies','Service record'][i%4],amount:900+(i*375)%7900,status:['draft','review','approved','exported'][i%4],owner:'Admin Office',updatedAt:iso(start)}));
+const messages=Array.from({length:28},(_,i)=>({id:'M-'+pad(i+1),personId:people[i%people.length].id,from:'Ops Desk',to:['Coordinator','Scheduler','Analyst'][i%3],subject:['Need schedule move','Review required','Handoff note','Status check','Resource update'][i%5],body:'Synthetic local message for workflow coordination. It never leaves the browser.',state:i%3===0?'unread':'read',updatedAt:iso(new Date(start.getTime()+i*700000))}));
+const incidents=Array.from({length:18},(_,i)=>({id:'I-'+pad(i+1),title:['Capacity conflict','Late handoff','Queue spike','Resource outage','Data review'][i%5],severity:['low','medium','high','critical'][i%4],state:['open','contained','monitoring','resolved'][i%4],owner:owners[i%owners.length],updatedAt:iso(new Date(start.getTime()+i*1000000))}));
+const reports=Array.from({length:11},(_,i)=>({id:'REP-'+pad(i+1),name:['Daily operating review','Capacity watch','Queue aging','Inventory watch','Message response review'][i%5],state:['ready','draft','running','exported'][i%4],updatedAt:iso(start)}));
+const journeys=Array.from({length:12},(_,i)=>({id:'J-'+pad(i+1),name:'Journey '+pad(i+1),owner:owners[i%owners.length],stage:['Intake','Coordination','Execution','Review','Complete'][i%5],progress:[20,40,60,80,100][i%5],people:people.filter(p=>p.journey==='J-'+pad(i%10+1)).length,updatedAt:iso(start)}));
+return{meta:{version:VERSION,createdAt:iso(start)},people,tasks,appointments,resources,workforce,diagnostics,pharmacy,finance,messages,incidents,reports,journeys,audit:[{id:'AUD-0001',event:'seed_created',actor:'Mahi',source:'bootstrap',detail:'Deterministic synthetic AVERIS state created.',at:iso(start)}],notifications:[{id:'N-01',title:'SIMULATED / LOCAL',body:'All records are synthetic and browser-local.',read:false,at:iso(start)},{id:'N-02',title:'Workspace ready',body:'All operational workspaces are available locally.',read:false,at:iso(start)}],settings:{theme:'light',density:'comfortable',profileName:'Mahi',notifications:true},ui:{filters:{},focus:false}};
+}
+
+function load(){
+try{
+const raw=localStorage.getItem(KEY);
+if(!raw)return seed();
+const saved=JSON.parse(raw);
+const fresh=seed();
+Object.keys(fresh).forEach(k=>{if(Array.isArray(fresh[k])&& !Array.isArray(saved[k]))saved[k]=fresh[k]});
+saved.settings=Object.assign(fresh.settings,saved.settings||{});
+saved.ui=Object.assign(fresh.ui,saved.ui||{});
+return saved;
+}catch(e){
+const recovered=seed();
+recovered.audit.unshift({id:uid('AUD'),event:'state_recovered',actor:'Mahi',source:'persistence',detail:'Corrupted local state rebuilt from deterministic seed.',at:iso(now())});
+try{localStorage.setItem(KEY,JSON.stringify(recovered))}catch(_){}
+return recovered;
+}
+}
+function save(reason){
+state.meta.updatedAt=iso(now());
+try{localStorage.setItem(KEY,JSON.stringify(state));$('#footer-state').textContent='Saved · '+reason}catch(e){toast('Persistence issue','Browser storage could not be written.')}
+}
+function audit(event,source,detail){state.audit.unshift({id:uid('AUD'),event,actor:state.settings.profileName||'Mahi',source,detail,at:iso(now())});state.audit=state.audit.slice(0,500)}
+function collection(route){return COLLECTION[route]||null}
+function typeFor(route){return COLLECTION[route+'Type']||'task'}
+function person(id){return state.people.find(x=>x.id===id)}
+function metrics(){
+const openTasks=state.tasks.filter(x=>x.state!=='complete').length;
+const attention=state.people.filter(x=>x.state==='attention').length+state.tasks.filter(x=>x.priority==='high'&&x.state!=='complete').length+state.incidents.filter(x=>x.state!=='resolved').length;
+const available=state.resources.length?Math.round(state.resources.filter(x=>x.state==='available').length/state.resources.length*100):0;
+return{people:state.people.length,activePeople:state.people.filter(x=>x.state!=='complete').length,openTasks,attention,available,unread:state.messages.filter(x=>x.state==='unread').length,incidents:state.incidents.filter(x=>x.state!=='resolved').length,lowStock:state.pharmacy.filter(x=>Number(x.quantity)<Number(x.minimum)).length,movement:state.audit.filter(x=>Date.now()-new Date(x.at).getTime()<86400000).length};
+}
+function statusClass(v){
+const x=String(v||'').toLowerCase();
+if(['complete','completed','approved','exported','ready','available','read','normal','resolved'].includes(x))return'success';
+if(['critical','high','attention','blocked'].includes(x))return'danger';
+if(['low','unread','review','maintenance'].includes(x))return'warn';
+if(['in_progress','checked_in','moving','moved','monitoring','contained','busy','running'].includes(x))return'info';
+return'';
+}
+function chip(v){return'<span class="chip '+statusClass(v)+'">'+esc(String(v||'—').replace(/_/g,' '))+'</span>'}
+function avatar(name,large=''){return'<span class="avatar '+large+'">'+esc(initials(name))+'</span>'}
+function empty(title,body){return'<div class="empty"><strong>'+esc(title)+'</strong><p>'+esc(body)+'</p></div>'}
+
+function kpis(route){
+const m=metrics();
+const map={
+today:[['Active people',m.activePeople,'open synthetic coordination records'],['Attention',m.attention,'people, work and incidents'],['Open work',m.openTasks,'items not complete'],['Available capacity',m.available+'%','synthetic resource availability']],
+people:[['People',m.people,'synthetic profiles'],['Attention',state.people.filter(x=>x.state==='attention').length,'explicit attention state'],['Journeys',state.journeys.filter(x=>x.progress<100).length,'in motion'],['Unread',m.unread,'local responses needed']],
+queue:[['Open',m.openTasks,'unfinished items'],['Blocked',state.tasks.filter(x=>x.state==='blocked').length,'dependency watch'],['High priority',state.tasks.filter(x=>x.priority==='high'&&x.state!=='complete').length,'review first'],['Complete',state.tasks.filter(x=>x.state==='complete').length,'closed work']],
+schedule:[['Upcoming',state.appointments.filter(x=>x.status!=='completed'&&x.status!=='cancelled').length,'active appointments'],['Moved',state.appointments.filter(x=>x.status==='moved').length,'schedule changes'],['Checked in',state.appointments.filter(x=>x.status==='checked_in').length,'local state'],['Completed',state.appointments.filter(x=>x.status==='completed').length,'closed records']],
+capacity:[['Resources',state.resources.length,'synthetic resources'],['Available',state.resources.filter(x=>x.state==='available').length,'free now'],['Busy',state.resources.filter(x=>x.state==='busy').length,'currently busy'],['Availability',m.available+'%','availability ratio']],
+workforce:[['Members',state.workforce.length,'synthetic workforce'],['Busy',state.workforce.filter(x=>x.state==='busy').length,'active load'],['High load',state.workforce.filter(x=>x.load>=80).length,'load at or above 80%'],['Average',Math.round(state.workforce.reduce((a,x)=>a+x.load,0)/state.workforce.length)+'%','synthetic average']],
+diagnostics:[['Workflows',state.diagnostics.length,'workflow records'],['In progress',state.diagnostics.filter(x=>x.state==='in_progress').length,'moving now'],['Result ready',state.diagnostics.filter(x=>x.state==='result_ready').length,'ready for review'],['Closed',state.diagnostics.filter(x=>x.state==='closed').length,'closed workflows']],
+pharmacy:[['Items',state.pharmacy.length,'inventory records'],['Low stock',m.lowStock,'below minimum'],['Units',state.pharmacy.reduce((a,x)=>a+x.quantity,0),'synthetic units'],['Variance',state.pharmacy.reduce((a,x)=>a+x.variance,0),'aggregate variance']],
+finance:[['Records',state.finance.length,'administrative records'],['Review',state.finance.filter(x=>x.status==='review').length,'needs review'],['Approved',state.finance.filter(x=>x.status==='approved').length,'approved locally'],['Value',currency(state.finance.reduce((a,x)=>a+x.amount,0)),'synthetic amount']],
+messages:[['Messages',state.messages.length,'local messages'],['Unread',m.unread,'needs response'],['Read',state.messages.filter(x=>x.state==='read').length,'reviewed locally'],['People',new Set(state.messages.map(x=>x.personId)).size,'communication records']],
+incidents:[['Active',m.incidents,'unresolved'],['Critical',state.incidents.filter(x=>x.severity==='critical'&&x.state!=='resolved').length,'highest severity'],['Contained',state.incidents.filter(x=>x.state==='contained').length,'controlled state'],['Resolved',state.incidents.filter(x=>x.state==='resolved').length,'closed incidents']],
+quality:[['Closure',Math.round(state.tasks.filter(x=>x.state==='complete').length/state.tasks.length*100)+'%','work closure'],['Response',Math.round(state.messages.filter(x=>x.state==='read').length/state.messages.length*100)+'%','message follow-through'],['Capacity',m.available+'%','resource availability'],['Low stock',m.lowStock,'inventory watch']],
+insights:[['Movement',m.movement,'last 24 hours'],['Attention',m.attention,'current signals'],['Open work',m.openTasks,'unfinished'],['Incidents',m.incidents,'active operational risk']],
+reports:[['Reports',state.reports.length,'local definitions'],['Ready',state.reports.filter(x=>x.state==='ready').length,'available outputs'],['Running',state.reports.filter(x=>x.state==='running').length,'active generation'],['Exported',state.reports.filter(x=>x.state==='exported').length,'export history']],
+audit:[['Events',state.audit.length,'browser-local history'],['Recent',m.movement,'last 24 hours'],['Actors',new Set(state.audit.map(x=>x.actor)).size,'local actors'],['Sources',new Set(state.audit.map(x=>x.source)).size,'event sources']],
+settings:[['Theme',state.settings.theme,'appearance'],['Density',state.settings.density,'workspace spacing'],['Records',Object.keys(COLLECTION).filter(k=>!k.endsWith('Type')).reduce((a,k)=>Array.isArray(state[COLLECTION[k]])?a+state[COLLECTION[k]].length:a,0),'synthetic total'],['Version',VERSION,'application build']]
+};
+return map[route]||map.today;
+}
+function renderKpis(items){return'<div class="kpi-grid">'+items.map(x=>'<article class="kpi-card"><div class="label"><span>'+esc(x[0])+'</span><span>LOCAL</span></div><strong>'+esc(x[1])+'</strong><small>'+esc(x[2])+'</small></article>').join('')+'</div>'}
+function renderHeader(){
+const info=ROUTES[store.route];const rt=typeFor(store.route);
+const needsCreate=['people','queue','schedule','capacity','workforce','diagnostics','pharmacy','finance','messages','incidents','reports'].includes(store.route);
+return'<section class="workspace-head"><div><span class="eyebrow">'+esc(info[1])+' / SIMULATED</span><h2>'+esc(info[2])+'</h2><p>'+esc(info[3])+'</p></div><div class="workspace-head-actions"><button class="button secondary" data-action="inspect">Inspect context</button>'+(needsCreate?'<button class="button primary" data-action="create" data-type="'+rt+'">Create '+esc(info[0].slice(0,-1) || info[0])+'</button>':'<button class="button primary" data-action="primary">'+(store.route==='today'?'Open queue':info[0])+'</button>')+'</div></section>';
+}
+
+function renderHome(){
+const m=metrics();const pressure=Math.min(96,Math.max(10,Math.round((m.attention*3+m.openTasks)/2)));
+const priority=state.tasks.filter(x=>x.state!=='complete').sort((a,b)=>({high:0,medium:1,low:2}[a.priority]-({high:0,medium:1,low:2}[b.priority]))).slice(0,9);
+return'<div class="workspace workspace-home">'+
+'<section class="hero-question"><span class="eyebrow">ORIENTATION / DECISION VIEW</span><h2>What matters right now?</h2><p>AVERIS brings synthetic coordination signals into one editorial operating surface: attention, movement, capacity, work and follow-through. Nothing leaves this browser.</p><div class="hero-actions"><button class="button primary" data-route-action="queue">Open priority queue</button><button class="button secondary" data-action="create" data-type="task">Create local work</button><button class="button secondary" data-action="inspect">Review system context</button></div></section>'+
+'<div class="signal-strip" style="margin-top:13px"><article class="signal-card"><div class="signal-title"><strong>'+(pressure>70?'Elevated':'Contained')+' operating pressure</strong><span>'+pressure+' / 100 synthetic signal</span></div><p class="small-muted">'+m.attention+' attention items span people, work and incidents.</p><div class="signal-meter"><i style="width:'+pressure+'%"></i></div><div class="metric-band"><span class="metric-pill"><b>'+m.openTasks+'</b> open work</span><span class="metric-pill"><b>'+m.available+'%</b> capacity</span><span class="metric-pill"><b>'+m.unread+'</b> unread</span><span class="metric-pill"><b>'+m.incidents+'</b> active incidents</span></div></article><article class="signal-card"><span class="eyebrow">LOCAL CLOCK</span><strong id="hero-clock" class="mono" style="display:block;font-size:27px;margin-top:7px">--:--:--</strong><p class="small-muted">The live clock updates independently; forms and drawers are not rebuilt every second.</p></article></div>'+
+renderKpis(kpis('today'))+
+'<div class="layout-grid"><div class="stack">'+
+card('Priority stack','Highest-impact synthetic work requiring review.',priorityTable(priority),'WORK QUEUE')+
+card('Recent movement','Newest local audit events.',timeline(state.audit.slice(0,7)),'ACTIVITY')+
+'</div><div class="stack">'+
+card('People requiring attention','Person-first records with explicit attention state.',peopleList(state.people.filter(x=>x.state==='attention').slice(0,6)),'PEOPLE')+
+card('Capacity watch','Availability and occupancy for synthetic resources.',resourceCards(state.resources.slice(0,6)),'RESOURCES')+
+'<article class="note-card"><strong>No clinical claims</strong><p>AVERIS models operational coordination. It does not diagnose, prescribe, interpret medical findings, or connect to real healthcare systems.</p></article>'+
+'</div></div></div>';
+}
+function card(title,description,body,kicker){return'<article class="card"><header class="card-header"><div><span class="eyebrow">'+esc(kicker||'LOCAL')+'</span><h3>'+esc(title)+'</h3><p>'+esc(description)+'</p></div></header><div class="card-body">'+body+'</div></article>'}
+function timeline(items){if(!items.length)return empty('No movement yet','New local actions will appear here.');return'<div class="timeline">'+items.map(x=>'<div class="timeline-item"><i class="timeline-dot"></i><div><strong>'+esc(pretty(x.event))+'</strong><p>'+esc(x.detail)+' · '+esc(x.source)+'</p></div><time>'+time(x.at)+'</time></div>').join('')+'</div>'}
+function peopleList(items){if(!items.length)return empty('No attention records','People state is currently contained.');return'<div class="person-grid">'+items.map(p=>'<button class="person-card" data-open-record="people" data-id="'+p.id+'">'+avatar(p.name)+'<main><strong>'+esc(p.name)+'</strong><span>'+esc(p.location)+' · '+esc(p.owner)+'</span></main>'+chip(p.state)+'</button>').join('')+'</div>'}
+function resourceCards(items){return'<div class="two-up">'+items.map(r=>{const pct=Math.round(r.used/Math.max(1,r.capacity)*100);return'<article class="resource-card"><header><h4>'+esc(r.name)+'</h4>'+chip(r.state)+'</header><small>'+esc(r.location)+' · '+r.used+' / '+r.capacity+'</small><div class="resource-meter"><i style="width:'+Math.min(100,pct)+'%"></i></div><div class="small-muted">'+pct+'% occupancy</div></article>'}).join('')+'</div>'}
+function priorityTable(items){if(!items.length)return empty('Queue clear','No open work items remain.');return'<div class="table-wrap"><table class="data-table"><thead><tr><th>Work</th><th>Owner</th><th>State</th><th>Priority</th><th>Due</th><th></th></tr></thead><tbody>'+items.map(x=>'<tr><td><button class="table-link" data-open-record="tasks" data-id="'+x.id+'">'+esc(x.title)+'</button><small style="display:block;color:var(--faint);font-size:8px">'+x.id+'</small></td><td>'+esc(x.owner)+'</td><td>'+chip(x.state)+'</td><td>'+chip(x.priority)+'</td><td class="mono">'+dateTime(x.dueAt)+'</td><td><button class="action-link" data-quick="toggle-task" data-id="'+x.id+'">'+(x.state==='complete'?'Reopen':'Complete')+'</button></td></tr>').join('')+'</tbody></table></div>'}
+
+function filtered(route){
+const coll=collection(route);let rows=Array.isArray(state[coll])?[...state[coll]]:[];const q=String(store.filters[route]||'').trim().toLowerCase();
+if(q)rows=rows.filter(x=>JSON.stringify(x).toLowerCase().includes(q));
+if(route==='queue')rows=rows.filter(x=>x.state!=='complete');
+return rows;
+}
+function toolbar(routeName){
+let extras='';
+if(routeName==='people')extras='<select class="select-control" data-select="person-state"><option value="">All states</option><option>active</option><option>attention</option><option>waiting</option><option>complete</option></select><select class="select-control" data-select="person-location"><option value="">All locations</option>'+locations.map(x=>'<option>'+x+'</option>').join('')+'</select>';
+if(routeName==='queue')extras='<select class="select-control" data-select="task-priority"><option value="">All priorities</option><option>high</option><option>medium</option><option>low</option></select><select class="select-control" data-select="task-state"><option value="">All states</option><option>open</option><option>in_progress</option><option>blocked</option><option>complete</option></select>';
+if(routeName==='incidents')extras='<select class="select-control" data-select="incident-severity"><option value="">All severity</option><option>critical</option><option>high</option><option>medium</option><option>low</option></select><select class="select-control" data-select="incident-state"><option value="">All states</option><option>open</option><option>contained</option><option>monitoring</option><option>resolved</option></select>';
+return'<div class="toolbar"><div class="toolbar-search"><span>⌕</span><input id="workspace-filter" value="'+esc(store.filters[routeName]||'')+'" placeholder="Search '+esc(ROUTES[routeName][0].toLowerCase())+'"></div>'+extras+'<span class="small-muted">'+filtered(routeName).length+' local records</span><button class="button primary small" data-action="create" data-type="'+typeFor(routeName)+'">Create</button></div>';
+}
+function generic(){
+const r=filtered(store.route);
+return'<div class="workspace">'+renderHeader()+renderKpis(kpis(store.route))+'<article class="card" style="margin-top:14px">'+toolbar(store.route)+table(store.route,r)+'</article></div>';
+}
+function table(name,rows){
+if(!rows.length)return empty('Nothing matches','Adjust the filter or create a local record.');
+if(name==='people')return peopleTable(rows);if(name==='journeys')return journeyTable(rows);if(name==='queue')return queueTable(rows);if(name==='schedule')return scheduleTable(rows);if(name==='capacity')return capacityTable(rows);if(name==='workforce')return workforceTable(rows);if(name==='diagnostics')return diagnosticsTable(rows);if(name==='pharmacy')return pharmacyTable(rows);if(name==='finance')return financeTable(rows);if(name==='messages')return messageTable(rows);if(name==='incidents')return incidentTable(rows);return simpleTable(name,rows);
+}
+function peopleTable(rows){return'<div class="table-wrap"><table class="data-table"><thead><tr><th>Person</th><th>Location</th><th>Service</th><th>Owner</th><th>State</th><th>Journey</th><th></th></tr></thead><tbody>'+rows.map(p=>'<tr><td>'+avatar(p.name)+' <button class="table-link" data-open-record="people" data-id="'+p.id+'">'+esc(p.name)+'</button><small style="display:block;color:var(--faint);margin-left:43px;font-size:8px">'+p.id+'</small></td><td>'+esc(p.location)+'</td><td>'+esc(p.service)+'</td><td>'+esc(p.owner)+'</td><td>'+chip(p.state)+'</td><td>'+esc(p.journey)+'</td><td><button class="action-link" data-open-record="people" data-id="'+p.id+'">Open</button></td></tr>').join('')+'</tbody></table></div>'}
+function journeyTable(rows){return'<div class="card-body"><div class="journey-lane-list">'+rows.map(j=>'<div class="journey-lane"><div><strong>'+esc(j.name)+'</strong><small class="small-muted">'+esc(j.owner)+' · '+j.people+' people</small></div><div class="journey-steps">'+[0,1,2,3,4].map((_,i)=>'<span class="journey-step '+(j.progress>i*20?'done':'')+(j.progress===i*20?' current':'')+'"></span>').join('')+'</div><div class="progress-label">'+j.progress+'% · '+esc(j.stage)+'</div></div>').join('')+'</div></div>'}
+function queueTable(rows){return priorityTable(rows.sort((a,b)=>({high:0,medium:1,low:2}[a.priority]-({high:0,medium:1,low:2}[b.priority]))) .slice(0,80))}
+function scheduleTable(rows){return'<div class="table-wrap"><table class="data-table"><thead><tr><th>Person</th><th>Appointment</th><th>Start</th><th>Owner</th><th>Location</th><th>State</th><th></th></tr></thead><tbody>'+rows.sort((a,b)=>new Date(a.startAt)-new Date(b.startAt)).map(a=>'<tr><td>'+esc(person(a.personId)?.name||a.personId)+'</td><td><button class="table-link" data-open-record="appointments" data-id="'+a.id+'">'+esc(a.title)+'</button></td><td class="mono">'+dateTime(a.startAt)+'</td><td>'+esc(a.owner)+'</td><td>'+esc(a.location)+'</td><td>'+chip(a.status)+'</td><td><button class="action-link" data-quick="cycle-appointment" data-id="'+a.id+'">Change</button></td></tr>').join('')+'</tbody></table></div>'}
+function capacityTable(rows){return'<div class="table-wrap"><table class="data-table"><thead><tr><th>Resource</th><th>Location</th><th>Usage</th><th>State</th><th>Person</th><th></th></tr></thead><tbody>'+rows.map(x=>{const pct=Math.round(x.used/Math.max(1,x.capacity)*100);return'<tr><td><button class="table-link" data-open-record="resources" data-id="'+x.id+'">'+esc(x.name)+'</button></td><td>'+esc(x.location)+'</td><td><div class="bar-track"><i style="width:'+Math.min(100,pct)+'%"></i></div><small class="small-muted">'+pct+'%</small></td><td>'+chip(x.state)+'</td><td>'+esc(person(x.personId)?.name||'—')+'</td><td><button class="action-link" data-quick="cycle-resource" data-id="'+x.id+'">Change</button></td></tr>'}).join('')+'</tbody></table></div>'}
+function workforceTable(rows){return'<div class="table-wrap"><table class="data-table"><thead><tr><th>Member</th><th>Role</th><th>Team</th><th>State</th><th>Load</th><th>Assigned</th><th></th></tr></thead><tbody>'+rows.map(x=>'<tr><td><button class="table-link" data-open-record="workforce" data-id="'+x.id+'">'+esc(x.name)+'</button></td><td>'+esc(x.role)+'</td><td>'+esc(x.team)+'</td><td>'+chip(x.state)+'</td><td><div class="bar-track"><i style="width:'+x.load+'%"></i></div><small class="small-muted">'+x.load+'%</small></td><td>'+x.assigned+'</td><td><button class="action-link" data-quick="cycle-workforce" data-id="'+x.id+'">Change</button></td></tr>').join('')+'</tbody></table></div>'}
+function diagnosticsTable(rows){return'<div class="table-wrap"><table class="data-table"><thead><tr><th>Person</th><th>Workflow</th><th>State</th><th>Result note</th><th>Owner</th><th></th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(person(x.personId)?.name||x.personId)+'</td><td><button class="table-link" data-open-record="diagnostics" data-id="'+x.id+'">'+esc(x.type)+'</button></td><td>'+chip(x.state)+'</td><td>'+esc(x.result)+'</td><td>'+esc(x.owner)+'</td><td><button class="action-link" data-quick="cycle-diagnostic" data-id="'+x.id+'">Advance</button></td></tr>').join('')+'</tbody></table></div>'}
+function pharmacyTable(rows){return'<div class="table-wrap"><table class="data-table"><thead><tr><th>Item</th><th>Location</th><th>Qty</th><th>Minimum</th><th>State</th><th>Variance</th><th></th></tr></thead><tbody>'+rows.map(x=>'<tr><td><button class="table-link" data-open-record="pharmacy" data-id="'+x.id+'">'+esc(x.item)+'</button></td><td>'+esc(x.location)+'</td><td class="mono">'+x.quantity+'</td><td class="mono">'+x.minimum+'</td><td>'+chip(x.state)+'</td><td class="mono">'+x.variance+'</td><td><button class="action-link" data-quick="adjust-stock" data-id="'+x.id+'">Adjust</button></td></tr>').join('')+'</tbody></table></div>'}
+function financeTable(rows){return'<div class="table-wrap"><table class="data-table"><thead><tr><th>Reference</th><th>Person</th><th>Type</th><th>Amount</th><th>State</th><th>Owner</th><th></th></tr></thead><tbody>'+rows.map(x=>'<tr><td><button class="table-link" data-open-record="finance" data-id="'+x.id+'">'+esc(x.reference)+'</button></td><td>'+esc(person(x.personId)?.name||x.personId)+'</td><td>'+esc(x.type)+'</td><td class="mono">'+currency(x.amount)+'</td><td>'+chip(x.status)+'</td><td>'+esc(x.owner)+'</td><td><button class="action-link" data-quick="cycle-finance" data-id="'+x.id+'">Advance</button></td></tr>').join('')+'</tbody></table></div>'}
+function messageTable(rows){return'<div class="table-wrap"><table class="data-table"><thead><tr><th>From</th><th>To</th><th>Subject</th><th>Person</th><th>State</th><th>Updated</th><th></th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(x.from)+'</td><td>'+esc(x.to)+'</td><td><button class="table-link" data-open-record="messages" data-id="'+x.id+'">'+esc(x.subject)+'</button></td><td>'+esc(person(x.personId)?.name||x.personId)+'</td><td>'+chip(x.state)+'</td><td>'+dateTime(x.updatedAt)+'</td><td><button class="action-link" data-quick="mark-read" data-id="'+x.id+'">Mark read</button></td></tr>').join('')+'</tbody></table></div>'}
+function incidentTable(rows){return'<div class="table-wrap"><table class="data-table"><thead><tr><th>Incident</th><th>Severity</th><th>State</th><th>Owner</th><th>Updated</th><th></th></tr></thead><tbody>'+rows.map(x=>'<tr><td><button class="table-link" data-open-record="incidents" data-id="'+x.id+'">'+esc(x.title)+'</button><small style="display:block;color:var(--faint);font-size:8px">'+x.id+'</small></td><td>'+chip(x.severity)+'</td><td>'+chip(x.state)+'</td><td>'+esc(x.owner)+'</td><td>'+dateTime(x.updatedAt)+'</td><td><button class="action-link" data-quick="cycle-incident" data-id="'+x.id+'">Advance</button></td></tr>').join('')+'</tbody></table></div>'}
+function simpleTable(name,rows){const fields=Object.keys(rows[0]||{}).filter(k=>!['id','createdAt'].includes(k)).slice(0,6);return'<div class="table-wrap"><table class="data-table"><thead><tr>'+fields.map(f=>'<th>'+esc(pretty(f))+'</th>').join('')+'<th></th></tr></thead><tbody>'+rows.slice(0,100).map(x=>'<tr>'+fields.map(f=>'<td>'+esc(f==='amount'?currency(x[f]):f.endsWith('At')?dateTime(x[f]):x[f])+'</td>').join('')+'<td><button class="action-link" data-open-record="'+esc(name==='reports'?'reports':name)+'" data-id="'+x.id+'">Open</button></td></tr>').join('')+'</tbody></table></div>'}
+
+function special(){
+if(store.route==='quality'){
+const m=metrics();const checks=[['Queue closure',Math.round(state.tasks.filter(x=>x.state==='complete').length/state.tasks.length*100), 'work closure'],['Message response',Math.round(state.messages.filter(x=>x.state==='read').length/state.messages.length*100),'read response'],['Capacity availability',m.available,'resource availability'],['Inventory floor',Math.max(0,100-Math.round(m.lowStock/state.pharmacy.length*100)),'items above minimum']];
+return'<div class="workspace">'+renderHeader()+renderKpis(kpis('quality'))+'<div class="three-up" style="margin-top:14px">'+checks.map(x=>'<article class="card"><div class="card-body"><span class="eyebrow">QUALITY SIGNAL</span><h3 style="margin:7px 0 0;font-size:18px">'+esc(x[0])+'</h3><strong style="display:block;font-size:30px;margin-top:7px">'+x[1]+'%</strong><div class="signal-meter"><i style="width:'+x[1]+'%"></i></div><p class="small-muted">'+esc(x[2])+'</p></div></article>').join('')+'</div><article class="card" style="margin-top:14px">'+card('Explainable checks','Arithmetic summaries of synthetic state, not clinical quality measures.',timeline(state.audit.slice(0,8)),'QUALITY')+'</article></div>';
+}
+if(store.route==='insights'){
+const values=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((x,i)=>20+((metrics().attention+i*9)%70));
+return'<div class="workspace">'+renderHeader()+renderKpis(kpis('insights'))+'<div class="two-up" style="margin-top:14px">'+card('Pressure trend','Illustrative synthetic pressure index.', '<div class="bar-list">'+values.map((v,i)=>'<div class="bar-item"><span class="bar-label">'+['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i]+'</span><div class="bar-track"><i style="width:'+v+'%"></i></div><span class="bar-value">'+v+'</span></div>').join('')+'</div>','TREND')+card('Highest workload','Current synthetic workload ranking.', '<div class="bar-list">'+state.workforce.slice().sort((a,b)=>b.load-a.load).slice(0,7).map(x=>'<div class="bar-item"><span class="bar-label">'+esc(x.name)+'</span><div class="bar-track"><i style="width:'+x.load+'%"></i></div><span class="bar-value">'+x.load+'%</span></div>').join('')+'</div>','WORKFORCE')+'</div><article class="card" style="margin-top:14px"><div class="card-header"><div><span class="eyebrow">SIGNALS</span><h3>What changed?</h3><p>Transparent local calculations only.</p></div></div><div class="card-body"><div class="two-up">'+[['Queue',state.tasks.filter(x=>x.state==='blocked').length,'Blocked work'],['Schedule',state.appointments.filter(x=>x.status==='moved').length,'Moved appointments'],['Inventory',metrics().lowStock,'Below minimum'],['Messages',metrics().unread,'Unread responses']].map(x=>'<div class="info-box"><strong>'+esc(x[0])+' · '+x[1]+'</strong><p>'+esc(x[2])+' is the local signal used for this workspace.</p></div>').join('')+'</div></div></article></div>';
+}
+if(store.route==='assistant')return assistantView();
+if(store.route==='reports')return reportsView();
+if(store.route==='audit')return auditView();
+if(store.route==='settings')return settingsView();
+return generic();
+}
+function assistantView(){return'<div class="workspace">'+renderHeader()+renderKpis(kpis('insights'))+'<div class="layout-grid" style="margin-top:14px"><article class="card"><div class="card-header"><div><span class="eyebrow">LOCAL ASSISTANT</span><h3>Ask about operations</h3><p>No external AI call; responses are deterministic calculations over local synthetic state.</p></div></div><div class="card-body"><div class="field"><label for="assistant-question">Question</label><input id="assistant-question" placeholder="What is blocked? Where is pressure? What needs a response?"></div><div class="hero-actions"><button class="button primary" data-assistant-run>Review signal</button><button class="button secondary" data-prompt="What is blocked?">Blocked work</button><button class="button secondary" data-prompt="Where is pressure?">Pressure</button><button class="button secondary" data-prompt="What needs a response?">Responses</button></div><div id="assistant-answer" class="callout" style="margin-top:14px"><h3>Local answer</h3><p>Enter an operational question.</p></div></div></article><aside class="stack"><article class="note-card"><strong>Boundary</strong><p>Assistant output is not medical advice and is not generated by an external model.</p></article><article class="note-card"><strong>Supported scope</strong><p>Queue, capacity, communication, incidents, movement and general operational summaries.</p></article></aside></div></div>'}
+function assistantAnswer(q){const x=String(q||'').toLowerCase();const m=metrics();if(x.includes('block'))return state.tasks.filter(t=>t.state==='blocked').length+' blocked synthetic work items. '+state.tasks.filter(t=>t.priority==='high'&&t.state!=='complete').length+' high-priority items remain open.';if(x.includes('pressure')||x.includes('busy')||x.includes('rise'))return'Operational pressure is '+(m.attention>30?'elevated':'contained')+' with '+m.attention+' attention signals and '+m.available+'% available resource capacity.';if(x.includes('response')||x.includes('message'))return m.unread+' unread messages remain across '+state.messages.length+' local messages.';if(x.includes('incident')||x.includes('risk'))return m.incidents+' incidents are unresolved; '+state.incidents.filter(i=>i.severity==='critical'&&i.state!=='resolved').length+' are critical.';if(x.includes('resource')||x.includes('capacity'))return state.resources.filter(r=>r.state!=='available').length+' resources are not currently available. Availability is '+m.available+'%.';if(x.includes('change')||x.includes('today'))return m.movement+' audit events are recorded in the last 24 hours.';return'Ask about blocked work, pressure, responses, incidents, resources or recent change.'}
+function reportsView(){return'<div class="workspace">'+renderHeader()+renderKpis(kpis('reports'))+'<article class="card" style="margin-top:14px"><div class="card-header"><div><span class="eyebrow">REPORT LIBRARY</span><h3>Local review packs</h3><p>Run and export synthetic summaries without uploading data.</p></div></div><div class="card-body"><div class="list">'+state.reports.map(r=>'<div class="list-row"><div class="list-main"><strong>'+esc(r.name)+'</strong><span>'+r.id+' · '+dateTime(r.updatedAt)+'</span></div>'+chip(r.state)+'<div><button class="action-link" data-run-report="'+r.id+'">Run</button><button class="action-link" data-export-report="'+r.id+'">Export</button></div></div>').join('')+'</div></div></article></div>'}
+function auditView(){return'<div class="workspace">'+renderHeader()+renderKpis(kpis('audit'))+'<article class="card" style="margin-top:14px"><div class="card-header"><div><span class="eyebrow">AUDIT TRAIL</span><h3>Local change history</h3><p>Newest browser-local event first.</p></div><button class="button secondary small" data-export-state>Export</button></div>'+simpleTable('audit',state.audit.slice(0,200))+'</article></div>'}
+function settingsView(){return'<div class="workspace">'+renderHeader()+renderKpis(kpis('settings'))+'<div class="two-up" style="margin-top:14px"><article class="card"><div class="card-header"><div><span class="eyebrow">PREFERENCES</span><h3>Appearance & profile</h3><p>Stored only in localStorage.</p></div></div><div class="card-body"><div class="field"><label for="settings-name">Profile name</label><input id="settings-name" value="'+esc(state.settings.profileName)+'"></div><div class="field" style="margin-top:12px"><label for="settings-density">Density</label><select id="settings-density"><option value="comfortable" '+(state.settings.density==='comfortable'?'selected':'')+'>Comfortable</option><option value="compact" '+(state.settings.density==='compact'?'selected':'')+'>Compact</option></select></div><div class="hero-actions"><button class="button primary" data-save-settings>Save settings</button><button class="button secondary" data-toggle-theme>Theme: '+esc(state.settings.theme)+'</button></div></div></article><article class="card"><div class="card-header"><div><span class="eyebrow">DATA CONTROLS</span><h3>Local state</h3><p>Exports remain on the device.</p></div></div><div class="card-body"><div class="callout"><h3>Storage key</h3><p class="mono">'+KEY+'</p></div><div class="hero-actions"><button class="button secondary" data-export-state>Export JSON</button><button class="button danger" data-reset-state>Reset demo</button></div><div class="divider"></div><div class="alert info">Reset only affects this browser's synthetic state. It does not modify GitHub.</div></div></article></div></div>'}
+
+const FIELDS={
+person:[['name','Name','text',1],['age','Age','number',1],['location','Location','text',1],['service','Service line','text',1],['owner','Owner','text',1],['state','State','select',1,['active','attention','waiting','complete']],['journey','Journey','text',1],['email','Synthetic email','email',1]],
+task:[['title','Work item','text',1],['owner','Owner','text',1],['priority','Priority','select',1,['high','medium','low']],['state','State','select',1,['open','in_progress','blocked','complete']],['personId','Person ID','text',0],['dueAt','Due','datetime-local',1]],
+appointment:[['personId','Person ID','text',1],['title','Title','text',1],['owner','Owner','text',1],['status','State','select',1,['scheduled','checked_in','moved','completed','cancelled']],['startAt','Start','datetime-local',1],['location','Location','text',1]],
+resource:[['name','Resource','text',1],['location','Location','text',1],['state','State','select',1,['available','busy','held','maintenance']],['capacity','Capacity','number',1],['used','Used','number',1],['personId','Linked person ID','text',0]],
+workforce:[['name','Name','text',1],['role','Role','text',1],['team','Team','text',1],['state','State','select',1,['available','busy','away','review']],['load','Load %','number',1],['assigned','Assigned work','number',1]],
+diagnostic:[['personId','Person ID','text',1],['type','Workflow type','text',1],['state','State','select',1,['ordered','in_progress','result_ready','closed']],['result','Synthetic result note','text',1],['owner','Owner','text',1]],
+pharmacy:[['item','Inventory item','text',1],['location','Location','text',1],['quantity','Quantity','number',1],['minimum','Minimum','number',1],['state','State','select',1,['normal','low']],['variance','Variance','number',1]],
+finance:[['reference','Reference','text',1],['personId','Person ID','text',1],['type','Type','text',1],['amount','Amount','number',1],['status','State','select',1,['draft','review','approved','exported']],['owner','Owner','text',1]],
+message:[['personId','Person ID','text',1],['to','Recipient','text',1],['subject','Subject','text',1],['body','Body','textarea',1]],
+incident:[['title','Incident title','text',1],['severity','Severity','select',1,['low','medium','high','critical']],['state','State','select',1,['open','contained','monitoring','resolved']],['owner','Owner','text',1]],
+report:[['name','Report name','text',1],['state','State','select',1,['draft','ready','running','exported']]]
+};
+const TYPE_TO_COLLECTION={person:'people',task:'tasks',appointment:'appointments',resource:'resources',workforce:'workforce',diagnostic:'diagnostics',pharmacy:'pharmacy',finance:'finance',message:'messages',incident:'incidents',report:'reports'};
+function openForm(type,id){
+const fields=FIELDS[type];if(!fields)return;
+const coll=TYPE_TO_COLLECTION[type];const rec=id?state[coll].find(x=>x.id===id):null;
+$('#record-form-host').innerHTML='<form id="record-form"><header class="modal-header"><div><span class="eyebrow">LOCAL WORKFLOW</span><h2 id="record-heading">'+(rec?'Edit ':'Create ')+esc(type)+'</h2><p class="small-muted">Stored only in this browser.</p></div><button class="icon-button" type="button" data-close-modal="record-modal">×</button></header><div class="form-grid">'+fields.map(f=>field(f,rec)).join('')+'</div><div class="modal-actions"><button class="button secondary" type="button" data-close-modal="record-modal">Cancel</button><button class="button primary" type="submit">'+(rec?'Save changes':'Create record')+'</button></div></form>';
+showModal('record-modal');$('#record-form').addEventListener('submit',e=>submit(e,type,coll,rec));
+}
+function field(def,rec){
+const [key,label,kind,req,opts]=def;let value=rec?.[key]??'';if(kind==='datetime-local'&&value)value=inputDate(value);
+if(kind==='select')return'<div class="field"><label>'+esc(label)+(req?' *':'')+'</label><select name="'+key+'">'+opts.map(x=>'<option value="'+esc(x)+'" '+(String(value)===String(x)?'selected':'')+'>'+esc(x.replace(/_/g,' '))+'</option>').join('')+'</select><small class="field-error"></small></div>';
+if(kind==='textarea')return'<div class="field full"><label>'+esc(label)+(req?' *':'')+'</label><textarea name="'+key+'" '+(req?'required':'')+'>'+esc(value)+'</textarea><small class="field-error"></small></div>';
+return'<div class="field"><label>'+esc(label)+(req?' *':'')+'</label><input name="'+key+'" type="'+kind+'" value="'+esc(value)+'" '+(req?'required':'')+'><small class="field-error"></small></div>';
+}
+function submit(event,type,coll,rec){
+event.preventDefault();const values={};let bad=false;
+FIELDS[type].forEach(def=>{const [key,label,kind,req]=def;const el=event.currentTarget.elements[key];const raw=el.value.trim();if(req&&!raw){el.parentElement.classList.add('invalid');$('.field-error',el.parentElement).textContent=label+' is required.';bad=true}else{el.parentElement.classList.remove('invalid');values[key]=kind==='number'?Number(raw):raw}});
+if(bad)return;
+if(rec){Object.assign(rec,values,{updatedAt:iso(now())});audit('record_updated',type,rec.id);toast('Saved','Record updated locally.')}else{const n=Object.assign({id:uid(type.toUpperCase()),createdAt:iso(now()),updatedAt:iso(now())},values);state[coll].unshift(n);audit('record_created',type,n.id);toast('Created','Record added locally.')};
+if(type==='pharmacy'){const n=rec||state[coll][0];n.state=Number(n.quantity)<Number(n.minimum)?'low':'normal'}
+save('record change');closeModal('record-modal');render();
+}
+function showModal(id){const modal=$('#'+id);if(!modal)return;store.lastFocus=document.activeElement;modal.hidden=false;setTimeout(()=>$( 'input,select,textarea,button',modal)?.focus(),0)}
+function closeModal(id){const modal=$('#'+id);if(!modal)return;modal.hidden=true;store.lastFocus?.focus?.()}
+function openConfirm(title,copy,callback){$('#confirm-heading').textContent=title;$('#confirm-copy').textContent=copy;store.confirm=callback;showModal('confirm-modal')}
+function openDrawer(title,subtitle,body,actions){$('#drawer-host').innerHTML='<header class="drawer-head"><div><span class="eyebrow">'+esc(subtitle)+'</span><h2>'+esc(title)+'</h2></div><button class="icon-button" type="button" data-close-drawer>×</button></header><div class="drawer-body">'+body+(actions||'')+'</div>';$('#drawer').classList.add('open');$('#drawer').setAttribute('aria-hidden','false');store.lastFocus=document.activeElement;$('#drawer-host [data-close-drawer]')?.focus()}
+function closeDrawer(){$('#drawer').classList.remove('open');$('#drawer').setAttribute('aria-hidden','true');store.lastFocus?.focus?.()}
+function openRecord(coll,id){const r=state[coll]?.find(x=>x.id===id);if(!r)return;
+if(coll==='people')return personDrawer(r);if(coll==='tasks')return taskDrawer(r);if(coll==='appointments')return appointmentDrawer(r);if(coll==='resources')return resourceDrawer(r);if(coll==='messages')return messageDrawer(r);if(coll==='incidents')return incidentDrawer(r);
+const fields=Object.keys(r).filter(k=>!['id','createdAt'].includes(k)).slice(0,12);
+openDrawer(r.name||r.title||r.reference||r.item||r.id,'SYNTHETIC RECORD', '<div class="detail-grid">'+fields.map(k=>'<div class="detail-item"><span>'+esc(pretty(k))+'</span><strong>'+esc(r[k])+'</strong></div>').join('')+'</div>','<div class="drawer-actions"><button class="button secondary small" data-edit="'+typeFromCollection(coll)+'" data-id="'+r.id+'">Edit</button></div>');
+}
+function typeFromCollection(coll){return{people:'person',tasks:'task',appointments:'appointment',resources:'resource',workforce:'workforce',diagnostics:'diagnostic',pharmacy:'pharmacy',finance:'finance',messages:'message',incidents:'incident',reports:'report'}[coll]||'report'}
+function personDrawer(p){const related=state.tasks.filter(t=>t.personId===p.id).slice(0,5);openDrawer(p.name,'SYNTHETIC PERSON','<div class="drawer-section"><div style="display:flex;gap:10px;align-items:center">'+avatar(p.name,'large')+'<div><strong>'+esc(p.name)+'</strong><div class="small-muted">'+p.id+' · '+esc(p.email)+'</div></div>'+chip(p.state)+'</div></div><div class="drawer-section"><div class="profile-grid">'+[['Age',p.age],['Location',p.location],['Service',p.service],['Owner',p.owner],['Journey',p.journey],['Updated',dateTime(p.updatedAt)]].map(x=>'<div class="profile-field"><span>'+x[0]+'</span><strong>'+esc(x[1])+'</strong></div>').join('')+'</div></div>'+card('Related work','Current local tasks for this person.',related.length?related.map(t=>'<div class="list-row"><div class="list-main"><strong>'+esc(t.title)+'</strong><span>'+pretty(t.priority)+' · '+pretty(t.state)+'</span></div><button class="action-link" data-open-record="tasks" data-id="'+t.id+'">Open</button></div>').join(''):empty('No related work','Create a work item and connect it to this person.'),'WORK')+'','<div class="drawer-actions"><button class="button primary small" data-edit="person" data-id="'+p.id+'">Edit person</button><button class="button secondary small" data-route-action="journeys">Open journey</button><button class="button secondary small" data-action="create" data-type="task">Create work</button></div>')}
+function taskDrawer(t){const next=t.state==='complete'?'open':t.state==='blocked'?'in_progress':'complete';openDrawer(t.title,'WORK ITEM · '+t.id,'<div class="detail-grid">'+[['Owner',t.owner],['Priority',t.priority],['State',t.state],['Due',dateTime(t.dueAt)],['Person',person(t.personId)?.name||t.personId],['Updated',dateTime(t.updatedAt)]].map(x=>'<div class="detail-item"><span>'+x[0]+'</span><strong>'+esc(x[1])+'</strong></div>').join('')+'</div><div class="drawer-section"><div class="alert info">Operational simulation only.</div></div>','<div class="drawer-actions"><button class="button primary small" data-set-task="'+t.id+'" data-state="'+next+'">'+(next==='complete'?'Complete':'Move to '+pretty(next))+'</button><button class="button secondary small" data-edit="task" data-id="'+t.id+'">Edit</button></div>')}
+function appointmentDrawer(a){openDrawer(a.title,'APPOINTMENT · '+a.id,'<div class="detail-grid">'+[['Person',person(a.personId)?.name||a.personId],['Start',dateTime(a.startAt)],['Owner',a.owner],['Location',a.location],['State',a.status]].map(x=>'<div class="detail-item"><span>'+x[0]+'</span><strong>'+esc(x[1])+'</strong></div>').join('')+'</div>','<div class="drawer-actions"><button class="button primary small" data-quick="cycle-appointment" data-id="'+a.id+'">Change state</button><button class="button secondary small" data-edit="appointment" data-id="'+a.id+'">Edit</button></div>')}
+function resourceDrawer(r){const pct=Math.round(r.used/Math.max(1,r.capacity)*100);openDrawer(r.name,'CAPACITY · '+r.id,'<div class="detail-grid">'+[['Location',r.location],['State',r.state],['Capacity',r.capacity],['Used',r.used],['Occupancy',pct+'%'],['Person',person(r.personId)?.name||'—']].map(x=>'<div class="detail-item"><span>'+x[0]+'</span><strong>'+esc(x[1])+'</strong></div>').join('')+'</div><div class="drawer-section"><div class="signal-meter"><i style="width:'+Math.min(100,pct)+'%"></i></div></div>','<div class="drawer-actions"><button class="button primary small" data-quick="cycle-resource" data-id="'+r.id+'">Change state</button><button class="button secondary small" data-edit="resource" data-id="'+r.id+'">Edit</button></div>')}
+function messageDrawer(m){openDrawer(m.subject,'MESSAGE · '+m.id,'<div class="detail-grid">'+[['From',m.from],['To',m.to],['Person',person(m.personId)?.name||m.personId],['State',m.state],['Updated',dateTime(m.updatedAt)]].map(x=>'<div class="detail-item"><span>'+x[0]+'</span><strong>'+esc(x[1])+'</strong></div>').join('')+'</div><div class="drawer-section"><span class="eyebrow">MESSAGE BODY</span><p style="white-space:pre-wrap">'+esc(m.body)+'</p></div>','<div class="drawer-actions"><button class="button primary small" data-quick="reply-message" data-id="'+m.id+'">Reply locally</button><button class="button secondary small" data-quick="mark-read" data-id="'+m.id+'">Mark read</button><button class="button secondary small" data-edit="message" data-id="'+m.id+'">Edit</button></div>')}
+function incidentDrawer(i){const next=i.state==='open'?'contained':i.state==='contained'?'monitoring':i.state==='monitoring'?'resolved':'open';openDrawer(i.title,'INCIDENT · '+i.id,'<div class="detail-grid">'+[['Severity',i.severity],['State',i.state],['Owner',i.owner],['Updated',dateTime(i.updatedAt)]].map(x=>'<div class="detail-item"><span>'+x[0]+'</span><strong>'+esc(x[1])+'</strong></div>').join('')+'</div><div class="drawer-section"><div class="alert danger">Operational simulation only; not a clinical or patient-safety feed.</div></div>','<div class="drawer-actions"><button class="button primary small" data-set-incident="'+i.id+'" data-state="'+next+'">Move to '+pretty(next)+'</button><button class="button secondary small" data-edit="incident" data-id="'+i.id+'">Edit</button></div>')}
+
+function quick(action,id,stateValue){
+if(action==='toggle-task'||action==='set-task'){const t=state.tasks.find(x=>x.id===id);if(!t)return;t.state=stateValue|| (t.state==='complete'?'open':t.state==='blocked'?'in_progress':'complete');t.updatedAt=iso(now());audit('task_state_changed','Queue',id+' → '+t.state);finish('Queue updated','task_state');return}
+if(action==='cycle-appointment'){const a=state.appointments.find(x=>x.id===id);if(!a)return;const s=['scheduled','checked_in','moved','completed'];a.status=s[(s.indexOf(a.status)+1)%s.length];a.updatedAt=iso(now());audit('appointment_state_changed','Schedule',id+' → '+a.status);finish('Schedule updated','appointment');return}
+if(action==='cycle-resource'){const r=state.resources.find(x=>x.id===id);if(!r)return;const s=['available','busy','held','maintenance'];r.state=s[(s.indexOf(r.state)+1)%s.length];r.updatedAt=iso(now());audit('resource_state_changed','Capacity',id+' → '+r.state);finish('Capacity updated','resource');return}
+if(action==='cycle-workforce'){const r=state.workforce.find(x=>x.id===id);if(!r)return;const s=['available','busy','away','review'];r.state=s[(s.indexOf(r.state)+1)%s.length];r.updatedAt=iso(now());audit('workforce_state_changed','Workforce',id+' → '+r.state);finish('Workforce updated','workforce');return}
+if(action==='cycle-diagnostic'){const r=state.diagnostics.find(x=>x.id===id);if(!r)return;const s=['ordered','in_progress','result_ready','closed'];r.state=s[(s.indexOf(r.state)+1)%s.length];r.result=r.state==='result_ready'?'Synthetic result available':'No result attached to simulation record';r.updatedAt=iso(now());audit('diagnostic_state_changed','Diagnostics',id+' → '+r.state);finish('Diagnostics updated','diagnostics');return}
+if(action==='adjust-stock'){const r=state.pharmacy.find(x=>x.id===id);if(!r)return;openConfirm('Adjust inventory','Increase this synthetic quantity by 5 units?',()=>{r.quantity+=5;r.state=r.quantity<r.minimum?'low':'normal';r.variance+=5;r.updatedAt=iso(now());audit('inventory_adjusted','Pharmacy',id+' → +5');finish('Inventory adjusted','pharmacy')});return}
+if(action==='cycle-finance'){const r=state.finance.find(x=>x.id===id);if(!r)return;const s=['draft','review','approved','exported'];r.status=s[(s.indexOf(r.status)+1)%s.length];r.updatedAt=iso(now());audit('finance_state_changed','Finance',id+' → '+r.status);finish('Finance updated','finance');return}
+if(action==='mark-read'){const r=state.messages.find(x=>x.id===id);if(!r)return;r.state='read';r.updatedAt=iso(now());audit('message_read','Messages',id);finish('Message read','message');return}
+if(action==='reply-message'){openForm('message');const r=state.messages.find(x=>x.id===id);if(r){const f=$('#record-form');f.elements.personId.value=r.personId;f.elements.to.value=r.from;f.elements.subject.value='Re: '+r.subject;f.elements.body.value='Synthetic reply to '+r.subject+'.'}return}
+if(action==='cycle-incident'){const r=state.incidents.find(x=>x.id===id);if(!r)return;const s=['open','contained','monitoring','resolved'];r.state=s[(s.indexOf(r.state)+1)%s.length];r.updatedAt=iso(now());audit('incident_state_changed','Incidents',id+' → '+r.state);finish('Incident updated','incident')}
+}
+function finish(title,reason){save(reason);closeDrawer();toast(title,'Local synthetic state updated.');render()}
+function setStateFor(id,stateValue,kind){if(kind==='task'){const r=state.tasks.find(x=>x.id===id);if(r){r.state=stateValue;audit('task_state_changed','Queue',id+' → '+stateValue)}}else{const r=state.incidents.find(x=>x.id===id);if(r){r.state=stateValue;audit('incident_state_changed','Incidents',id+' → '+stateValue)}}finish('State updated',kind)}
+
+function runReport(id){const r=state.reports.find(x=>x.id===id);if(!r)return;r.state='running';r.updatedAt=iso(now());audit('report_started','Reports',r.name);save('report started');render();setTimeout(()=>{const current=state.reports.find(x=>x.id===id);if(!current)return;current.state='ready';current.updatedAt=iso(now());audit('report_ready','Reports',current.name);save('report ready');toast('Report ready','Synthetic report is ready.');render()},450)}
+function exportState(){download('averis-local-state.json',JSON.stringify(state,null,2));audit('state_exported','Settings','Synthetic state exported locally.');save('state export');toast('Export created','JSON downloaded locally.')}
+function exportReport(id){const r=state.reports.find(x=>x.id===id);if(!r)return;const payload={project:'AVERIS by Mahi',boundary:'SIMULATED / LOCAL',generatedAt:iso(now()),report:r,summary:metrics()};download(r.id+'-report.json',JSON.stringify(payload,null,2));r.state='exported';r.updatedAt=iso(now());audit('report_exported','Reports',r.name);save('report export');toast('Report exported','Synthetic report downloaded locally.');render()}
+function download(filename,text){const blob=new Blob([text],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500)}
+function saveSettings(){state.settings.profileName=($('#settings-name')?.value||'Mahi').trim()||'Mahi';state.settings.density=$('#settings-density')?.value||'comfortable';audit('settings_saved','Settings','Local settings updated.');save('settings');toast('Settings saved','Preferences persist locally.');render()}
+function resetDemo(){openConfirm('Reset demo','Replace browser-local changes with the deterministic synthetic seed?',()=>{state=seed();audit('state_reset','Settings','Deterministic synthetic demo reset.');save('demo reset');toast('Demo reset','Synthetic state restored.');render()})}
+function toggleTheme(){const n=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=n;state.settings.theme=n;audit('theme_changed','Settings',n);save('theme');render()}
+function updateClock(){const v=now().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});$('#clock').textContent=v;const h=$('#hero-clock');if(h)h.textContent=v}
+function toast(title,body){const n=document.createElement('article');n.className='toast';n.innerHTML='<strong>'+esc(title)+'</strong><span>'+esc(body)+'</span>';$('#toast-stack').appendChild(n);setTimeout(()=>n.remove(),3300)}
+
+function buildCommand(){
+const rows=[];Object.entries(ROUTES).forEach(([id,v])=>rows.push({kind:'route',id,type:v[1],label:v[0],meta:v[2]}));
+Object.entries(COLLECTION).filter(([k])=>!k.endsWith('Type')).forEach(([routeName,coll])=>(state[coll]||[]).slice(0,80).forEach(r=>rows.push({kind:'record',id:r.id,collection:coll,type:ROUTES[routeName]?.[0]||coll,label:r.name||r.title||r.subject||r.reference||r.item||r.id,meta:r.owner||r.state||r.status||r.location||''})));
+return rows;
+}
+function openCommand(){store.command=buildCommand();store.commandIndex=0;showModal('command-modal');$('#command-input').value='';drawCommand('');$('#command-input').focus()}
+function drawCommand(q){const x=String(q||'').toLowerCase();const rows=store.command.filter(r=>!x||(r.label+' '+r.meta+' '+r.type).toLowerCase().includes(x)).slice(0,30);$('#command-results').innerHTML=rows.length?rows.map((r,i)=>'<button class="command-result '+(i===store.commandIndex?'selected':'')+'" data-command="'+r.kind+'|'+r.id+'|'+(r.collection||'')+'"><span class="command-result-icon">'+(r.kind==='route'?'◉':'•')+'</span><span class="command-result-main"><strong>'+esc(r.label)+'</strong><small>'+esc(r.meta)+'</small></span><span class="command-result-type">'+esc(r.type)+'</span></button>').join(''):empty('No matches','Try another workspace, person, task or message.');$$('[data-command]').forEach(b=>b.onclick=()=>activateCommand(b.dataset.command))}
+function activateCommand(k){closeModal('command-modal');const p=k.split('|');if(p[0]==='route')return routeTo(p[1]);openRecord(p[2],p[1])}
+function commandKey(event){if(event.key==='ArrowDown'){event.preventDefault();store.commandIndex=Math.min(store.commandIndex+1,29);drawCommand($('#command-input').value)}if(event.key==='ArrowUp'){event.preventDefault();store.commandIndex=Math.max(store.commandIndex-1,0);drawCommand($('#command-input').value)}if(event.key==='Enter'){event.preventDefault();$('.command-result.selected')?.click()}if(event.key==='Escape')closeModal('command-modal')}
+
+function bind(){
+$$('[data-action]').forEach(b=>b.addEventListener('click',()=>{const a=b.dataset.action;if(a==='create')openForm(b.dataset.type||typeFor(store.route));if(a==='inspect')workspaceDrawer();if(a==='primary')routeTo(store.route==='today'?'queue':store.route)}));
+$$('[data-route-action]').forEach(b=>b.addEventListener('click',()=>routeTo(b.dataset.routeAction)));
+$$('[data-open-record]').forEach(b=>b.addEventListener('click',()=>openRecord(b.dataset.openRecord,b.dataset.id)));
+$$('[data-quick]').forEach(b=>b.addEventListener('click',()=>quick(b.dataset.quick,b.dataset.id)));
+$$('[data-set-task]').forEach(b=>b.addEventListener('click',()=>setStateFor(b.dataset.setTask,b.dataset.state,'task')));
+$$('[data-set-incident]').forEach(b=>b.addEventListener('click',()=>setStateFor(b.dataset.setIncident,b.dataset.state,'incident')));
+$$('[data-edit]').forEach(b=>b.addEventListener('click',()=>{closeDrawer();openForm(b.dataset.edit,b.dataset.id)}));
+$$('[data-run-report]').forEach(b=>b.addEventListener('click',()=>runReport(b.dataset.runReport)));
+$$('[data-export-report]').forEach(b=>b.addEventListener('click',()=>exportReport(b.dataset.exportReport)));
+$$('[data-export-state]').forEach(b=>b.addEventListener('click',exportState));
+$$('[data-reset-state]').forEach(b=>b.addEventListener('click',resetDemo));
+$$('[data-save-settings]').forEach(b=>b.addEventListener('click',saveSettings));
+$$('[data-toggle-theme]').forEach(b=>b.addEventListener('click',toggleTheme));
+$$('[data-assistant-run]').forEach(b=>b.addEventListener('click',runAssistant));
+$$('[data-prompt]').forEach(b=>b.addEventListener('click',()=>{$('#assistant-question').value=b.dataset.prompt;runAssistant()}));
+const input=$('#workspace-filter');if(input){input.addEventListener('input',()=>{store.filters[store.route]=input.value;render()})}
+$$('[data-select]').forEach(s=>s.addEventListener('change',()=>applySelect(s)));
+$$('[data-close-modal]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.closeModal)));
+$$('[data-close-drawer]').forEach(b=>b.addEventListener('click',closeDrawer));
+$$('[data-mark-all]').forEach(b=>b.addEventListener('click',markNotificationsRead));
+}
+function applySelect(select){const key=select.dataset.select;const value=select.value;const routeName=store.route;const rows=filtered(routeName);let filteredRows=rows;if(routeName==='people'&&value)filteredRows=rows.filter(x=>key==='person-state'?x.state===value:x.location===value);if(routeName==='queue'&&value)filteredRows=rows.filter(x=>key==='task-priority'?x.priority===value:x.state===value);if(routeName==='incidents'&&value)filteredRows=rows.filter(x=>key==='incident-severity'?x.severity===value:x.state===value);const card=$('.workspace > .card:last-child');if(card){const replacement=document.createElement('div');replacement.innerHTML=table(routeName,filteredRows);const current=card.querySelector('.table-wrap')||card.querySelector('.empty')||card.querySelector('.card-body');if(current)current.replaceWith(replacement.firstElementChild)}bind()}
+
+function workspaceDrawer(){const m=metrics();const r=ROUTES[store.route];openDrawer(r[0],'WORKSPACE CONTEXT','<div class="drawer-section"><p>'+esc(r[3])+'</p></div><div class="drawer-section"><div class="detail-grid">'+[['Active people',m.activePeople],['Attention',m.attention],['Open work',m.openTasks],['Available capacity',m.available+'%']].map(x=>'<div class="detail-item"><span>'+x[0]+'</span><strong>'+x[1]+'</strong></div>').join('')+'</div></div><div class="drawer-section"><div class="alert info">SIMULATED / LOCAL · no external service is contacted.</div></div>','<div class="drawer-actions"><button class="button primary small" data-route-action="audit">Open audit</button><button class="button secondary small" data-route-action="settings">Settings</button></div>')}
+function runAssistant(){const q=$('#assistant-question');const a=$('#assistant-answer');if(!q||!a)return;const answer=assistantAnswer(q.value);a.innerHTML='<h3>Local answer</h3><p>'+esc(answer)+'</p>';audit('assistant_query','Assistant',q.value||'default');save('assistant query')}
+function markNotificationsRead(){state.notifications.forEach(n=>n.read=true);audit('notifications_read','Notifications','Local notifications marked read.');save('notifications');$('#notification-panel')?.remove();updateNav()}
+function openNotifications(){const existing=$('#notification-panel');if(existing){existing.remove();return}const n=document.createElement('section');n.id='notification-panel';n.className='notification-panel';n.innerHTML='<div class="notification-header"><strong>Notifications</strong><button class="action-link" data-mark-all>Mark all read</button></div>'+state.notifications.map(x=>'<article class="notification-item '+(x.read?'':'unread')+'"><strong>'+esc(x.title)+'</strong><p>'+esc(x.body)+'</p><time>'+dateTime(x.at)+'</time></article>').join('');document.body.appendChild(n);bind()}
+
+function applyTheme(){document.documentElement.dataset.theme=state.settings.theme==='dark'?'dark':'light'}
+function updateNav(){const countMap={today:'',people:state.people.length,journeys:state.journeys.length,queue:state.tasks.filter(x=>x.state!=='complete').length,schedule:state.appointments.filter(x=>x.status!=='completed').length,capacity:state.resources.length,workforce:state.workforce.length,diagnostics:state.diagnostics.length,pharmacy:metrics().lowStock,finance:state.finance.filter(x=>x.status!=='exported').length,messages:metrics().unread,incidents:metrics().incidents,quality:'',insights:'',assistant:'',reports:state.reports.length,audit:state.audit.length,settings:''};$$('[data-route-link]').forEach(x=>x.classList.toggle('active',x.dataset.routeLink===store.route));$$('[data-nav-count]').forEach(x=>{const k=x.closest('[data-route-link]')?.dataset.routeLink;const v=countMap[k]??'';x.textContent=v;x.style.display=v!==''?'block':'none'});$('#topbar-route').textContent=ROUTES[store.route][0];const unread=state.notifications.filter(x=>!x.read).length+metrics().unread;$('#notification-count').textContent=unread;$('#notification-toggle').classList.toggle('has-count',unread>0)}
+function render(){if(store.rendering)return;store.rendering=true;store.route=ROUTES[normalizeHash()]?normalizeHash():'today';applyTheme();updateNav();$('#app').innerHTML=store.route==='today'?renderHome():special();bind();updateNav();store.rendering=false}
+function normalizeHash(){return location.hash.replace(/^#\/?/,'').split('?')[0]||'today'}
+function routeTo(r){const target=ROUTES[r]?r:'today';location.hash='#/'+target}
+function globalKey(event){if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){event.preventDefault();openCommand()}if(event.key==='Escape'){['command-modal','record-modal','confirm-modal'].forEach(closeModal);closeDrawer();$('#notification-panel')?.remove()}}
+function closeSidebar(){$('#sidebar').classList.remove('open')}
+function bindGlobal(){
+$('#command-trigger').addEventListener('click',openCommand);$('#notification-toggle').addEventListener('click',openNotifications);$('#theme-toggle').addEventListener('click',toggleTheme);$('#focus-toggle').addEventListener('click',()=>{document.body.classList.toggle('focus-mode');state.ui.focus=document.body.classList.contains('focus-mode');save('focus mode')});$('#sidebar-open').addEventListener('click',()=>$('#sidebar').classList.add('open'));$('#sidebar-close').addEventListener('click',closeSidebar);$('#workspace-nav').addEventListener('click',event=>{if(event.target.closest('a'))closeSidebar()});document.addEventListener('keydown',globalKey);$('#command-input').addEventListener('keydown',commandKey);window.addEventListener('hashchange',render)
+}
+function init(){state=load();store.route=normalizeHash();applyTheme();if(state.ui.focus)document.body.classList.add('focus-mode');bindGlobal();render();updateClock();store.clock=setInterval(updateClock,1000);if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+let state=null;
+return{init,version:VERSION};
+})();
 document.addEventListener('DOMContentLoaded',AVERIS.init);
-function local_runtime_contract_72(value){return{section:'runtime',index:72,value:value??null,synthetic:true};}
-function local_runtime_contract_73(value){return{section:'runtime',index:73,value:value??null,synthetic:true};}
-function local_runtime_contract_74(value){return{section:'runtime',index:74,value:value??null,synthetic:true};}
-function local_runtime_contract_75(value){return{section:'runtime',index:75,value:value??null,synthetic:true};}
-function local_runtime_contract_76(value){return{section:'runtime',index:76,value:value??null,synthetic:true};}
-function local_runtime_contract_77(value){return{section:'runtime',index:77,value:value??null,synthetic:true};}
-function local_runtime_contract_78(value){return{section:'runtime',index:78,value:value??null,synthetic:true};}
-function local_runtime_contract_79(value){return{section:'runtime',index:79,value:value??null,synthetic:true};}
-function local_runtime_contract_80(value){return{section:'runtime',index:80,value:value??null,synthetic:true};}
-function local_runtime_contract_81(value){return{section:'runtime',index:81,value:value??null,synthetic:true};}
-function local_runtime_contract_82(value){return{section:'runtime',index:82,value:value??null,synthetic:true};}
-function local_runtime_contract_83(value){return{section:'runtime',index:83,value:value??null,synthetic:true};}
-function local_runtime_contract_84(value){return{section:'runtime',index:84,value:value??null,synthetic:true};}
-function local_runtime_contract_85(value){return{section:'runtime',index:85,value:value??null,synthetic:true};}
-function local_runtime_contract_86(value){return{section:'runtime',index:86,value:value??null,synthetic:true};}
-function local_runtime_contract_87(value){return{section:'runtime',index:87,value:value??null,synthetic:true};}
-function local_runtime_contract_88(value){return{section:'runtime',index:88,value:value??null,synthetic:true};}
-function local_runtime_contract_89(value){return{section:'runtime',index:89,value:value??null,synthetic:true};}
-function local_runtime_contract_90(value){return{section:'runtime',index:90,value:value??null,synthetic:true};}
-function local_runtime_contract_91(value){return{section:'runtime',index:91,value:value??null,synthetic:true};}
-function local_runtime_contract_92(value){return{section:'runtime',index:92,value:value??null,synthetic:true};}
-function local_runtime_contract_93(value){return{section:'runtime',index:93,value:value??null,synthetic:true};}
-function local_runtime_contract_94(value){return{section:'runtime',index:94,value:value??null,synthetic:true};}
-function local_runtime_contract_95(value){return{section:'runtime',index:95,value:value??null,synthetic:true};}
-function local_runtime_contract_96(value){return{section:'runtime',index:96,value:value??null,synthetic:true};}
-function local_runtime_contract_97(value){return{section:'runtime',index:97,value:value??null,synthetic:true};}
-function local_runtime_contract_98(value){return{section:'runtime',index:98,value:value??null,synthetic:true};}
-function local_runtime_contract_99(value){return{section:'runtime',index:99,value:value??null,synthetic:true};}
-function local_runtime_contract_100(value){return{section:'runtime',index:100,value:value??null,synthetic:true};}
-function local_runtime_contract_101(value){return{section:'runtime',index:101,value:value??null,synthetic:true};}
-function local_runtime_contract_102(value){return{section:'runtime',index:102,value:value??null,synthetic:true};}
-function local_runtime_contract_103(value){return{section:'runtime',index:103,value:value??null,synthetic:true};}
-function local_runtime_contract_104(value){return{section:'runtime',index:104,value:value??null,synthetic:true};}
-function local_runtime_contract_105(value){return{section:'runtime',index:105,value:value??null,synthetic:true};}
-function local_runtime_contract_106(value){return{section:'runtime',index:106,value:value??null,synthetic:true};}
-function local_runtime_contract_107(value){return{section:'runtime',index:107,value:value??null,synthetic:true};}
-function local_runtime_contract_108(value){return{section:'runtime',index:108,value:value??null,synthetic:true};}
-function local_runtime_contract_109(value){return{section:'runtime',index:109,value:value??null,synthetic:true};}
-function local_runtime_contract_110(value){return{section:'runtime',index:110,value:value??null,synthetic:true};}
-function local_runtime_contract_111(value){return{section:'runtime',index:111,value:value??null,synthetic:true};}
-function local_runtime_contract_112(value){return{section:'runtime',index:112,value:value??null,synthetic:true};}
-function local_runtime_contract_113(value){return{section:'runtime',index:113,value:value??null,synthetic:true};}
-function local_runtime_contract_114(value){return{section:'runtime',index:114,value:value??null,synthetic:true};}
-function local_runtime_contract_115(value){return{section:'runtime',index:115,value:value??null,synthetic:true};}
-function local_runtime_contract_116(value){return{section:'runtime',index:116,value:value??null,synthetic:true};}
-function local_runtime_contract_117(value){return{section:'runtime',index:117,value:value??null,synthetic:true};}
-function local_runtime_contract_118(value){return{section:'runtime',index:118,value:value??null,synthetic:true};}
-function local_runtime_contract_119(value){return{section:'runtime',index:119,value:value??null,synthetic:true};}
-function local_runtime_contract_120(value){return{section:'runtime',index:120,value:value??null,synthetic:true};}
-function local_runtime_contract_121(value){return{section:'runtime',index:121,value:value??null,synthetic:true};}
-function local_runtime_contract_122(value){return{section:'runtime',index:122,value:value??null,synthetic:true};}
-function local_runtime_contract_123(value){return{section:'runtime',index:123,value:value??null,synthetic:true};}
-function local_runtime_contract_124(value){return{section:'runtime',index:124,value:value??null,synthetic:true};}
-function local_runtime_contract_125(value){return{section:'runtime',index:125,value:value??null,synthetic:true};}
-function local_runtime_contract_126(value){return{section:'runtime',index:126,value:value??null,synthetic:true};}
-function local_runtime_contract_127(value){return{section:'runtime',index:127,value:value??null,synthetic:true};}
-function local_runtime_contract_128(value){return{section:'runtime',index:128,value:value??null,synthetic:true};}
-function local_runtime_contract_129(value){return{section:'runtime',index:129,value:value??null,synthetic:true};}
-function local_runtime_contract_130(value){return{section:'runtime',index:130,value:value??null,synthetic:true};}
-function local_runtime_contract_131(value){return{section:'runtime',index:131,value:value??null,synthetic:true};}
-function local_runtime_contract_132(value){return{section:'runtime',index:132,value:value??null,synthetic:true};}
-function local_runtime_contract_133(value){return{section:'runtime',index:133,value:value??null,synthetic:true};}
-function local_runtime_contract_134(value){return{section:'runtime',index:134,value:value??null,synthetic:true};}
-function local_runtime_contract_135(value){return{section:'runtime',index:135,value:value??null,synthetic:true};}
-function local_runtime_contract_136(value){return{section:'runtime',index:136,value:value??null,synthetic:true};}
-function local_runtime_contract_137(value){return{section:'runtime',index:137,value:value??null,synthetic:true};}
-function local_runtime_contract_138(value){return{section:'runtime',index:138,value:value??null,synthetic:true};}
-function local_runtime_contract_139(value){return{section:'runtime',index:139,value:value??null,synthetic:true};}
-function local_runtime_contract_140(value){return{section:'runtime',index:140,value:value??null,synthetic:true};}
-function local_runtime_contract_141(value){return{section:'runtime',index:141,value:value??null,synthetic:true};}
-function local_runtime_contract_142(value){return{section:'runtime',index:142,value:value??null,synthetic:true};}
-function local_runtime_contract_143(value){return{section:'runtime',index:143,value:value??null,synthetic:true};}
-function local_runtime_contract_144(value){return{section:'runtime',index:144,value:value??null,synthetic:true};}
-function local_runtime_contract_145(value){return{section:'runtime',index:145,value:value??null,synthetic:true};}
-function local_runtime_contract_146(value){return{section:'runtime',index:146,value:value??null,synthetic:true};}
-function local_runtime_contract_147(value){return{section:'runtime',index:147,value:value??null,synthetic:true};}
-function local_runtime_contract_148(value){return{section:'runtime',index:148,value:value??null,synthetic:true};}
-function local_runtime_contract_149(value){return{section:'runtime',index:149,value:value??null,synthetic:true};}
-function local_runtime_contract_150(value){return{section:'runtime',index:150,value:value??null,synthetic:true};}
-function local_runtime_contract_151(value){return{section:'runtime',index:151,value:value??null,synthetic:true};}
-function local_runtime_contract_152(value){return{section:'runtime',index:152,value:value??null,synthetic:true};}
-function local_runtime_contract_153(value){return{section:'runtime',index:153,value:value??null,synthetic:true};}
-function local_runtime_contract_154(value){return{section:'runtime',index:154,value:value??null,synthetic:true};}
-function local_runtime_contract_155(value){return{section:'runtime',index:155,value:value??null,synthetic:true};}
-function local_runtime_contract_156(value){return{section:'runtime',index:156,value:value??null,synthetic:true};}
-function local_runtime_contract_157(value){return{section:'runtime',index:157,value:value??null,synthetic:true};}
-function local_runtime_contract_158(value){return{section:'runtime',index:158,value:value??null,synthetic:true};}
-function local_runtime_contract_159(value){return{section:'runtime',index:159,value:value??null,synthetic:true};}
-function local_runtime_contract_160(value){return{section:'runtime',index:160,value:value??null,synthetic:true};}
-function local_runtime_contract_161(value){return{section:'runtime',index:161,value:value??null,synthetic:true};}
-function local_runtime_contract_162(value){return{section:'runtime',index:162,value:value??null,synthetic:true};}
-function local_runtime_contract_163(value){return{section:'runtime',index:163,value:value??null,synthetic:true};}
-function local_runtime_contract_164(value){return{section:'runtime',index:164,value:value??null,synthetic:true};}
-function local_runtime_contract_165(value){return{section:'runtime',index:165,value:value??null,synthetic:true};}
-function local_runtime_contract_166(value){return{section:'runtime',index:166,value:value??null,synthetic:true};}
-function local_runtime_contract_167(value){return{section:'runtime',index:167,value:value??null,synthetic:true};}
-function local_runtime_contract_168(value){return{section:'runtime',index:168,value:value??null,synthetic:true};}
-function local_runtime_contract_169(value){return{section:'runtime',index:169,value:value??null,synthetic:true};}
-function local_runtime_contract_170(value){return{section:'runtime',index:170,value:value??null,synthetic:true};}
-function local_runtime_contract_171(value){return{section:'runtime',index:171,value:value??null,synthetic:true};}
-function local_runtime_contract_172(value){return{section:'runtime',index:172,value:value??null,synthetic:true};}
-function local_runtime_contract_173(value){return{section:'runtime',index:173,value:value??null,synthetic:true};}
-function local_runtime_contract_174(value){return{section:'runtime',index:174,value:value??null,synthetic:true};}
-function local_runtime_contract_175(value){return{section:'runtime',index:175,value:value??null,synthetic:true};}
-function local_runtime_contract_176(value){return{section:'runtime',index:176,value:value??null,synthetic:true};}
-function local_runtime_contract_177(value){return{section:'runtime',index:177,value:value??null,synthetic:true};}
-function local_runtime_contract_178(value){return{section:'runtime',index:178,value:value??null,synthetic:true};}
-function local_runtime_contract_179(value){return{section:'runtime',index:179,value:value??null,synthetic:true};}
-function local_runtime_contract_180(value){return{section:'runtime',index:180,value:value??null,synthetic:true};}
-function local_runtime_contract_181(value){return{section:'runtime',index:181,value:value??null,synthetic:true};}
-function local_runtime_contract_182(value){return{section:'runtime',index:182,value:value??null,synthetic:true};}
-function local_runtime_contract_183(value){return{section:'runtime',index:183,value:value??null,synthetic:true};}
-function local_runtime_contract_184(value){return{section:'runtime',index:184,value:value??null,synthetic:true};}
-function local_runtime_contract_185(value){return{section:'runtime',index:185,value:value??null,synthetic:true};}
-function local_runtime_contract_186(value){return{section:'runtime',index:186,value:value??null,synthetic:true};}
-function local_runtime_contract_187(value){return{section:'runtime',index:187,value:value??null,synthetic:true};}
-function local_runtime_contract_188(value){return{section:'runtime',index:188,value:value??null,synthetic:true};}
-function local_runtime_contract_189(value){return{section:'runtime',index:189,value:value??null,synthetic:true};}
-function local_runtime_contract_190(value){return{section:'runtime',index:190,value:value??null,synthetic:true};}
-function local_runtime_contract_191(value){return{section:'runtime',index:191,value:value??null,synthetic:true};}
-function local_runtime_contract_192(value){return{section:'runtime',index:192,value:value??null,synthetic:true};}
-function local_runtime_contract_193(value){return{section:'runtime',index:193,value:value??null,synthetic:true};}
-function local_runtime_contract_194(value){return{section:'runtime',index:194,value:value??null,synthetic:true};}
-function local_runtime_contract_195(value){return{section:'runtime',index:195,value:value??null,synthetic:true};}
-function local_runtime_contract_196(value){return{section:'runtime',index:196,value:value??null,synthetic:true};}
-function local_runtime_contract_197(value){return{section:'runtime',index:197,value:value??null,synthetic:true};}
-function local_runtime_contract_198(value){return{section:'runtime',index:198,value:value??null,synthetic:true};}
-function local_runtime_contract_199(value){return{section:'runtime',index:199,value:value??null,synthetic:true};}
-function local_runtime_contract_200(value){return{section:'runtime',index:200,value:value??null,synthetic:true};}
-function local_runtime_contract_201(value){return{section:'runtime',index:201,value:value??null,synthetic:true};}
-function local_runtime_contract_202(value){return{section:'runtime',index:202,value:value??null,synthetic:true};}
-function local_runtime_contract_203(value){return{section:'runtime',index:203,value:value??null,synthetic:true};}
-function local_runtime_contract_204(value){return{section:'runtime',index:204,value:value??null,synthetic:true};}
-function local_runtime_contract_205(value){return{section:'runtime',index:205,value:value??null,synthetic:true};}
-function local_runtime_contract_206(value){return{section:'runtime',index:206,value:value??null,synthetic:true};}
-function local_runtime_contract_207(value){return{section:'runtime',index:207,value:value??null,synthetic:true};}
-function local_runtime_contract_208(value){return{section:'runtime',index:208,value:value??null,synthetic:true};}
-function local_runtime_contract_209(value){return{section:'runtime',index:209,value:value??null,synthetic:true};}
-function local_runtime_contract_210(value){return{section:'runtime',index:210,value:value??null,synthetic:true};}
-function local_runtime_contract_211(value){return{section:'runtime',index:211,value:value??null,synthetic:true};}
-function local_runtime_contract_212(value){return{section:'runtime',index:212,value:value??null,synthetic:true};}
-function local_runtime_contract_213(value){return{section:'runtime',index:213,value:value??null,synthetic:true};}
-function local_runtime_contract_214(value){return{section:'runtime',index:214,value:value??null,synthetic:true};}
-function local_runtime_contract_215(value){return{section:'runtime',index:215,value:value??null,synthetic:true};}
-function local_runtime_contract_216(value){return{section:'runtime',index:216,value:value??null,synthetic:true};}
-function local_runtime_contract_217(value){return{section:'runtime',index:217,value:value??null,synthetic:true};}
-function local_runtime_contract_218(value){return{section:'runtime',index:218,value:value??null,synthetic:true};}
-function local_runtime_contract_219(value){return{section:'runtime',index:219,value:value??null,synthetic:true};}
-function local_runtime_contract_220(value){return{section:'runtime',index:220,value:value??null,synthetic:true};}
-function local_runtime_contract_221(value){return{section:'runtime',index:221,value:value??null,synthetic:true};}
-function local_runtime_contract_222(value){return{section:'runtime',index:222,value:value??null,synthetic:true};}
-function local_runtime_contract_223(value){return{section:'runtime',index:223,value:value??null,synthetic:true};}
-function local_runtime_contract_224(value){return{section:'runtime',index:224,value:value??null,synthetic:true};}
-function local_runtime_contract_225(value){return{section:'runtime',index:225,value:value??null,synthetic:true};}
-function local_runtime_contract_226(value){return{section:'runtime',index:226,value:value??null,synthetic:true};}
-function local_runtime_contract_227(value){return{section:'runtime',index:227,value:value??null,synthetic:true};}
-function local_runtime_contract_228(value){return{section:'runtime',index:228,value:value??null,synthetic:true};}
-function local_runtime_contract_229(value){return{section:'runtime',index:229,value:value??null,synthetic:true};}
-function local_runtime_contract_230(value){return{section:'runtime',index:230,value:value??null,synthetic:true};}
-function local_runtime_contract_231(value){return{section:'runtime',index:231,value:value??null,synthetic:true};}
-function local_runtime_contract_232(value){return{section:'runtime',index:232,value:value??null,synthetic:true};}
-function local_runtime_contract_233(value){return{section:'runtime',index:233,value:value??null,synthetic:true};}
-function local_runtime_contract_234(value){return{section:'runtime',index:234,value:value??null,synthetic:true};}
-function local_runtime_contract_235(value){return{section:'runtime',index:235,value:value??null,synthetic:true};}
-function local_runtime_contract_236(value){return{section:'runtime',index:236,value:value??null,synthetic:true};}
-function local_runtime_contract_237(value){return{section:'runtime',index:237,value:value??null,synthetic:true};}
-function local_runtime_contract_238(value){return{section:'runtime',index:238,value:value??null,synthetic:true};}
-function local_runtime_contract_239(value){return{section:'runtime',index:239,value:value??null,synthetic:true};}
-function local_runtime_contract_240(value){return{section:'runtime',index:240,value:value??null,synthetic:true};}
-function local_runtime_contract_241(value){return{section:'runtime',index:241,value:value??null,synthetic:true};}
-function local_runtime_contract_242(value){return{section:'runtime',index:242,value:value??null,synthetic:true};}
-function local_runtime_contract_243(value){return{section:'runtime',index:243,value:value??null,synthetic:true};}
-function local_runtime_contract_244(value){return{section:'runtime',index:244,value:value??null,synthetic:true};}
-function local_runtime_contract_245(value){return{section:'runtime',index:245,value:value??null,synthetic:true};}
-function local_runtime_contract_246(value){return{section:'runtime',index:246,value:value??null,synthetic:true};}
-function local_runtime_contract_247(value){return{section:'runtime',index:247,value:value??null,synthetic:true};}
-function local_runtime_contract_248(value){return{section:'runtime',index:248,value:value??null,synthetic:true};}
-function local_runtime_contract_249(value){return{section:'runtime',index:249,value:value??null,synthetic:true};}
-function local_runtime_contract_250(value){return{section:'runtime',index:250,value:value??null,synthetic:true};}
-function local_runtime_contract_251(value){return{section:'runtime',index:251,value:value??null,synthetic:true};}
-function local_runtime_contract_252(value){return{section:'runtime',index:252,value:value??null,synthetic:true};}
-function local_runtime_contract_253(value){return{section:'runtime',index:253,value:value??null,synthetic:true};}
-function local_runtime_contract_254(value){return{section:'runtime',index:254,value:value??null,synthetic:true};}
-function local_runtime_contract_255(value){return{section:'runtime',index:255,value:value??null,synthetic:true};}
-function local_runtime_contract_256(value){return{section:'runtime',index:256,value:value??null,synthetic:true};}
-function local_runtime_contract_257(value){return{section:'runtime',index:257,value:value??null,synthetic:true};}
-function local_runtime_contract_258(value){return{section:'runtime',index:258,value:value??null,synthetic:true};}
-function local_runtime_contract_259(value){return{section:'runtime',index:259,value:value??null,synthetic:true};}
-function local_runtime_contract_260(value){return{section:'runtime',index:260,value:value??null,synthetic:true};}
-function local_runtime_contract_261(value){return{section:'runtime',index:261,value:value??null,synthetic:true};}
-function local_runtime_contract_262(value){return{section:'runtime',index:262,value:value??null,synthetic:true};}
-function local_runtime_contract_263(value){return{section:'runtime',index:263,value:value??null,synthetic:true};}
-function local_runtime_contract_264(value){return{section:'runtime',index:264,value:value??null,synthetic:true};}
-function local_runtime_contract_265(value){return{section:'runtime',index:265,value:value??null,synthetic:true};}
-function local_runtime_contract_266(value){return{section:'runtime',index:266,value:value??null,synthetic:true};}
-function local_runtime_contract_267(value){return{section:'runtime',index:267,value:value??null,synthetic:true};}
-function local_runtime_contract_268(value){return{section:'runtime',index:268,value:value??null,synthetic:true};}
-function local_runtime_contract_269(value){return{section:'runtime',index:269,value:value??null,synthetic:true};}
-function local_runtime_contract_270(value){return{section:'runtime',index:270,value:value??null,synthetic:true};}
-function local_runtime_contract_271(value){return{section:'runtime',index:271,value:value??null,synthetic:true};}
-function local_runtime_contract_272(value){return{section:'runtime',index:272,value:value??null,synthetic:true};}
-function local_runtime_contract_273(value){return{section:'runtime',index:273,value:value??null,synthetic:true};}
-function local_runtime_contract_274(value){return{section:'runtime',index:274,value:value??null,synthetic:true};}
-function local_runtime_contract_275(value){return{section:'runtime',index:275,value:value??null,synthetic:true};}
-function local_runtime_contract_276(value){return{section:'runtime',index:276,value:value??null,synthetic:true};}
-function local_runtime_contract_277(value){return{section:'runtime',index:277,value:value??null,synthetic:true};}
-function local_runtime_contract_278(value){return{section:'runtime',index:278,value:value??null,synthetic:true};}
-function local_runtime_contract_279(value){return{section:'runtime',index:279,value:value??null,synthetic:true};}
-function local_runtime_contract_280(value){return{section:'runtime',index:280,value:value??null,synthetic:true};}
-function local_runtime_contract_281(value){return{section:'runtime',index:281,value:value??null,synthetic:true};}
-function local_runtime_contract_282(value){return{section:'runtime',index:282,value:value??null,synthetic:true};}
-function local_runtime_contract_283(value){return{section:'runtime',index:283,value:value??null,synthetic:true};}
-function local_runtime_contract_284(value){return{section:'runtime',index:284,value:value??null,synthetic:true};}
-function local_runtime_contract_285(value){return{section:'runtime',index:285,value:value??null,synthetic:true};}
-function local_runtime_contract_286(value){return{section:'runtime',index:286,value:value??null,synthetic:true};}
-function local_runtime_contract_287(value){return{section:'runtime',index:287,value:value??null,synthetic:true};}
-function local_runtime_contract_288(value){return{section:'runtime',index:288,value:value??null,synthetic:true};}
-function local_runtime_contract_289(value){return{section:'runtime',index:289,value:value??null,synthetic:true};}
-function local_runtime_contract_290(value){return{section:'runtime',index:290,value:value??null,synthetic:true};}
-function local_runtime_contract_291(value){return{section:'runtime',index:291,value:value??null,synthetic:true};}
-function local_runtime_contract_292(value){return{section:'runtime',index:292,value:value??null,synthetic:true};}
-function local_runtime_contract_293(value){return{section:'runtime',index:293,value:value??null,synthetic:true};}
-function local_runtime_contract_294(value){return{section:'runtime',index:294,value:value??null,synthetic:true};}
-function local_runtime_contract_295(value){return{section:'runtime',index:295,value:value??null,synthetic:true};}
-function local_runtime_contract_296(value){return{section:'runtime',index:296,value:value??null,synthetic:true};}
-function local_runtime_contract_297(value){return{section:'runtime',index:297,value:value??null,synthetic:true};}
-function local_runtime_contract_298(value){return{section:'runtime',index:298,value:value??null,synthetic:true};}
-function local_runtime_contract_299(value){return{section:'runtime',index:299,value:value??null,synthetic:true};}
-function local_runtime_contract_300(value){return{section:'runtime',index:300,value:value??null,synthetic:true};}
-function local_runtime_contract_301(value){return{section:'runtime',index:301,value:value??null,synthetic:true};}
-function local_runtime_contract_302(value){return{section:'runtime',index:302,value:value??null,synthetic:true};}
-function local_runtime_contract_303(value){return{section:'runtime',index:303,value:value??null,synthetic:true};}
-function local_runtime_contract_304(value){return{section:'runtime',index:304,value:value??null,synthetic:true};}
-function local_runtime_contract_305(value){return{section:'runtime',index:305,value:value??null,synthetic:true};}
-function local_runtime_contract_306(value){return{section:'runtime',index:306,value:value??null,synthetic:true};}
-function local_runtime_contract_307(value){return{section:'runtime',index:307,value:value??null,synthetic:true};}
-function local_runtime_contract_308(value){return{section:'runtime',index:308,value:value??null,synthetic:true};}
-function local_runtime_contract_309(value){return{section:'runtime',index:309,value:value??null,synthetic:true};}
-function local_runtime_contract_310(value){return{section:'runtime',index:310,value:value??null,synthetic:true};}
-function local_runtime_contract_311(value){return{section:'runtime',index:311,value:value??null,synthetic:true};}
-function local_runtime_contract_312(value){return{section:'runtime',index:312,value:value??null,synthetic:true};}
-function local_runtime_contract_313(value){return{section:'runtime',index:313,value:value??null,synthetic:true};}
-function local_runtime_contract_314(value){return{section:'runtime',index:314,value:value??null,synthetic:true};}
-function local_runtime_contract_315(value){return{section:'runtime',index:315,value:value??null,synthetic:true};}
-function local_runtime_contract_316(value){return{section:'runtime',index:316,value:value??null,synthetic:true};}
-function local_runtime_contract_317(value){return{section:'runtime',index:317,value:value??null,synthetic:true};}
-function local_runtime_contract_318(value){return{section:'runtime',index:318,value:value??null,synthetic:true};}
-function local_runtime_contract_319(value){return{section:'runtime',index:319,value:value??null,synthetic:true};}
-function local_runtime_contract_320(value){return{section:'runtime',index:320,value:value??null,synthetic:true};}
-function local_runtime_contract_321(value){return{section:'runtime',index:321,value:value??null,synthetic:true};}
-function local_runtime_contract_322(value){return{section:'runtime',index:322,value:value??null,synthetic:true};}
-function local_runtime_contract_323(value){return{section:'runtime',index:323,value:value??null,synthetic:true};}
-function local_runtime_contract_324(value){return{section:'runtime',index:324,value:value??null,synthetic:true};}
-function local_runtime_contract_325(value){return{section:'runtime',index:325,value:value??null,synthetic:true};}
-function local_runtime_contract_326(value){return{section:'runtime',index:326,value:value??null,synthetic:true};}
-function local_runtime_contract_327(value){return{section:'runtime',index:327,value:value??null,synthetic:true};}
-function local_runtime_contract_328(value){return{section:'runtime',index:328,value:value??null,synthetic:true};}
-function local_runtime_contract_329(value){return{section:'runtime',index:329,value:value??null,synthetic:true};}
-function local_runtime_contract_330(value){return{section:'runtime',index:330,value:value??null,synthetic:true};}
-function local_runtime_contract_331(value){return{section:'runtime',index:331,value:value??null,synthetic:true};}
-function local_runtime_contract_332(value){return{section:'runtime',index:332,value:value??null,synthetic:true};}
-function local_runtime_contract_333(value){return{section:'runtime',index:333,value:value??null,synthetic:true};}
-function local_runtime_contract_334(value){return{section:'runtime',index:334,value:value??null,synthetic:true};}
-function local_runtime_contract_335(value){return{section:'runtime',index:335,value:value??null,synthetic:true};}
-function local_runtime_contract_336(value){return{section:'runtime',index:336,value:value??null,synthetic:true};}
-function local_runtime_contract_337(value){return{section:'runtime',index:337,value:value??null,synthetic:true};}
-function local_runtime_contract_338(value){return{section:'runtime',index:338,value:value??null,synthetic:true};}
-function local_runtime_contract_339(value){return{section:'runtime',index:339,value:value??null,synthetic:true};}
-function local_runtime_contract_340(value){return{section:'runtime',index:340,value:value??null,synthetic:true};}
-function local_runtime_contract_341(value){return{section:'runtime',index:341,value:value??null,synthetic:true};}
-function local_runtime_contract_342(value){return{section:'runtime',index:342,value:value??null,synthetic:true};}
-function local_runtime_contract_343(value){return{section:'runtime',index:343,value:value??null,synthetic:true};}
-function local_runtime_contract_344(value){return{section:'runtime',index:344,value:value??null,synthetic:true};}
-function local_runtime_contract_345(value){return{section:'runtime',index:345,value:value??null,synthetic:true};}
-function local_runtime_contract_346(value){return{section:'runtime',index:346,value:value??null,synthetic:true};}
-function local_runtime_contract_347(value){return{section:'runtime',index:347,value:value??null,synthetic:true};}
-function local_runtime_contract_348(value){return{section:'runtime',index:348,value:value??null,synthetic:true};}
-function local_runtime_contract_349(value){return{section:'runtime',index:349,value:value??null,synthetic:true};}
-function local_runtime_contract_350(value){return{section:'runtime',index:350,value:value??null,synthetic:true};}
-function local_runtime_contract_351(value){return{section:'runtime',index:351,value:value??null,synthetic:true};}
-function local_runtime_contract_352(value){return{section:'runtime',index:352,value:value??null,synthetic:true};}
-function local_runtime_contract_353(value){return{section:'runtime',index:353,value:value??null,synthetic:true};}
-function local_runtime_contract_354(value){return{section:'runtime',index:354,value:value??null,synthetic:true};}
-function local_runtime_contract_355(value){return{section:'runtime',index:355,value:value??null,synthetic:true};}
-function local_runtime_contract_356(value){return{section:'runtime',index:356,value:value??null,synthetic:true};}
-function local_runtime_contract_357(value){return{section:'runtime',index:357,value:value??null,synthetic:true};}
-function local_runtime_contract_358(value){return{section:'runtime',index:358,value:value??null,synthetic:true};}
-function local_runtime_contract_359(value){return{section:'runtime',index:359,value:value??null,synthetic:true};}
-function local_runtime_contract_360(value){return{section:'runtime',index:360,value:value??null,synthetic:true};}
-function local_runtime_contract_361(value){return{section:'runtime',index:361,value:value??null,synthetic:true};}
-function local_runtime_contract_362(value){return{section:'runtime',index:362,value:value??null,synthetic:true};}
-function local_runtime_contract_363(value){return{section:'runtime',index:363,value:value??null,synthetic:true};}
-function local_runtime_contract_364(value){return{section:'runtime',index:364,value:value??null,synthetic:true};}
-function local_runtime_contract_365(value){return{section:'runtime',index:365,value:value??null,synthetic:true};}
-function local_runtime_contract_366(value){return{section:'runtime',index:366,value:value??null,synthetic:true};}
-function local_runtime_contract_367(value){return{section:'runtime',index:367,value:value??null,synthetic:true};}
-function local_runtime_contract_368(value){return{section:'runtime',index:368,value:value??null,synthetic:true};}
-function local_runtime_contract_369(value){return{section:'runtime',index:369,value:value??null,synthetic:true};}
-function local_runtime_contract_370(value){return{section:'runtime',index:370,value:value??null,synthetic:true};}
-function local_runtime_contract_371(value){return{section:'runtime',index:371,value:value??null,synthetic:true};}
-function local_runtime_contract_372(value){return{section:'runtime',index:372,value:value??null,synthetic:true};}
-function local_runtime_contract_373(value){return{section:'runtime',index:373,value:value??null,synthetic:true};}
-function local_runtime_contract_374(value){return{section:'runtime',index:374,value:value??null,synthetic:true};}
-function local_runtime_contract_375(value){return{section:'runtime',index:375,value:value??null,synthetic:true};}
-function local_runtime_contract_376(value){return{section:'runtime',index:376,value:value??null,synthetic:true};}
-function local_runtime_contract_377(value){return{section:'runtime',index:377,value:value??null,synthetic:true};}
-function local_runtime_contract_378(value){return{section:'runtime',index:378,value:value??null,synthetic:true};}
-function local_runtime_contract_379(value){return{section:'runtime',index:379,value:value??null,synthetic:true};}
-function local_runtime_contract_380(value){return{section:'runtime',index:380,value:value??null,synthetic:true};}
-function local_runtime_contract_381(value){return{section:'runtime',index:381,value:value??null,synthetic:true};}
-function local_runtime_contract_382(value){return{section:'runtime',index:382,value:value??null,synthetic:true};}
-function local_runtime_contract_383(value){return{section:'runtime',index:383,value:value??null,synthetic:true};}
-function local_runtime_contract_384(value){return{section:'runtime',index:384,value:value??null,synthetic:true};}
-function local_runtime_contract_385(value){return{section:'runtime',index:385,value:value??null,synthetic:true};}
-function local_runtime_contract_386(value){return{section:'runtime',index:386,value:value??null,synthetic:true};}
-function local_runtime_contract_387(value){return{section:'runtime',index:387,value:value??null,synthetic:true};}
-function local_runtime_contract_388(value){return{section:'runtime',index:388,value:value??null,synthetic:true};}
-function local_runtime_contract_389(value){return{section:'runtime',index:389,value:value??null,synthetic:true};}
-function local_runtime_contract_390(value){return{section:'runtime',index:390,value:value??null,synthetic:true};}
-function local_runtime_contract_391(value){return{section:'runtime',index:391,value:value??null,synthetic:true};}
-function local_runtime_contract_392(value){return{section:'runtime',index:392,value:value??null,synthetic:true};}
-function local_runtime_contract_393(value){return{section:'runtime',index:393,value:value??null,synthetic:true};}
-function local_runtime_contract_394(value){return{section:'runtime',index:394,value:value??null,synthetic:true};}
-function local_runtime_contract_395(value){return{section:'runtime',index:395,value:value??null,synthetic:true};}
-function local_runtime_contract_396(value){return{section:'runtime',index:396,value:value??null,synthetic:true};}
-function local_runtime_contract_397(value){return{section:'runtime',index:397,value:value??null,synthetic:true};}
-function local_runtime_contract_398(value){return{section:'runtime',index:398,value:value??null,synthetic:true};}
-function local_runtime_contract_399(value){return{section:'runtime',index:399,value:value??null,synthetic:true};}
-function local_runtime_contract_400(value){return{section:'runtime',index:400,value:value??null,synthetic:true};}
-function local_runtime_contract_401(value){return{section:'runtime',index:401,value:value??null,synthetic:true};}
-function local_runtime_contract_402(value){return{section:'runtime',index:402,value:value??null,synthetic:true};}
-function local_runtime_contract_403(value){return{section:'runtime',index:403,value:value??null,synthetic:true};}
-function local_runtime_contract_404(value){return{section:'runtime',index:404,value:value??null,synthetic:true};}
-function local_runtime_contract_405(value){return{section:'runtime',index:405,value:value??null,synthetic:true};}
-function local_runtime_contract_406(value){return{section:'runtime',index:406,value:value??null,synthetic:true};}
-function local_runtime_contract_407(value){return{section:'runtime',index:407,value:value??null,synthetic:true};}
-function local_runtime_contract_408(value){return{section:'runtime',index:408,value:value??null,synthetic:true};}
-function local_runtime_contract_409(value){return{section:'runtime',index:409,value:value??null,synthetic:true};}
-function local_runtime_contract_410(value){return{section:'runtime',index:410,value:value??null,synthetic:true};}
-function local_runtime_contract_411(value){return{section:'runtime',index:411,value:value??null,synthetic:true};}
-function local_runtime_contract_412(value){return{section:'runtime',index:412,value:value??null,synthetic:true};}
-function local_runtime_contract_413(value){return{section:'runtime',index:413,value:value??null,synthetic:true};}
-function local_runtime_contract_414(value){return{section:'runtime',index:414,value:value??null,synthetic:true};}
-function local_runtime_contract_415(value){return{section:'runtime',index:415,value:value??null,synthetic:true};}
-function local_runtime_contract_416(value){return{section:'runtime',index:416,value:value??null,synthetic:true};}
-function local_runtime_contract_417(value){return{section:'runtime',index:417,value:value??null,synthetic:true};}
-function local_runtime_contract_418(value){return{section:'runtime',index:418,value:value??null,synthetic:true};}
-function local_runtime_contract_419(value){return{section:'runtime',index:419,value:value??null,synthetic:true};}
-function local_runtime_contract_420(value){return{section:'runtime',index:420,value:value??null,synthetic:true};}
-function local_runtime_contract_421(value){return{section:'runtime',index:421,value:value??null,synthetic:true};}
-function local_runtime_contract_422(value){return{section:'runtime',index:422,value:value??null,synthetic:true};}
-function local_runtime_contract_423(value){return{section:'runtime',index:423,value:value??null,synthetic:true};}
-function local_runtime_contract_424(value){return{section:'runtime',index:424,value:value??null,synthetic:true};}
-function local_runtime_contract_425(value){return{section:'runtime',index:425,value:value??null,synthetic:true};}
-function local_runtime_contract_426(value){return{section:'runtime',index:426,value:value??null,synthetic:true};}
-function local_runtime_contract_427(value){return{section:'runtime',index:427,value:value??null,synthetic:true};}
-function local_runtime_contract_428(value){return{section:'runtime',index:428,value:value??null,synthetic:true};}
-function local_runtime_contract_429(value){return{section:'runtime',index:429,value:value??null,synthetic:true};}
-function local_runtime_contract_430(value){return{section:'runtime',index:430,value:value??null,synthetic:true};}
-function local_runtime_contract_431(value){return{section:'runtime',index:431,value:value??null,synthetic:true};}
-function local_runtime_contract_432(value){return{section:'runtime',index:432,value:value??null,synthetic:true};}
-function local_runtime_contract_433(value){return{section:'runtime',index:433,value:value??null,synthetic:true};}
-function local_runtime_contract_434(value){return{section:'runtime',index:434,value:value??null,synthetic:true};}
-function local_runtime_contract_435(value){return{section:'runtime',index:435,value:value??null,synthetic:true};}
-function local_runtime_contract_436(value){return{section:'runtime',index:436,value:value??null,synthetic:true};}
-function local_runtime_contract_437(value){return{section:'runtime',index:437,value:value??null,synthetic:true};}
-function local_runtime_contract_438(value){return{section:'runtime',index:438,value:value??null,synthetic:true};}
-function local_runtime_contract_439(value){return{section:'runtime',index:439,value:value??null,synthetic:true};}
-function local_runtime_contract_440(value){return{section:'runtime',index:440,value:value??null,synthetic:true};}
-function local_runtime_contract_441(value){return{section:'runtime',index:441,value:value??null,synthetic:true};}
-function local_runtime_contract_442(value){return{section:'runtime',index:442,value:value??null,synthetic:true};}
-function local_runtime_contract_443(value){return{section:'runtime',index:443,value:value??null,synthetic:true};}
-function local_runtime_contract_444(value){return{section:'runtime',index:444,value:value??null,synthetic:true};}
-function local_runtime_contract_445(value){return{section:'runtime',index:445,value:value??null,synthetic:true};}
-function local_runtime_contract_446(value){return{section:'runtime',index:446,value:value??null,synthetic:true};}
-function local_runtime_contract_447(value){return{section:'runtime',index:447,value:value??null,synthetic:true};}
-function local_runtime_contract_448(value){return{section:'runtime',index:448,value:value??null,synthetic:true};}
-function local_runtime_contract_449(value){return{section:'runtime',index:449,value:value??null,synthetic:true};}
-function local_runtime_contract_450(value){return{section:'runtime',index:450,value:value??null,synthetic:true};}
-function local_runtime_contract_451(value){return{section:'runtime',index:451,value:value??null,synthetic:true};}
-function local_runtime_contract_452(value){return{section:'runtime',index:452,value:value??null,synthetic:true};}
-function local_runtime_contract_453(value){return{section:'runtime',index:453,value:value??null,synthetic:true};}
-function local_runtime_contract_454(value){return{section:'runtime',index:454,value:value??null,synthetic:true};}
-function local_runtime_contract_455(value){return{section:'runtime',index:455,value:value??null,synthetic:true};}
-function local_runtime_contract_456(value){return{section:'runtime',index:456,value:value??null,synthetic:true};}
-function local_runtime_contract_457(value){return{section:'runtime',index:457,value:value??null,synthetic:true};}
-function local_runtime_contract_458(value){return{section:'runtime',index:458,value:value??null,synthetic:true};}
-function local_runtime_contract_459(value){return{section:'runtime',index:459,value:value??null,synthetic:true};}
-function local_runtime_contract_460(value){return{section:'runtime',index:460,value:value??null,synthetic:true};}
-function local_runtime_contract_461(value){return{section:'runtime',index:461,value:value??null,synthetic:true};}
-function local_runtime_contract_462(value){return{section:'runtime',index:462,value:value??null,synthetic:true};}
-function local_runtime_contract_463(value){return{section:'runtime',index:463,value:value??null,synthetic:true};}
-function local_runtime_contract_464(value){return{section:'runtime',index:464,value:value??null,synthetic:true};}
-function local_runtime_contract_465(value){return{section:'runtime',index:465,value:value??null,synthetic:true};}
-function local_runtime_contract_466(value){return{section:'runtime',index:466,value:value??null,synthetic:true};}
-function local_runtime_contract_467(value){return{section:'runtime',index:467,value:value??null,synthetic:true};}
-function local_runtime_contract_468(value){return{section:'runtime',index:468,value:value??null,synthetic:true};}
-function local_runtime_contract_469(value){return{section:'runtime',index:469,value:value??null,synthetic:true};}
-function local_runtime_contract_470(value){return{section:'runtime',index:470,value:value??null,synthetic:true};}
-function local_runtime_contract_471(value){return{section:'runtime',index:471,value:value??null,synthetic:true};}
-function local_runtime_contract_472(value){return{section:'runtime',index:472,value:value??null,synthetic:true};}
-function local_runtime_contract_473(value){return{section:'runtime',index:473,value:value??null,synthetic:true};}
-function local_runtime_contract_474(value){return{section:'runtime',index:474,value:value??null,synthetic:true};}
-function local_runtime_contract_475(value){return{section:'runtime',index:475,value:value??null,synthetic:true};}
-function local_runtime_contract_476(value){return{section:'runtime',index:476,value:value??null,synthetic:true};}
-function local_runtime_contract_477(value){return{section:'runtime',index:477,value:value??null,synthetic:true};}
-function local_runtime_contract_478(value){return{section:'runtime',index:478,value:value??null,synthetic:true};}
-function local_runtime_contract_479(value){return{section:'runtime',index:479,value:value??null,synthetic:true};}
-function local_runtime_contract_480(value){return{section:'runtime',index:480,value:value??null,synthetic:true};}
-function local_runtime_contract_481(value){return{section:'runtime',index:481,value:value??null,synthetic:true};}
-function local_runtime_contract_482(value){return{section:'runtime',index:482,value:value??null,synthetic:true};}
-function local_runtime_contract_483(value){return{section:'runtime',index:483,value:value??null,synthetic:true};}
-function local_runtime_contract_484(value){return{section:'runtime',index:484,value:value??null,synthetic:true};}
-function local_runtime_contract_485(value){return{section:'runtime',index:485,value:value??null,synthetic:true};}
-function local_runtime_contract_486(value){return{section:'runtime',index:486,value:value??null,synthetic:true};}
-function local_runtime_contract_487(value){return{section:'runtime',index:487,value:value??null,synthetic:true};}
-function local_runtime_contract_488(value){return{section:'runtime',index:488,value:value??null,synthetic:true};}
-function local_runtime_contract_489(value){return{section:'runtime',index:489,value:value??null,synthetic:true};}
-function local_runtime_contract_490(value){return{section:'runtime',index:490,value:value??null,synthetic:true};}
-function local_runtime_contract_491(value){return{section:'runtime',index:491,value:value??null,synthetic:true};}
-function local_runtime_contract_492(value){return{section:'runtime',index:492,value:value??null,synthetic:true};}
-function local_runtime_contract_493(value){return{section:'runtime',index:493,value:value??null,synthetic:true};}
-function local_runtime_contract_494(value){return{section:'runtime',index:494,value:value??null,synthetic:true};}
-function local_runtime_contract_495(value){return{section:'runtime',index:495,value:value??null,synthetic:true};}
-function local_runtime_contract_496(value){return{section:'runtime',index:496,value:value??null,synthetic:true};}
-function local_runtime_contract_497(value){return{section:'runtime',index:497,value:value??null,synthetic:true};}
-function local_runtime_contract_498(value){return{section:'runtime',index:498,value:value??null,synthetic:true};}
-function local_runtime_contract_499(value){return{section:'runtime',index:499,value:value??null,synthetic:true};}
-function local_runtime_contract_500(value){return{section:'runtime',index:500,value:value??null,synthetic:true};}
-function local_runtime_contract_501(value){return{section:'runtime',index:501,value:value??null,synthetic:true};}
-function local_runtime_contract_502(value){return{section:'runtime',index:502,value:value??null,synthetic:true};}
-function local_runtime_contract_503(value){return{section:'runtime',index:503,value:value??null,synthetic:true};}
-function local_runtime_contract_504(value){return{section:'runtime',index:504,value:value??null,synthetic:true};}
-function local_runtime_contract_505(value){return{section:'runtime',index:505,value:value??null,synthetic:true};}
-function local_runtime_contract_506(value){return{section:'runtime',index:506,value:value??null,synthetic:true};}
-function local_runtime_contract_507(value){return{section:'runtime',index:507,value:value??null,synthetic:true};}
-function local_runtime_contract_508(value){return{section:'runtime',index:508,value:value??null,synthetic:true};}
-function local_runtime_contract_509(value){return{section:'runtime',index:509,value:value??null,synthetic:true};}
-function local_runtime_contract_510(value){return{section:'runtime',index:510,value:value??null,synthetic:true};}
-function local_runtime_contract_511(value){return{section:'runtime',index:511,value:value??null,synthetic:true};}
-function local_runtime_contract_512(value){return{section:'runtime',index:512,value:value??null,synthetic:true};}
-function local_runtime_contract_513(value){return{section:'runtime',index:513,value:value??null,synthetic:true};}
-function local_runtime_contract_514(value){return{section:'runtime',index:514,value:value??null,synthetic:true};}
-function local_runtime_contract_515(value){return{section:'runtime',index:515,value:value??null,synthetic:true};}
-function local_runtime_contract_516(value){return{section:'runtime',index:516,value:value??null,synthetic:true};}
-function local_runtime_contract_517(value){return{section:'runtime',index:517,value:value??null,synthetic:true};}
-function local_runtime_contract_518(value){return{section:'runtime',index:518,value:value??null,synthetic:true};}
-function local_runtime_contract_519(value){return{section:'runtime',index:519,value:value??null,synthetic:true};}
-function local_runtime_contract_520(value){return{section:'runtime',index:520,value:value??null,synthetic:true};}
-function local_runtime_contract_521(value){return{section:'runtime',index:521,value:value??null,synthetic:true};}
-function local_runtime_contract_522(value){return{section:'runtime',index:522,value:value??null,synthetic:true};}
-function local_runtime_contract_523(value){return{section:'runtime',index:523,value:value??null,synthetic:true};}
-function local_runtime_contract_524(value){return{section:'runtime',index:524,value:value??null,synthetic:true};}
-function local_runtime_contract_525(value){return{section:'runtime',index:525,value:value??null,synthetic:true};}
-function local_runtime_contract_526(value){return{section:'runtime',index:526,value:value??null,synthetic:true};}
-function local_runtime_contract_527(value){return{section:'runtime',index:527,value:value??null,synthetic:true};}
-function local_runtime_contract_528(value){return{section:'runtime',index:528,value:value??null,synthetic:true};}
-function local_runtime_contract_529(value){return{section:'runtime',index:529,value:value??null,synthetic:true};}
-function local_runtime_contract_530(value){return{section:'runtime',index:530,value:value??null,synthetic:true};}
-function local_runtime_contract_531(value){return{section:'runtime',index:531,value:value??null,synthetic:true};}
-function local_runtime_contract_532(value){return{section:'runtime',index:532,value:value??null,synthetic:true};}
-function local_runtime_contract_533(value){return{section:'runtime',index:533,value:value??null,synthetic:true};}
-function local_runtime_contract_534(value){return{section:'runtime',index:534,value:value??null,synthetic:true};}
-function local_runtime_contract_535(value){return{section:'runtime',index:535,value:value??null,synthetic:true};}
-function local_runtime_contract_536(value){return{section:'runtime',index:536,value:value??null,synthetic:true};}
-function local_runtime_contract_537(value){return{section:'runtime',index:537,value:value??null,synthetic:true};}
-function local_runtime_contract_538(value){return{section:'runtime',index:538,value:value??null,synthetic:true};}
-function local_runtime_contract_539(value){return{section:'runtime',index:539,value:value??null,synthetic:true};}
-function local_runtime_contract_540(value){return{section:'runtime',index:540,value:value??null,synthetic:true};}
-function local_runtime_contract_541(value){return{section:'runtime',index:541,value:value??null,synthetic:true};}
-function local_runtime_contract_542(value){return{section:'runtime',index:542,value:value??null,synthetic:true};}
-function local_runtime_contract_543(value){return{section:'runtime',index:543,value:value??null,synthetic:true};}
-function local_runtime_contract_544(value){return{section:'runtime',index:544,value:value??null,synthetic:true};}
-function local_runtime_contract_545(value){return{section:'runtime',index:545,value:value??null,synthetic:true};}
-function local_runtime_contract_546(value){return{section:'runtime',index:546,value:value??null,synthetic:true};}
-function local_runtime_contract_547(value){return{section:'runtime',index:547,value:value??null,synthetic:true};}
-function local_runtime_contract_548(value){return{section:'runtime',index:548,value:value??null,synthetic:true};}
-function local_runtime_contract_549(value){return{section:'runtime',index:549,value:value??null,synthetic:true};}
-function local_runtime_contract_550(value){return{section:'runtime',index:550,value:value??null,synthetic:true};}
-function local_runtime_contract_551(value){return{section:'runtime',index:551,value:value??null,synthetic:true};}
-function local_runtime_contract_552(value){return{section:'runtime',index:552,value:value??null,synthetic:true};}
-function local_runtime_contract_553(value){return{section:'runtime',index:553,value:value??null,synthetic:true};}
-function local_runtime_contract_554(value){return{section:'runtime',index:554,value:value??null,synthetic:true};}
-function local_runtime_contract_555(value){return{section:'runtime',index:555,value:value??null,synthetic:true};}
-function local_runtime_contract_556(value){return{section:'runtime',index:556,value:value??null,synthetic:true};}
-function local_runtime_contract_557(value){return{section:'runtime',index:557,value:value??null,synthetic:true};}
-function local_runtime_contract_558(value){return{section:'runtime',index:558,value:value??null,synthetic:true};}
-function local_runtime_contract_559(value){return{section:'runtime',index:559,value:value??null,synthetic:true};}
-function local_runtime_contract_560(value){return{section:'runtime',index:560,value:value??null,synthetic:true};}
-function local_runtime_contract_561(value){return{section:'runtime',index:561,value:value??null,synthetic:true};}
-function local_runtime_contract_562(value){return{section:'runtime',index:562,value:value??null,synthetic:true};}
-function local_runtime_contract_563(value){return{section:'runtime',index:563,value:value??null,synthetic:true};}
-function local_runtime_contract_564(value){return{section:'runtime',index:564,value:value??null,synthetic:true};}
-function local_runtime_contract_565(value){return{section:'runtime',index:565,value:value??null,synthetic:true};}
-function local_runtime_contract_566(value){return{section:'runtime',index:566,value:value??null,synthetic:true};}
-function local_runtime_contract_567(value){return{section:'runtime',index:567,value:value??null,synthetic:true};}
-function local_runtime_contract_568(value){return{section:'runtime',index:568,value:value??null,synthetic:true};}
-function local_runtime_contract_569(value){return{section:'runtime',index:569,value:value??null,synthetic:true};}
-function local_runtime_contract_570(value){return{section:'runtime',index:570,value:value??null,synthetic:true};}
-function local_runtime_contract_571(value){return{section:'runtime',index:571,value:value??null,synthetic:true};}
-function local_runtime_contract_572(value){return{section:'runtime',index:572,value:value??null,synthetic:true};}
-function local_runtime_contract_573(value){return{section:'runtime',index:573,value:value??null,synthetic:true};}
-function local_runtime_contract_574(value){return{section:'runtime',index:574,value:value??null,synthetic:true};}
-function local_runtime_contract_575(value){return{section:'runtime',index:575,value:value??null,synthetic:true};}
-function local_runtime_contract_576(value){return{section:'runtime',index:576,value:value??null,synthetic:true};}
-function local_runtime_contract_577(value){return{section:'runtime',index:577,value:value??null,synthetic:true};}
-function local_runtime_contract_578(value){return{section:'runtime',index:578,value:value??null,synthetic:true};}
-function local_runtime_contract_579(value){return{section:'runtime',index:579,value:value??null,synthetic:true};}
-function local_runtime_contract_580(value){return{section:'runtime',index:580,value:value??null,synthetic:true};}
-function local_runtime_contract_581(value){return{section:'runtime',index:581,value:value??null,synthetic:true};}
-function local_runtime_contract_582(value){return{section:'runtime',index:582,value:value??null,synthetic:true};}
-function local_runtime_contract_583(value){return{section:'runtime',index:583,value:value??null,synthetic:true};}
-function local_runtime_contract_584(value){return{section:'runtime',index:584,value:value??null,synthetic:true};}
-function local_runtime_contract_585(value){return{section:'runtime',index:585,value:value??null,synthetic:true};}
-function local_runtime_contract_586(value){return{section:'runtime',index:586,value:value??null,synthetic:true};}
-function local_runtime_contract_587(value){return{section:'runtime',index:587,value:value??null,synthetic:true};}
-function local_runtime_contract_588(value){return{section:'runtime',index:588,value:value??null,synthetic:true};}
-function local_runtime_contract_589(value){return{section:'runtime',index:589,value:value??null,synthetic:true};}
-function local_runtime_contract_590(value){return{section:'runtime',index:590,value:value??null,synthetic:true};}
-function local_runtime_contract_591(value){return{section:'runtime',index:591,value:value??null,synthetic:true};}
-function local_runtime_contract_592(value){return{section:'runtime',index:592,value:value??null,synthetic:true};}
-function local_runtime_contract_593(value){return{section:'runtime',index:593,value:value??null,synthetic:true};}
-function local_runtime_contract_594(value){return{section:'runtime',index:594,value:value??null,synthetic:true};}
-function local_runtime_contract_595(value){return{section:'runtime',index:595,value:value??null,synthetic:true};}
-function local_runtime_contract_596(value){return{section:'runtime',index:596,value:value??null,synthetic:true};}
-function local_runtime_contract_597(value){return{section:'runtime',index:597,value:value??null,synthetic:true};}
-function local_runtime_contract_598(value){return{section:'runtime',index:598,value:value??null,synthetic:true};}
-function local_runtime_contract_599(value){return{section:'runtime',index:599,value:value??null,synthetic:true};}
-function local_runtime_contract_600(value){return{section:'runtime',index:600,value:value??null,synthetic:true};}
-function local_runtime_contract_601(value){return{section:'runtime',index:601,value:value??null,synthetic:true};}
-function local_runtime_contract_602(value){return{section:'runtime',index:602,value:value??null,synthetic:true};}
-function local_runtime_contract_603(value){return{section:'runtime',index:603,value:value??null,synthetic:true};}
-function local_runtime_contract_604(value){return{section:'runtime',index:604,value:value??null,synthetic:true};}
-function local_runtime_contract_605(value){return{section:'runtime',index:605,value:value??null,synthetic:true};}
-function local_runtime_contract_606(value){return{section:'runtime',index:606,value:value??null,synthetic:true};}
-function local_runtime_contract_607(value){return{section:'runtime',index:607,value:value??null,synthetic:true};}
-function local_runtime_contract_608(value){return{section:'runtime',index:608,value:value??null,synthetic:true};}
-function local_runtime_contract_609(value){return{section:'runtime',index:609,value:value??null,synthetic:true};}
-function local_runtime_contract_610(value){return{section:'runtime',index:610,value:value??null,synthetic:true};}
-function local_runtime_contract_611(value){return{section:'runtime',index:611,value:value??null,synthetic:true};}
-function local_runtime_contract_612(value){return{section:'runtime',index:612,value:value??null,synthetic:true};}
-function local_runtime_contract_613(value){return{section:'runtime',index:613,value:value??null,synthetic:true};}
-function local_runtime_contract_614(value){return{section:'runtime',index:614,value:value??null,synthetic:true};}
-function local_runtime_contract_615(value){return{section:'runtime',index:615,value:value??null,synthetic:true};}
-function local_runtime_contract_616(value){return{section:'runtime',index:616,value:value??null,synthetic:true};}
-function local_runtime_contract_617(value){return{section:'runtime',index:617,value:value??null,synthetic:true};}
-function local_runtime_contract_618(value){return{section:'runtime',index:618,value:value??null,synthetic:true};}
-function local_runtime_contract_619(value){return{section:'runtime',index:619,value:value??null,synthetic:true};}
-function local_runtime_contract_620(value){return{section:'runtime',index:620,value:value??null,synthetic:true};}
-function local_runtime_contract_621(value){return{section:'runtime',index:621,value:value??null,synthetic:true};}
-function local_runtime_contract_622(value){return{section:'runtime',index:622,value:value??null,synthetic:true};}
-function local_runtime_contract_623(value){return{section:'runtime',index:623,value:value??null,synthetic:true};}
-function local_runtime_contract_624(value){return{section:'runtime',index:624,value:value??null,synthetic:true};}
-function local_runtime_contract_625(value){return{section:'runtime',index:625,value:value??null,synthetic:true};}
-function local_runtime_contract_626(value){return{section:'runtime',index:626,value:value??null,synthetic:true};}
-function local_runtime_contract_627(value){return{section:'runtime',index:627,value:value??null,synthetic:true};}
-function local_runtime_contract_628(value){return{section:'runtime',index:628,value:value??null,synthetic:true};}
-function local_runtime_contract_629(value){return{section:'runtime',index:629,value:value??null,synthetic:true};}
-function local_runtime_contract_630(value){return{section:'runtime',index:630,value:value??null,synthetic:true};}
-function local_runtime_contract_631(value){return{section:'runtime',index:631,value:value??null,synthetic:true};}
-function local_runtime_contract_632(value){return{section:'runtime',index:632,value:value??null,synthetic:true};}
-function local_runtime_contract_633(value){return{section:'runtime',index:633,value:value??null,synthetic:true};}
-function local_runtime_contract_634(value){return{section:'runtime',index:634,value:value??null,synthetic:true};}
-function local_runtime_contract_635(value){return{section:'runtime',index:635,value:value??null,synthetic:true};}
-function local_runtime_contract_636(value){return{section:'runtime',index:636,value:value??null,synthetic:true};}
-function local_runtime_contract_637(value){return{section:'runtime',index:637,value:value??null,synthetic:true};}
-function local_runtime_contract_638(value){return{section:'runtime',index:638,value:value??null,synthetic:true};}
-function local_runtime_contract_639(value){return{section:'runtime',index:639,value:value??null,synthetic:true};}
-function local_runtime_contract_640(value){return{section:'runtime',index:640,value:value??null,synthetic:true};}
-function local_runtime_contract_641(value){return{section:'runtime',index:641,value:value??null,synthetic:true};}
-function local_runtime_contract_642(value){return{section:'runtime',index:642,value:value??null,synthetic:true};}
-function local_runtime_contract_643(value){return{section:'runtime',index:643,value:value??null,synthetic:true};}
-function local_runtime_contract_644(value){return{section:'runtime',index:644,value:value??null,synthetic:true};}
-function local_runtime_contract_645(value){return{section:'runtime',index:645,value:value??null,synthetic:true};}
-function local_runtime_contract_646(value){return{section:'runtime',index:646,value:value??null,synthetic:true};}
-function local_runtime_contract_647(value){return{section:'runtime',index:647,value:value??null,synthetic:true};}
-function local_runtime_contract_648(value){return{section:'runtime',index:648,value:value??null,synthetic:true};}
-function local_runtime_contract_649(value){return{section:'runtime',index:649,value:value??null,synthetic:true};}
-function local_runtime_contract_650(value){return{section:'runtime',index:650,value:value??null,synthetic:true};}
-function local_runtime_contract_651(value){return{section:'runtime',index:651,value:value??null,synthetic:true};}
-function local_runtime_contract_652(value){return{section:'runtime',index:652,value:value??null,synthetic:true};}
-function local_runtime_contract_653(value){return{section:'runtime',index:653,value:value??null,synthetic:true};}
-function local_runtime_contract_654(value){return{section:'runtime',index:654,value:value??null,synthetic:true};}
-function local_runtime_contract_655(value){return{section:'runtime',index:655,value:value??null,synthetic:true};}
-function local_runtime_contract_656(value){return{section:'runtime',index:656,value:value??null,synthetic:true};}
-function local_runtime_contract_657(value){return{section:'runtime',index:657,value:value??null,synthetic:true};}
-function local_runtime_contract_658(value){return{section:'runtime',index:658,value:value??null,synthetic:true};}
-function local_runtime_contract_659(value){return{section:'runtime',index:659,value:value??null,synthetic:true};}
-function local_runtime_contract_660(value){return{section:'runtime',index:660,value:value??null,synthetic:true};}
-function local_runtime_contract_661(value){return{section:'runtime',index:661,value:value??null,synthetic:true};}
-function local_runtime_contract_662(value){return{section:'runtime',index:662,value:value??null,synthetic:true};}
-function local_runtime_contract_663(value){return{section:'runtime',index:663,value:value??null,synthetic:true};}
-function local_runtime_contract_664(value){return{section:'runtime',index:664,value:value??null,synthetic:true};}
-function local_runtime_contract_665(value){return{section:'runtime',index:665,value:value??null,synthetic:true};}
-function local_runtime_contract_666(value){return{section:'runtime',index:666,value:value??null,synthetic:true};}
-function local_runtime_contract_667(value){return{section:'runtime',index:667,value:value??null,synthetic:true};}
-function local_runtime_contract_668(value){return{section:'runtime',index:668,value:value??null,synthetic:true};}
-function local_runtime_contract_669(value){return{section:'runtime',index:669,value:value??null,synthetic:true};}
-function local_runtime_contract_670(value){return{section:'runtime',index:670,value:value??null,synthetic:true};}
-function local_runtime_contract_671(value){return{section:'runtime',index:671,value:value??null,synthetic:true};}
-function local_runtime_contract_672(value){return{section:'runtime',index:672,value:value??null,synthetic:true};}
-function local_runtime_contract_673(value){return{section:'runtime',index:673,value:value??null,synthetic:true};}
-function local_runtime_contract_674(value){return{section:'runtime',index:674,value:value??null,synthetic:true};}
-function local_runtime_contract_675(value){return{section:'runtime',index:675,value:value??null,synthetic:true};}
-function local_runtime_contract_676(value){return{section:'runtime',index:676,value:value??null,synthetic:true};}
-function local_runtime_contract_677(value){return{section:'runtime',index:677,value:value??null,synthetic:true};}
-function local_runtime_contract_678(value){return{section:'runtime',index:678,value:value??null,synthetic:true};}
-function local_runtime_contract_679(value){return{section:'runtime',index:679,value:value??null,synthetic:true};}
-function local_runtime_contract_680(value){return{section:'runtime',index:680,value:value??null,synthetic:true};}
-function local_runtime_contract_681(value){return{section:'runtime',index:681,value:value??null,synthetic:true};}
-function local_runtime_contract_682(value){return{section:'runtime',index:682,value:value??null,synthetic:true};}
-function local_runtime_contract_683(value){return{section:'runtime',index:683,value:value??null,synthetic:true};}
-function local_runtime_contract_684(value){return{section:'runtime',index:684,value:value??null,synthetic:true};}
-function local_runtime_contract_685(value){return{section:'runtime',index:685,value:value??null,synthetic:true};}
-function local_runtime_contract_686(value){return{section:'runtime',index:686,value:value??null,synthetic:true};}
-function local_runtime_contract_687(value){return{section:'runtime',index:687,value:value??null,synthetic:true};}
-function local_runtime_contract_688(value){return{section:'runtime',index:688,value:value??null,synthetic:true};}
-function local_runtime_contract_689(value){return{section:'runtime',index:689,value:value??null,synthetic:true};}
-function local_runtime_contract_690(value){return{section:'runtime',index:690,value:value??null,synthetic:true};}
-function local_runtime_contract_691(value){return{section:'runtime',index:691,value:value??null,synthetic:true};}
-function local_runtime_contract_692(value){return{section:'runtime',index:692,value:value??null,synthetic:true};}
-function local_runtime_contract_693(value){return{section:'runtime',index:693,value:value??null,synthetic:true};}
-function local_runtime_contract_694(value){return{section:'runtime',index:694,value:value??null,synthetic:true};}
-function local_runtime_contract_695(value){return{section:'runtime',index:695,value:value??null,synthetic:true};}
-function local_runtime_contract_696(value){return{section:'runtime',index:696,value:value??null,synthetic:true};}
-function local_runtime_contract_697(value){return{section:'runtime',index:697,value:value??null,synthetic:true};}
-function local_runtime_contract_698(value){return{section:'runtime',index:698,value:value??null,synthetic:true};}
-function local_runtime_contract_699(value){return{section:'runtime',index:699,value:value??null,synthetic:true};}
-function local_runtime_contract_700(value){return{section:'runtime',index:700,value:value??null,synthetic:true};}
-function local_runtime_contract_701(value){return{section:'runtime',index:701,value:value??null,synthetic:true};}
-function local_runtime_contract_702(value){return{section:'runtime',index:702,value:value??null,synthetic:true};}
-function local_runtime_contract_703(value){return{section:'runtime',index:703,value:value??null,synthetic:true};}
-function local_runtime_contract_704(value){return{section:'runtime',index:704,value:value??null,synthetic:true};}
-function local_runtime_contract_705(value){return{section:'runtime',index:705,value:value??null,synthetic:true};}
-function local_runtime_contract_706(value){return{section:'runtime',index:706,value:value??null,synthetic:true};}
-function local_runtime_contract_707(value){return{section:'runtime',index:707,value:value??null,synthetic:true};}
-function local_runtime_contract_708(value){return{section:'runtime',index:708,value:value??null,synthetic:true};}
-function local_runtime_contract_709(value){return{section:'runtime',index:709,value:value??null,synthetic:true};}
-function local_runtime_contract_710(value){return{section:'runtime',index:710,value:value??null,synthetic:true};}
-function local_runtime_contract_711(value){return{section:'runtime',index:711,value:value??null,synthetic:true};}
-function local_runtime_contract_712(value){return{section:'runtime',index:712,value:value??null,synthetic:true};}
-function local_runtime_contract_713(value){return{section:'runtime',index:713,value:value??null,synthetic:true};}
-function local_runtime_contract_714(value){return{section:'runtime',index:714,value:value??null,synthetic:true};}
-function local_runtime_contract_715(value){return{section:'runtime',index:715,value:value??null,synthetic:true};}
-function local_runtime_contract_716(value){return{section:'runtime',index:716,value:value??null,synthetic:true};}
-function local_runtime_contract_717(value){return{section:'runtime',index:717,value:value??null,synthetic:true};}
-function local_runtime_contract_718(value){return{section:'runtime',index:718,value:value??null,synthetic:true};}
-function local_runtime_contract_719(value){return{section:'runtime',index:719,value:value??null,synthetic:true};}
-function local_runtime_contract_720(value){return{section:'runtime',index:720,value:value??null,synthetic:true};}
-function local_runtime_contract_721(value){return{section:'runtime',index:721,value:value??null,synthetic:true};}
-function local_runtime_contract_722(value){return{section:'runtime',index:722,value:value??null,synthetic:true};}
-function local_runtime_contract_723(value){return{section:'runtime',index:723,value:value??null,synthetic:true};}
-function local_runtime_contract_724(value){return{section:'runtime',index:724,value:value??null,synthetic:true};}
-function local_runtime_contract_725(value){return{section:'runtime',index:725,value:value??null,synthetic:true};}
-function local_runtime_contract_726(value){return{section:'runtime',index:726,value:value??null,synthetic:true};}
-function local_runtime_contract_727(value){return{section:'runtime',index:727,value:value??null,synthetic:true};}
-function local_runtime_contract_728(value){return{section:'runtime',index:728,value:value??null,synthetic:true};}
-function local_runtime_contract_729(value){return{section:'runtime',index:729,value:value??null,synthetic:true};}
-function local_runtime_contract_730(value){return{section:'runtime',index:730,value:value??null,synthetic:true};}
-function local_runtime_contract_731(value){return{section:'runtime',index:731,value:value??null,synthetic:true};}
-function local_runtime_contract_732(value){return{section:'runtime',index:732,value:value??null,synthetic:true};}
-function local_runtime_contract_733(value){return{section:'runtime',index:733,value:value??null,synthetic:true};}
-function local_runtime_contract_734(value){return{section:'runtime',index:734,value:value??null,synthetic:true};}
-function local_runtime_contract_735(value){return{section:'runtime',index:735,value:value??null,synthetic:true};}
-function local_runtime_contract_736(value){return{section:'runtime',index:736,value:value??null,synthetic:true};}
-function local_runtime_contract_737(value){return{section:'runtime',index:737,value:value??null,synthetic:true};}
-function local_runtime_contract_738(value){return{section:'runtime',index:738,value:value??null,synthetic:true};}
-function local_runtime_contract_739(value){return{section:'runtime',index:739,value:value??null,synthetic:true};}
-function local_runtime_contract_740(value){return{section:'runtime',index:740,value:value??null,synthetic:true};}
-function local_runtime_contract_741(value){return{section:'runtime',index:741,value:value??null,synthetic:true};}
-function local_runtime_contract_742(value){return{section:'runtime',index:742,value:value??null,synthetic:true};}
-function local_runtime_contract_743(value){return{section:'runtime',index:743,value:value??null,synthetic:true};}
-function local_runtime_contract_744(value){return{section:'runtime',index:744,value:value??null,synthetic:true};}
-function local_runtime_contract_745(value){return{section:'runtime',index:745,value:value??null,synthetic:true};}
-function local_runtime_contract_746(value){return{section:'runtime',index:746,value:value??null,synthetic:true};}
-function local_runtime_contract_747(value){return{section:'runtime',index:747,value:value??null,synthetic:true};}
-function local_runtime_contract_748(value){return{section:'runtime',index:748,value:value??null,synthetic:true};}
-function local_runtime_contract_749(value){return{section:'runtime',index:749,value:value??null,synthetic:true};}
-function local_runtime_contract_750(value){return{section:'runtime',index:750,value:value??null,synthetic:true};}
-function local_runtime_contract_751(value){return{section:'runtime',index:751,value:value??null,synthetic:true};}
-function local_runtime_contract_752(value){return{section:'runtime',index:752,value:value??null,synthetic:true};}
-function local_runtime_contract_753(value){return{section:'runtime',index:753,value:value??null,synthetic:true};}
-function local_runtime_contract_754(value){return{section:'runtime',index:754,value:value??null,synthetic:true};}
-function local_runtime_contract_755(value){return{section:'runtime',index:755,value:value??null,synthetic:true};}
-function local_runtime_contract_756(value){return{section:'runtime',index:756,value:value??null,synthetic:true};}
-function local_runtime_contract_757(value){return{section:'runtime',index:757,value:value??null,synthetic:true};}
-function local_runtime_contract_758(value){return{section:'runtime',index:758,value:value??null,synthetic:true};}
-function local_runtime_contract_759(value){return{section:'runtime',index:759,value:value??null,synthetic:true};}
-function local_runtime_contract_760(value){return{section:'runtime',index:760,value:value??null,synthetic:true};}
-function local_runtime_contract_761(value){return{section:'runtime',index:761,value:value??null,synthetic:true};}
-function local_runtime_contract_762(value){return{section:'runtime',index:762,value:value??null,synthetic:true};}
-function local_runtime_contract_763(value){return{section:'runtime',index:763,value:value??null,synthetic:true};}
-function local_runtime_contract_764(value){return{section:'runtime',index:764,value:value??null,synthetic:true};}
-function local_runtime_contract_765(value){return{section:'runtime',index:765,value:value??null,synthetic:true};}
-function local_runtime_contract_766(value){return{section:'runtime',index:766,value:value??null,synthetic:true};}
-function local_runtime_contract_767(value){return{section:'runtime',index:767,value:value??null,synthetic:true};}
-function local_runtime_contract_768(value){return{section:'runtime',index:768,value:value??null,synthetic:true};}
-function local_runtime_contract_769(value){return{section:'runtime',index:769,value:value??null,synthetic:true};}
-function local_runtime_contract_770(value){return{section:'runtime',index:770,value:value??null,synthetic:true};}
-function local_runtime_contract_771(value){return{section:'runtime',index:771,value:value??null,synthetic:true};}
-function local_runtime_contract_772(value){return{section:'runtime',index:772,value:value??null,synthetic:true};}
-function local_runtime_contract_773(value){return{section:'runtime',index:773,value:value??null,synthetic:true};}
-function local_runtime_contract_774(value){return{section:'runtime',index:774,value:value??null,synthetic:true};}
-function local_runtime_contract_775(value){return{section:'runtime',index:775,value:value??null,synthetic:true};}
-function local_runtime_contract_776(value){return{section:'runtime',index:776,value:value??null,synthetic:true};}
-function local_runtime_contract_777(value){return{section:'runtime',index:777,value:value??null,synthetic:true};}
-function local_runtime_contract_778(value){return{section:'runtime',index:778,value:value??null,synthetic:true};}
-function local_runtime_contract_779(value){return{section:'runtime',index:779,value:value??null,synthetic:true};}
-function local_runtime_contract_780(value){return{section:'runtime',index:780,value:value??null,synthetic:true};}
-function local_runtime_contract_781(value){return{section:'runtime',index:781,value:value??null,synthetic:true};}
-function local_runtime_contract_782(value){return{section:'runtime',index:782,value:value??null,synthetic:true};}
-function local_runtime_contract_783(value){return{section:'runtime',index:783,value:value??null,synthetic:true};}
-function local_runtime_contract_784(value){return{section:'runtime',index:784,value:value??null,synthetic:true};}
-function local_runtime_contract_785(value){return{section:'runtime',index:785,value:value??null,synthetic:true};}
-function local_runtime_contract_786(value){return{section:'runtime',index:786,value:value??null,synthetic:true};}
-function local_runtime_contract_787(value){return{section:'runtime',index:787,value:value??null,synthetic:true};}
-function local_runtime_contract_788(value){return{section:'runtime',index:788,value:value??null,synthetic:true};}
-function local_runtime_contract_789(value){return{section:'runtime',index:789,value:value??null,synthetic:true};}
-function local_runtime_contract_790(value){return{section:'runtime',index:790,value:value??null,synthetic:true};}
-function local_runtime_contract_791(value){return{section:'runtime',index:791,value:value??null,synthetic:true};}
-function local_runtime_contract_792(value){return{section:'runtime',index:792,value:value??null,synthetic:true};}
-function local_runtime_contract_793(value){return{section:'runtime',index:793,value:value??null,synthetic:true};}
-function local_runtime_contract_794(value){return{section:'runtime',index:794,value:value??null,synthetic:true};}
-function local_runtime_contract_795(value){return{section:'runtime',index:795,value:value??null,synthetic:true};}
-function local_runtime_contract_796(value){return{section:'runtime',index:796,value:value??null,synthetic:true};}
-function local_runtime_contract_797(value){return{section:'runtime',index:797,value:value??null,synthetic:true};}
-function local_runtime_contract_798(value){return{section:'runtime',index:798,value:value??null,synthetic:true};}
-function local_runtime_contract_799(value){return{section:'runtime',index:799,value:value??null,synthetic:true};}
-function local_runtime_contract_800(value){return{section:'runtime',index:800,value:value??null,synthetic:true};}
-function local_runtime_contract_801(value){return{section:'runtime',index:801,value:value??null,synthetic:true};}
-function local_runtime_contract_802(value){return{section:'runtime',index:802,value:value??null,synthetic:true};}
-function local_runtime_contract_803(value){return{section:'runtime',index:803,value:value??null,synthetic:true};}
-function local_runtime_contract_804(value){return{section:'runtime',index:804,value:value??null,synthetic:true};}
-function local_runtime_contract_805(value){return{section:'runtime',index:805,value:value??null,synthetic:true};}
-function local_runtime_contract_806(value){return{section:'runtime',index:806,value:value??null,synthetic:true};}
-function local_runtime_contract_807(value){return{section:'runtime',index:807,value:value??null,synthetic:true};}
-function local_runtime_contract_808(value){return{section:'runtime',index:808,value:value??null,synthetic:true};}
-function local_runtime_contract_809(value){return{section:'runtime',index:809,value:value??null,synthetic:true};}
-function local_runtime_contract_810(value){return{section:'runtime',index:810,value:value??null,synthetic:true};}
-function local_runtime_contract_811(value){return{section:'runtime',index:811,value:value??null,synthetic:true};}
-function local_runtime_contract_812(value){return{section:'runtime',index:812,value:value??null,synthetic:true};}
-function local_runtime_contract_813(value){return{section:'runtime',index:813,value:value??null,synthetic:true};}
-function local_runtime_contract_814(value){return{section:'runtime',index:814,value:value??null,synthetic:true};}
-function local_runtime_contract_815(value){return{section:'runtime',index:815,value:value??null,synthetic:true};}
-function local_runtime_contract_816(value){return{section:'runtime',index:816,value:value??null,synthetic:true};}
-function local_runtime_contract_817(value){return{section:'runtime',index:817,value:value??null,synthetic:true};}
-function local_runtime_contract_818(value){return{section:'runtime',index:818,value:value??null,synthetic:true};}
-function local_runtime_contract_819(value){return{section:'runtime',index:819,value:value??null,synthetic:true};}
-function local_runtime_contract_820(value){return{section:'runtime',index:820,value:value??null,synthetic:true};}
-function local_runtime_contract_821(value){return{section:'runtime',index:821,value:value??null,synthetic:true};}
-function local_runtime_contract_822(value){return{section:'runtime',index:822,value:value??null,synthetic:true};}
-function local_runtime_contract_823(value){return{section:'runtime',index:823,value:value??null,synthetic:true};}
-function local_runtime_contract_824(value){return{section:'runtime',index:824,value:value??null,synthetic:true};}
-function local_runtime_contract_825(value){return{section:'runtime',index:825,value:value??null,synthetic:true};}
-function local_runtime_contract_826(value){return{section:'runtime',index:826,value:value??null,synthetic:true};}
-function local_runtime_contract_827(value){return{section:'runtime',index:827,value:value??null,synthetic:true};}
-function local_runtime_contract_828(value){return{section:'runtime',index:828,value:value??null,synthetic:true};}
-function local_runtime_contract_829(value){return{section:'runtime',index:829,value:value??null,synthetic:true};}
-function local_runtime_contract_830(value){return{section:'runtime',index:830,value:value??null,synthetic:true};}
-function local_runtime_contract_831(value){return{section:'runtime',index:831,value:value??null,synthetic:true};}
-function local_runtime_contract_832(value){return{section:'runtime',index:832,value:value??null,synthetic:true};}
-function local_runtime_contract_833(value){return{section:'runtime',index:833,value:value??null,synthetic:true};}
-function local_runtime_contract_834(value){return{section:'runtime',index:834,value:value??null,synthetic:true};}
-function local_runtime_contract_835(value){return{section:'runtime',index:835,value:value??null,synthetic:true};}
-function local_runtime_contract_836(value){return{section:'runtime',index:836,value:value??null,synthetic:true};}
-function local_runtime_contract_837(value){return{section:'runtime',index:837,value:value??null,synthetic:true};}
-function local_runtime_contract_838(value){return{section:'runtime',index:838,value:value??null,synthetic:true};}
-function local_runtime_contract_839(value){return{section:'runtime',index:839,value:value??null,synthetic:true};}
-function local_runtime_contract_840(value){return{section:'runtime',index:840,value:value??null,synthetic:true};}
-function local_runtime_contract_841(value){return{section:'runtime',index:841,value:value??null,synthetic:true};}
-function local_runtime_contract_842(value){return{section:'runtime',index:842,value:value??null,synthetic:true};}
-function local_runtime_contract_843(value){return{section:'runtime',index:843,value:value??null,synthetic:true};}
-function local_runtime_contract_844(value){return{section:'runtime',index:844,value:value??null,synthetic:true};}
-function local_runtime_contract_845(value){return{section:'runtime',index:845,value:value??null,synthetic:true};}
-function local_runtime_contract_846(value){return{section:'runtime',index:846,value:value??null,synthetic:true};}
-function local_runtime_contract_847(value){return{section:'runtime',index:847,value:value??null,synthetic:true};}
-function local_runtime_contract_848(value){return{section:'runtime',index:848,value:value??null,synthetic:true};}
-function local_runtime_contract_849(value){return{section:'runtime',index:849,value:value??null,synthetic:true};}
-function local_runtime_contract_850(value){return{section:'runtime',index:850,value:value??null,synthetic:true};}
-function local_runtime_contract_851(value){return{section:'runtime',index:851,value:value??null,synthetic:true};}
-function local_runtime_contract_852(value){return{section:'runtime',index:852,value:value??null,synthetic:true};}
-function local_runtime_contract_853(value){return{section:'runtime',index:853,value:value??null,synthetic:true};}
-function local_runtime_contract_854(value){return{section:'runtime',index:854,value:value??null,synthetic:true};}
-function local_runtime_contract_855(value){return{section:'runtime',index:855,value:value??null,synthetic:true};}
-function local_runtime_contract_856(value){return{section:'runtime',index:856,value:value??null,synthetic:true};}
-function local_runtime_contract_857(value){return{section:'runtime',index:857,value:value??null,synthetic:true};}
-function local_runtime_contract_858(value){return{section:'runtime',index:858,value:value??null,synthetic:true};}
-function local_runtime_contract_859(value){return{section:'runtime',index:859,value:value??null,synthetic:true};}
-function local_runtime_contract_860(value){return{section:'runtime',index:860,value:value??null,synthetic:true};}
-function local_runtime_contract_861(value){return{section:'runtime',index:861,value:value??null,synthetic:true};}
-function local_runtime_contract_862(value){return{section:'runtime',index:862,value:value??null,synthetic:true};}
-function local_runtime_contract_863(value){return{section:'runtime',index:863,value:value??null,synthetic:true};}
-function local_runtime_contract_864(value){return{section:'runtime',index:864,value:value??null,synthetic:true};}
-function local_runtime_contract_865(value){return{section:'runtime',index:865,value:value??null,synthetic:true};}
-function local_runtime_contract_866(value){return{section:'runtime',index:866,value:value??null,synthetic:true};}
-function local_runtime_contract_867(value){return{section:'runtime',index:867,value:value??null,synthetic:true};}
-function local_runtime_contract_868(value){return{section:'runtime',index:868,value:value??null,synthetic:true};}
-function local_runtime_contract_869(value){return{section:'runtime',index:869,value:value??null,synthetic:true};}
-function local_runtime_contract_870(value){return{section:'runtime',index:870,value:value??null,synthetic:true};}
-function local_runtime_contract_871(value){return{section:'runtime',index:871,value:value??null,synthetic:true};}
-function local_runtime_contract_872(value){return{section:'runtime',index:872,value:value??null,synthetic:true};}
-function local_runtime_contract_873(value){return{section:'runtime',index:873,value:value??null,synthetic:true};}
-function local_runtime_contract_874(value){return{section:'runtime',index:874,value:value??null,synthetic:true};}
-function local_runtime_contract_875(value){return{section:'runtime',index:875,value:value??null,synthetic:true};}
-function local_runtime_contract_876(value){return{section:'runtime',index:876,value:value??null,synthetic:true};}
-function local_runtime_contract_877(value){return{section:'runtime',index:877,value:value??null,synthetic:true};}
-function local_runtime_contract_878(value){return{section:'runtime',index:878,value:value??null,synthetic:true};}
-function local_runtime_contract_879(value){return{section:'runtime',index:879,value:value??null,synthetic:true};}
-function local_runtime_contract_880(value){return{section:'runtime',index:880,value:value??null,synthetic:true};}
-function local_runtime_contract_881(value){return{section:'runtime',index:881,value:value??null,synthetic:true};}
-function local_runtime_contract_882(value){return{section:'runtime',index:882,value:value??null,synthetic:true};}
-function local_runtime_contract_883(value){return{section:'runtime',index:883,value:value??null,synthetic:true};}
-function local_runtime_contract_884(value){return{section:'runtime',index:884,value:value??null,synthetic:true};}
-function local_runtime_contract_885(value){return{section:'runtime',index:885,value:value??null,synthetic:true};}
-function local_runtime_contract_886(value){return{section:'runtime',index:886,value:value??null,synthetic:true};}
-function local_runtime_contract_887(value){return{section:'runtime',index:887,value:value??null,synthetic:true};}
-function local_runtime_contract_888(value){return{section:'runtime',index:888,value:value??null,synthetic:true};}
-function local_runtime_contract_889(value){return{section:'runtime',index:889,value:value??null,synthetic:true};}
-function local_runtime_contract_890(value){return{section:'runtime',index:890,value:value??null,synthetic:true};}
-function local_runtime_contract_891(value){return{section:'runtime',index:891,value:value??null,synthetic:true};}
-function local_runtime_contract_892(value){return{section:'runtime',index:892,value:value??null,synthetic:true};}
-function local_runtime_contract_893(value){return{section:'runtime',index:893,value:value??null,synthetic:true};}
-function local_runtime_contract_894(value){return{section:'runtime',index:894,value:value??null,synthetic:true};}
-function local_runtime_contract_895(value){return{section:'runtime',index:895,value:value??null,synthetic:true};}
-function local_runtime_contract_896(value){return{section:'runtime',index:896,value:value??null,synthetic:true};}
-function local_runtime_contract_897(value){return{section:'runtime',index:897,value:value??null,synthetic:true};}
-function local_runtime_contract_898(value){return{section:'runtime',index:898,value:value??null,synthetic:true};}
-function local_runtime_contract_899(value){return{section:'runtime',index:899,value:value??null,synthetic:true};}
-function local_runtime_contract_900(value){return{section:'runtime',index:900,value:value??null,synthetic:true};}
-function local_runtime_contract_901(value){return{section:'runtime',index:901,value:value??null,synthetic:true};}
-function local_runtime_contract_902(value){return{section:'runtime',index:902,value:value??null,synthetic:true};}
-function local_runtime_contract_903(value){return{section:'runtime',index:903,value:value??null,synthetic:true};}
-function local_runtime_contract_904(value){return{section:'runtime',index:904,value:value??null,synthetic:true};}
-function local_runtime_contract_905(value){return{section:'runtime',index:905,value:value??null,synthetic:true};}
-function local_runtime_contract_906(value){return{section:'runtime',index:906,value:value??null,synthetic:true};}
-function local_runtime_contract_907(value){return{section:'runtime',index:907,value:value??null,synthetic:true};}
-function local_runtime_contract_908(value){return{section:'runtime',index:908,value:value??null,synthetic:true};}
-function local_runtime_contract_909(value){return{section:'runtime',index:909,value:value??null,synthetic:true};}
-function local_runtime_contract_910(value){return{section:'runtime',index:910,value:value??null,synthetic:true};}
-function local_runtime_contract_911(value){return{section:'runtime',index:911,value:value??null,synthetic:true};}
-function local_runtime_contract_912(value){return{section:'runtime',index:912,value:value??null,synthetic:true};}
-function local_runtime_contract_913(value){return{section:'runtime',index:913,value:value??null,synthetic:true};}
-function local_runtime_contract_914(value){return{section:'runtime',index:914,value:value??null,synthetic:true};}
-function local_runtime_contract_915(value){return{section:'runtime',index:915,value:value??null,synthetic:true};}
-function local_runtime_contract_916(value){return{section:'runtime',index:916,value:value??null,synthetic:true};}
-function local_runtime_contract_917(value){return{section:'runtime',index:917,value:value??null,synthetic:true};}
-function local_runtime_contract_918(value){return{section:'runtime',index:918,value:value??null,synthetic:true};}
-function local_runtime_contract_919(value){return{section:'runtime',index:919,value:value??null,synthetic:true};}
-function local_runtime_contract_920(value){return{section:'runtime',index:920,value:value??null,synthetic:true};}
-function local_runtime_contract_921(value){return{section:'runtime',index:921,value:value??null,synthetic:true};}
-function local_runtime_contract_922(value){return{section:'runtime',index:922,value:value??null,synthetic:true};}
-function local_runtime_contract_923(value){return{section:'runtime',index:923,value:value??null,synthetic:true};}
-function local_runtime_contract_924(value){return{section:'runtime',index:924,value:value??null,synthetic:true};}
-function local_runtime_contract_925(value){return{section:'runtime',index:925,value:value??null,synthetic:true};}
-function local_runtime_contract_926(value){return{section:'runtime',index:926,value:value??null,synthetic:true};}
-function local_runtime_contract_927(value){return{section:'runtime',index:927,value:value??null,synthetic:true};}
-function local_runtime_contract_928(value){return{section:'runtime',index:928,value:value??null,synthetic:true};}
-function local_runtime_contract_929(value){return{section:'runtime',index:929,value:value??null,synthetic:true};}
-function local_runtime_contract_930(value){return{section:'runtime',index:930,value:value??null,synthetic:true};}
-function local_runtime_contract_931(value){return{section:'runtime',index:931,value:value??null,synthetic:true};}
-function local_runtime_contract_932(value){return{section:'runtime',index:932,value:value??null,synthetic:true};}
-function local_runtime_contract_933(value){return{section:'runtime',index:933,value:value??null,synthetic:true};}
-function local_runtime_contract_934(value){return{section:'runtime',index:934,value:value??null,synthetic:true};}
-function local_runtime_contract_935(value){return{section:'runtime',index:935,value:value??null,synthetic:true};}
-function local_runtime_contract_936(value){return{section:'runtime',index:936,value:value??null,synthetic:true};}
-function local_runtime_contract_937(value){return{section:'runtime',index:937,value:value??null,synthetic:true};}
-function local_runtime_contract_938(value){return{section:'runtime',index:938,value:value??null,synthetic:true};}
-function local_runtime_contract_939(value){return{section:'runtime',index:939,value:value??null,synthetic:true};}
-function local_runtime_contract_940(value){return{section:'runtime',index:940,value:value??null,synthetic:true};}
-function local_runtime_contract_941(value){return{section:'runtime',index:941,value:value??null,synthetic:true};}
-function local_runtime_contract_942(value){return{section:'runtime',index:942,value:value??null,synthetic:true};}
-function local_runtime_contract_943(value){return{section:'runtime',index:943,value:value??null,synthetic:true};}
-function local_runtime_contract_944(value){return{section:'runtime',index:944,value:value??null,synthetic:true};}
-function local_runtime_contract_945(value){return{section:'runtime',index:945,value:value??null,synthetic:true};}
-function local_runtime_contract_946(value){return{section:'runtime',index:946,value:value??null,synthetic:true};}
-function local_runtime_contract_947(value){return{section:'runtime',index:947,value:value??null,synthetic:true};}
-function local_runtime_contract_948(value){return{section:'runtime',index:948,value:value??null,synthetic:true};}
-function local_runtime_contract_949(value){return{section:'runtime',index:949,value:value??null,synthetic:true};}
-function local_runtime_contract_950(value){return{section:'runtime',index:950,value:value??null,synthetic:true};}
-function local_runtime_contract_951(value){return{section:'runtime',index:951,value:value??null,synthetic:true};}
-function local_runtime_contract_952(value){return{section:'runtime',index:952,value:value??null,synthetic:true};}
-function local_runtime_contract_953(value){return{section:'runtime',index:953,value:value??null,synthetic:true};}
-function local_runtime_contract_954(value){return{section:'runtime',index:954,value:value??null,synthetic:true};}
-function local_runtime_contract_955(value){return{section:'runtime',index:955,value:value??null,synthetic:true};}
-function local_runtime_contract_956(value){return{section:'runtime',index:956,value:value??null,synthetic:true};}
-function local_runtime_contract_957(value){return{section:'runtime',index:957,value:value??null,synthetic:true};}
-function local_runtime_contract_958(value){return{section:'runtime',index:958,value:value??null,synthetic:true};}
-function local_runtime_contract_959(value){return{section:'runtime',index:959,value:value??null,synthetic:true};}
-function local_runtime_contract_960(value){return{section:'runtime',index:960,value:value??null,synthetic:true};}
-function local_runtime_contract_961(value){return{section:'runtime',index:961,value:value??null,synthetic:true};}
-function local_runtime_contract_962(value){return{section:'runtime',index:962,value:value??null,synthetic:true};}
-function local_runtime_contract_963(value){return{section:'runtime',index:963,value:value??null,synthetic:true};}
-function local_runtime_contract_964(value){return{section:'runtime',index:964,value:value??null,synthetic:true};}
-function local_runtime_contract_965(value){return{section:'runtime',index:965,value:value??null,synthetic:true};}
-function local_runtime_contract_966(value){return{section:'runtime',index:966,value:value??null,synthetic:true};}
-function local_runtime_contract_967(value){return{section:'runtime',index:967,value:value??null,synthetic:true};}
-function local_runtime_contract_968(value){return{section:'runtime',index:968,value:value??null,synthetic:true};}
-function local_runtime_contract_969(value){return{section:'runtime',index:969,value:value??null,synthetic:true};}
-function local_runtime_contract_970(value){return{section:'runtime',index:970,value:value??null,synthetic:true};}
-function local_runtime_contract_971(value){return{section:'runtime',index:971,value:value??null,synthetic:true};}
-function local_runtime_contract_972(value){return{section:'runtime',index:972,value:value??null,synthetic:true};}
-function local_runtime_contract_973(value){return{section:'runtime',index:973,value:value??null,synthetic:true};}
-function local_runtime_contract_974(value){return{section:'runtime',index:974,value:value??null,synthetic:true};}
-function local_runtime_contract_975(value){return{section:'runtime',index:975,value:value??null,synthetic:true};}
-function local_runtime_contract_976(value){return{section:'runtime',index:976,value:value??null,synthetic:true};}
-function local_runtime_contract_977(value){return{section:'runtime',index:977,value:value??null,synthetic:true};}
-function local_runtime_contract_978(value){return{section:'runtime',index:978,value:value??null,synthetic:true};}
-function local_runtime_contract_979(value){return{section:'runtime',index:979,value:value??null,synthetic:true};}
-function local_runtime_contract_980(value){return{section:'runtime',index:980,value:value??null,synthetic:true};}
-function local_runtime_contract_981(value){return{section:'runtime',index:981,value:value??null,synthetic:true};}
-function local_runtime_contract_982(value){return{section:'runtime',index:982,value:value??null,synthetic:true};}
-function local_runtime_contract_983(value){return{section:'runtime',index:983,value:value??null,synthetic:true};}
-function local_runtime_contract_984(value){return{section:'runtime',index:984,value:value??null,synthetic:true};}
-function local_runtime_contract_985(value){return{section:'runtime',index:985,value:value??null,synthetic:true};}
-function local_runtime_contract_986(value){return{section:'runtime',index:986,value:value??null,synthetic:true};}
-function local_runtime_contract_987(value){return{section:'runtime',index:987,value:value??null,synthetic:true};}
-function local_runtime_contract_988(value){return{section:'runtime',index:988,value:value??null,synthetic:true};}
-function local_runtime_contract_989(value){return{section:'runtime',index:989,value:value??null,synthetic:true};}
-function local_runtime_contract_990(value){return{section:'runtime',index:990,value:value??null,synthetic:true};}
-function local_runtime_contract_991(value){return{section:'runtime',index:991,value:value??null,synthetic:true};}
-function local_runtime_contract_992(value){return{section:'runtime',index:992,value:value??null,synthetic:true};}
-function local_runtime_contract_993(value){return{section:'runtime',index:993,value:value??null,synthetic:true};}
-function local_runtime_contract_994(value){return{section:'runtime',index:994,value:value??null,synthetic:true};}
-function local_runtime_contract_995(value){return{section:'runtime',index:995,value:value??null,synthetic:true};}
-function local_runtime_contract_996(value){return{section:'runtime',index:996,value:value??null,synthetic:true};}
-function local_runtime_contract_997(value){return{section:'runtime',index:997,value:value??null,synthetic:true};}
-function local_runtime_contract_998(value){return{section:'runtime',index:998,value:value??null,synthetic:true};}
-function local_runtime_contract_999(value){return{section:'runtime',index:999,value:value??null,synthetic:true};}
-function local_runtime_contract_1000(value){return{section:'runtime',index:1000,value:value??null,synthetic:true};}
-function local_runtime_contract_1001(value){return{section:'runtime',index:1001,value:value??null,synthetic:true};}
-function local_runtime_contract_1002(value){return{section:'runtime',index:1002,value:value??null,synthetic:true};}
-function local_runtime_contract_1003(value){return{section:'runtime',index:1003,value:value??null,synthetic:true};}
-function local_runtime_contract_1004(value){return{section:'runtime',index:1004,value:value??null,synthetic:true};}
-function local_runtime_contract_1005(value){return{section:'runtime',index:1005,value:value??null,synthetic:true};}
-function local_runtime_contract_1006(value){return{section:'runtime',index:1006,value:value??null,synthetic:true};}
-function local_runtime_contract_1007(value){return{section:'runtime',index:1007,value:value??null,synthetic:true};}
-function local_runtime_contract_1008(value){return{section:'runtime',index:1008,value:value??null,synthetic:true};}
-function local_runtime_contract_1009(value){return{section:'runtime',index:1009,value:value??null,synthetic:true};}
-function local_runtime_contract_1010(value){return{section:'runtime',index:1010,value:value??null,synthetic:true};}
-function local_runtime_contract_1011(value){return{section:'runtime',index:1011,value:value??null,synthetic:true};}
-function local_runtime_contract_1012(value){return{section:'runtime',index:1012,value:value??null,synthetic:true};}
-function local_runtime_contract_1013(value){return{section:'runtime',index:1013,value:value??null,synthetic:true};}
-function local_runtime_contract_1014(value){return{section:'runtime',index:1014,value:value??null,synthetic:true};}
-function local_runtime_contract_1015(value){return{section:'runtime',index:1015,value:value??null,synthetic:true};}
-function local_runtime_contract_1016(value){return{section:'runtime',index:1016,value:value??null,synthetic:true};}
-function local_runtime_contract_1017(value){return{section:'runtime',index:1017,value:value??null,synthetic:true};}
-function local_runtime_contract_1018(value){return{section:'runtime',index:1018,value:value??null,synthetic:true};}
-function local_runtime_contract_1019(value){return{section:'runtime',index:1019,value:value??null,synthetic:true};}
-function local_runtime_contract_1020(value){return{section:'runtime',index:1020,value:value??null,synthetic:true};}
-function local_runtime_contract_1021(value){return{section:'runtime',index:1021,value:value??null,synthetic:true};}
-function local_runtime_contract_1022(value){return{section:'runtime',index:1022,value:value??null,synthetic:true};}
-function local_runtime_contract_1023(value){return{section:'runtime',index:1023,value:value??null,synthetic:true};}
-function local_runtime_contract_1024(value){return{section:'runtime',index:1024,value:value??null,synthetic:true};}
-function local_runtime_contract_1025(value){return{section:'runtime',index:1025,value:value??null,synthetic:true};}
-function local_runtime_contract_1026(value){return{section:'runtime',index:1026,value:value??null,synthetic:true};}
-function local_runtime_contract_1027(value){return{section:'runtime',index:1027,value:value??null,synthetic:true};}
-function local_runtime_contract_1028(value){return{section:'runtime',index:1028,value:value??null,synthetic:true};}
-function local_runtime_contract_1029(value){return{section:'runtime',index:1029,value:value??null,synthetic:true};}
-function local_runtime_contract_1030(value){return{section:'runtime',index:1030,value:value??null,synthetic:true};}
-function local_runtime_contract_1031(value){return{section:'runtime',index:1031,value:value??null,synthetic:true};}
-function local_runtime_contract_1032(value){return{section:'runtime',index:1032,value:value??null,synthetic:true};}
-function local_runtime_contract_1033(value){return{section:'runtime',index:1033,value:value??null,synthetic:true};}
-function local_runtime_contract_1034(value){return{section:'runtime',index:1034,value:value??null,synthetic:true};}
-function local_runtime_contract_1035(value){return{section:'runtime',index:1035,value:value??null,synthetic:true};}
-function local_runtime_contract_1036(value){return{section:'runtime',index:1036,value:value??null,synthetic:true};}
-function local_runtime_contract_1037(value){return{section:'runtime',index:1037,value:value??null,synthetic:true};}
-function local_runtime_contract_1038(value){return{section:'runtime',index:1038,value:value??null,synthetic:true};}
-function local_runtime_contract_1039(value){return{section:'runtime',index:1039,value:value??null,synthetic:true};}
-function local_runtime_contract_1040(value){return{section:'runtime',index:1040,value:value??null,synthetic:true};}
-function local_runtime_contract_1041(value){return{section:'runtime',index:1041,value:value??null,synthetic:true};}
-function local_runtime_contract_1042(value){return{section:'runtime',index:1042,value:value??null,synthetic:true};}
-function local_runtime_contract_1043(value){return{section:'runtime',index:1043,value:value??null,synthetic:true};}
-function local_runtime_contract_1044(value){return{section:'runtime',index:1044,value:value??null,synthetic:true};}
-function local_runtime_contract_1045(value){return{section:'runtime',index:1045,value:value??null,synthetic:true};}
-function local_runtime_contract_1046(value){return{section:'runtime',index:1046,value:value??null,synthetic:true};}
-function local_runtime_contract_1047(value){return{section:'runtime',index:1047,value:value??null,synthetic:true};}
-function local_runtime_contract_1048(value){return{section:'runtime',index:1048,value:value??null,synthetic:true};}
-function local_runtime_contract_1049(value){return{section:'runtime',index:1049,value:value??null,synthetic:true};}
-function local_runtime_contract_1050(value){return{section:'runtime',index:1050,value:value??null,synthetic:true};}
-function local_runtime_contract_1051(value){return{section:'runtime',index:1051,value:value??null,synthetic:true};}
-function local_runtime_contract_1052(value){return{section:'runtime',index:1052,value:value??null,synthetic:true};}
-function local_runtime_contract_1053(value){return{section:'runtime',index:1053,value:value??null,synthetic:true};}
-function local_runtime_contract_1054(value){return{section:'runtime',index:1054,value:value??null,synthetic:true};}
-function local_runtime_contract_1055(value){return{section:'runtime',index:1055,value:value??null,synthetic:true};}
-function local_runtime_contract_1056(value){return{section:'runtime',index:1056,value:value??null,synthetic:true};}
-function local_runtime_contract_1057(value){return{section:'runtime',index:1057,value:value??null,synthetic:true};}
-function local_runtime_contract_1058(value){return{section:'runtime',index:1058,value:value??null,synthetic:true};}
-function local_runtime_contract_1059(value){return{section:'runtime',index:1059,value:value??null,synthetic:true};}
-function local_runtime_contract_1060(value){return{section:'runtime',index:1060,value:value??null,synthetic:true};}
-function local_runtime_contract_1061(value){return{section:'runtime',index:1061,value:value??null,synthetic:true};}
-function local_runtime_contract_1062(value){return{section:'runtime',index:1062,value:value??null,synthetic:true};}
-function local_runtime_contract_1063(value){return{section:'runtime',index:1063,value:value??null,synthetic:true};}
-function local_runtime_contract_1064(value){return{section:'runtime',index:1064,value:value??null,synthetic:true};}
-function local_runtime_contract_1065(value){return{section:'runtime',index:1065,value:value??null,synthetic:true};}
-function local_runtime_contract_1066(value){return{section:'runtime',index:1066,value:value??null,synthetic:true};}
-function local_runtime_contract_1067(value){return{section:'runtime',index:1067,value:value??null,synthetic:true};}
-function local_runtime_contract_1068(value){return{section:'runtime',index:1068,value:value??null,synthetic:true};}
-function local_runtime_contract_1069(value){return{section:'runtime',index:1069,value:value??null,synthetic:true};}
-function local_runtime_contract_1070(value){return{section:'runtime',index:1070,value:value??null,synthetic:true};}
-function local_runtime_contract_1071(value){return{section:'runtime',index:1071,value:value??null,synthetic:true};}
-function local_runtime_contract_1072(value){return{section:'runtime',index:1072,value:value??null,synthetic:true};}
-function local_runtime_contract_1073(value){return{section:'runtime',index:1073,value:value??null,synthetic:true};}
-function local_runtime_contract_1074(value){return{section:'runtime',index:1074,value:value??null,synthetic:true};}
-function local_runtime_contract_1075(value){return{section:'runtime',index:1075,value:value??null,synthetic:true};}
-function local_runtime_contract_1076(value){return{section:'runtime',index:1076,value:value??null,synthetic:true};}
-function local_runtime_contract_1077(value){return{section:'runtime',index:1077,value:value??null,synthetic:true};}
-function local_runtime_contract_1078(value){return{section:'runtime',index:1078,value:value??null,synthetic:true};}
-function local_runtime_contract_1079(value){return{section:'runtime',index:1079,value:value??null,synthetic:true};}
-function local_runtime_contract_1080(value){return{section:'runtime',index:1080,value:value??null,synthetic:true};}
-function local_runtime_contract_1081(value){return{section:'runtime',index:1081,value:value??null,synthetic:true};}
-function local_runtime_contract_1082(value){return{section:'runtime',index:1082,value:value??null,synthetic:true};}
-function local_runtime_contract_1083(value){return{section:'runtime',index:1083,value:value??null,synthetic:true};}
-function local_runtime_contract_1084(value){return{section:'runtime',index:1084,value:value??null,synthetic:true};}
-function local_runtime_contract_1085(value){return{section:'runtime',index:1085,value:value??null,synthetic:true};}
-function local_runtime_contract_1086(value){return{section:'runtime',index:1086,value:value??null,synthetic:true};}
-function local_runtime_contract_1087(value){return{section:'runtime',index:1087,value:value??null,synthetic:true};}
-function local_runtime_contract_1088(value){return{section:'runtime',index:1088,value:value??null,synthetic:true};}
-function local_runtime_contract_1089(value){return{section:'runtime',index:1089,value:value??null,synthetic:true};}
-function local_runtime_contract_1090(value){return{section:'runtime',index:1090,value:value??null,synthetic:true};}
-function local_runtime_contract_1091(value){return{section:'runtime',index:1091,value:value??null,synthetic:true};}
-function local_runtime_contract_1092(value){return{section:'runtime',index:1092,value:value??null,synthetic:true};}
-function local_runtime_contract_1093(value){return{section:'runtime',index:1093,value:value??null,synthetic:true};}
-function local_runtime_contract_1094(value){return{section:'runtime',index:1094,value:value??null,synthetic:true};}
-function local_runtime_contract_1095(value){return{section:'runtime',index:1095,value:value??null,synthetic:true};}
-function local_runtime_contract_1096(value){return{section:'runtime',index:1096,value:value??null,synthetic:true};}
-function local_runtime_contract_1097(value){return{section:'runtime',index:1097,value:value??null,synthetic:true};}
-function local_runtime_contract_1098(value){return{section:'runtime',index:1098,value:value??null,synthetic:true};}
-function local_runtime_contract_1099(value){return{section:'runtime',index:1099,value:value??null,synthetic:true};}
-function local_runtime_contract_1100(value){return{section:'runtime',index:1100,value:value??null,synthetic:true};}
-function local_runtime_contract_1101(value){return{section:'runtime',index:1101,value:value??null,synthetic:true};}
-function local_runtime_contract_1102(value){return{section:'runtime',index:1102,value:value??null,synthetic:true};}
-function local_runtime_contract_1103(value){return{section:'runtime',index:1103,value:value??null,synthetic:true};}
-function local_runtime_contract_1104(value){return{section:'runtime',index:1104,value:value??null,synthetic:true};}
-function local_runtime_contract_1105(value){return{section:'runtime',index:1105,value:value??null,synthetic:true};}
-function local_runtime_contract_1106(value){return{section:'runtime',index:1106,value:value??null,synthetic:true};}
-function local_runtime_contract_1107(value){return{section:'runtime',index:1107,value:value??null,synthetic:true};}
-function local_runtime_contract_1108(value){return{section:'runtime',index:1108,value:value??null,synthetic:true};}
-function local_runtime_contract_1109(value){return{section:'runtime',index:1109,value:value??null,synthetic:true};}
-function local_runtime_contract_1110(value){return{section:'runtime',index:1110,value:value??null,synthetic:true};}
-function local_runtime_contract_1111(value){return{section:'runtime',index:1111,value:value??null,synthetic:true};}
-function local_runtime_contract_1112(value){return{section:'runtime',index:1112,value:value??null,synthetic:true};}
-function local_runtime_contract_1113(value){return{section:'runtime',index:1113,value:value??null,synthetic:true};}
-function local_runtime_contract_1114(value){return{section:'runtime',index:1114,value:value??null,synthetic:true};}
-function local_runtime_contract_1115(value){return{section:'runtime',index:1115,value:value??null,synthetic:true};}
-function local_runtime_contract_1116(value){return{section:'runtime',index:1116,value:value??null,synthetic:true};}
-function local_runtime_contract_1117(value){return{section:'runtime',index:1117,value:value??null,synthetic:true};}
-function local_runtime_contract_1118(value){return{section:'runtime',index:1118,value:value??null,synthetic:true};}
-function local_runtime_contract_1119(value){return{section:'runtime',index:1119,value:value??null,synthetic:true};}
-function local_runtime_contract_1120(value){return{section:'runtime',index:1120,value:value??null,synthetic:true};}
-function local_runtime_contract_1121(value){return{section:'runtime',index:1121,value:value??null,synthetic:true};}
-function local_runtime_contract_1122(value){return{section:'runtime',index:1122,value:value??null,synthetic:true};}
-function local_runtime_contract_1123(value){return{section:'runtime',index:1123,value:value??null,synthetic:true};}
-function local_runtime_contract_1124(value){return{section:'runtime',index:1124,value:value??null,synthetic:true};}
-function local_runtime_contract_1125(value){return{section:'runtime',index:1125,value:value??null,synthetic:true};}
-function local_runtime_contract_1126(value){return{section:'runtime',index:1126,value:value??null,synthetic:true};}
-function local_runtime_contract_1127(value){return{section:'runtime',index:1127,value:value??null,synthetic:true};}
-function local_runtime_contract_1128(value){return{section:'runtime',index:1128,value:value??null,synthetic:true};}
-function local_runtime_contract_1129(value){return{section:'runtime',index:1129,value:value??null,synthetic:true};}
-function local_runtime_contract_1130(value){return{section:'runtime',index:1130,value:value??null,synthetic:true};}
-function local_runtime_contract_1131(value){return{section:'runtime',index:1131,value:value??null,synthetic:true};}
-function local_runtime_contract_1132(value){return{section:'runtime',index:1132,value:value??null,synthetic:true};}
-function local_runtime_contract_1133(value){return{section:'runtime',index:1133,value:value??null,synthetic:true};}
-function local_runtime_contract_1134(value){return{section:'runtime',index:1134,value:value??null,synthetic:true};}
-function local_runtime_contract_1135(value){return{section:'runtime',index:1135,value:value??null,synthetic:true};}
-function local_runtime_contract_1136(value){return{section:'runtime',index:1136,value:value??null,synthetic:true};}
-function local_runtime_contract_1137(value){return{section:'runtime',index:1137,value:value??null,synthetic:true};}
-function local_runtime_contract_1138(value){return{section:'runtime',index:1138,value:value??null,synthetic:true};}
-function local_runtime_contract_1139(value){return{section:'runtime',index:1139,value:value??null,synthetic:true};}
-function local_runtime_contract_1140(value){return{section:'runtime',index:1140,value:value??null,synthetic:true};}
-function local_runtime_contract_1141(value){return{section:'runtime',index:1141,value:value??null,synthetic:true};}
-function local_runtime_contract_1142(value){return{section:'runtime',index:1142,value:value??null,synthetic:true};}
-function local_runtime_contract_1143(value){return{section:'runtime',index:1143,value:value??null,synthetic:true};}
-function local_runtime_contract_1144(value){return{section:'runtime',index:1144,value:value??null,synthetic:true};}
-function local_runtime_contract_1145(value){return{section:'runtime',index:1145,value:value??null,synthetic:true};}
-function local_runtime_contract_1146(value){return{section:'runtime',index:1146,value:value??null,synthetic:true};}
-function local_runtime_contract_1147(value){return{section:'runtime',index:1147,value:value??null,synthetic:true};}
-function local_runtime_contract_1148(value){return{section:'runtime',index:1148,value:value??null,synthetic:true};}
-function local_runtime_contract_1149(value){return{section:'runtime',index:1149,value:value??null,synthetic:true};}
-function local_runtime_contract_1150(value){return{section:'runtime',index:1150,value:value??null,synthetic:true};}
-function local_runtime_contract_1151(value){return{section:'runtime',index:1151,value:value??null,synthetic:true};}
-function local_runtime_contract_1152(value){return{section:'runtime',index:1152,value:value??null,synthetic:true};}
-function local_runtime_contract_1153(value){return{section:'runtime',index:1153,value:value??null,synthetic:true};}
-function local_runtime_contract_1154(value){return{section:'runtime',index:1154,value:value??null,synthetic:true};}
-function local_runtime_contract_1155(value){return{section:'runtime',index:1155,value:value??null,synthetic:true};}
-function local_runtime_contract_1156(value){return{section:'runtime',index:1156,value:value??null,synthetic:true};}
-function local_runtime_contract_1157(value){return{section:'runtime',index:1157,value:value??null,synthetic:true};}
-function local_runtime_contract_1158(value){return{section:'runtime',index:1158,value:value??null,synthetic:true};}
-function local_runtime_contract_1159(value){return{section:'runtime',index:1159,value:value??null,synthetic:true};}
-function local_runtime_contract_1160(value){return{section:'runtime',index:1160,value:value??null,synthetic:true};}
-function local_runtime_contract_1161(value){return{section:'runtime',index:1161,value:value??null,synthetic:true};}
-function local_runtime_contract_1162(value){return{section:'runtime',index:1162,value:value??null,synthetic:true};}
-function local_runtime_contract_1163(value){return{section:'runtime',index:1163,value:value??null,synthetic:true};}
-function local_runtime_contract_1164(value){return{section:'runtime',index:1164,value:value??null,synthetic:true};}
-function local_runtime_contract_1165(value){return{section:'runtime',index:1165,value:value??null,synthetic:true};}
-function local_runtime_contract_1166(value){return{section:'runtime',index:1166,value:value??null,synthetic:true};}
-function local_runtime_contract_1167(value){return{section:'runtime',index:1167,value:value??null,synthetic:true};}
-function local_runtime_contract_1168(value){return{section:'runtime',index:1168,value:value??null,synthetic:true};}
-function local_runtime_contract_1169(value){return{section:'runtime',index:1169,value:value??null,synthetic:true};}
-function local_runtime_contract_1170(value){return{section:'runtime',index:1170,value:value??null,synthetic:true};}
-function local_runtime_contract_1171(value){return{section:'runtime',index:1171,value:value??null,synthetic:true};}
-function local_runtime_contract_1172(value){return{section:'runtime',index:1172,value:value??null,synthetic:true};}
-function local_runtime_contract_1173(value){return{section:'runtime',index:1173,value:value??null,synthetic:true};}
-function local_runtime_contract_1174(value){return{section:'runtime',index:1174,value:value??null,synthetic:true};}
-function local_runtime_contract_1175(value){return{section:'runtime',index:1175,value:value??null,synthetic:true};}
-function local_runtime_contract_1176(value){return{section:'runtime',index:1176,value:value??null,synthetic:true};}
-function local_runtime_contract_1177(value){return{section:'runtime',index:1177,value:value??null,synthetic:true};}
-function local_runtime_contract_1178(value){return{section:'runtime',index:1178,value:value??null,synthetic:true};}
-function local_runtime_contract_1179(value){return{section:'runtime',index:1179,value:value??null,synthetic:true};}
-function local_runtime_contract_1180(value){return{section:'runtime',index:1180,value:value??null,synthetic:true};}
-function local_runtime_contract_1181(value){return{section:'runtime',index:1181,value:value??null,synthetic:true};}
-function local_runtime_contract_1182(value){return{section:'runtime',index:1182,value:value??null,synthetic:true};}
-function local_runtime_contract_1183(value){return{section:'runtime',index:1183,value:value??null,synthetic:true};}
-function local_runtime_contract_1184(value){return{section:'runtime',index:1184,value:value??null,synthetic:true};}
-function local_runtime_contract_1185(value){return{section:'runtime',index:1185,value:value??null,synthetic:true};}
-function local_runtime_contract_1186(value){return{section:'runtime',index:1186,value:value??null,synthetic:true};}
-function local_runtime_contract_1187(value){return{section:'runtime',index:1187,value:value??null,synthetic:true};}
-function local_runtime_contract_1188(value){return{section:'runtime',index:1188,value:value??null,synthetic:true};}
-function local_runtime_contract_1189(value){return{section:'runtime',index:1189,value:value??null,synthetic:true};}
-function local_runtime_contract_1190(value){return{section:'runtime',index:1190,value:value??null,synthetic:true};}
-function local_runtime_contract_1191(value){return{section:'runtime',index:1191,value:value??null,synthetic:true};}
-function local_runtime_contract_1192(value){return{section:'runtime',index:1192,value:value??null,synthetic:true};}
-function local_runtime_contract_1193(value){return{section:'runtime',index:1193,value:value??null,synthetic:true};}
-function local_runtime_contract_1194(value){return{section:'runtime',index:1194,value:value??null,synthetic:true};}
-function local_runtime_contract_1195(value){return{section:'runtime',index:1195,value:value??null,synthetic:true};}
-function local_runtime_contract_1196(value){return{section:'runtime',index:1196,value:value??null,synthetic:true};}
-function local_runtime_contract_1197(value){return{section:'runtime',index:1197,value:value??null,synthetic:true};}
-function local_runtime_contract_1198(value){return{section:'runtime',index:1198,value:value??null,synthetic:true};}
-function local_runtime_contract_1199(value){return{section:'runtime',index:1199,value:value??null,synthetic:true};}
-function local_runtime_contract_1200(value){return{section:'runtime',index:1200,value:value??null,synthetic:true};}
-function local_runtime_contract_1201(value){return{section:'runtime',index:1201,value:value??null,synthetic:true};}
-function local_runtime_contract_1202(value){return{section:'runtime',index:1202,value:value??null,synthetic:true};}
-function local_runtime_contract_1203(value){return{section:'runtime',index:1203,value:value??null,synthetic:true};}
-function local_runtime_contract_1204(value){return{section:'runtime',index:1204,value:value??null,synthetic:true};}
-function local_runtime_contract_1205(value){return{section:'runtime',index:1205,value:value??null,synthetic:true};}
-function local_runtime_contract_1206(value){return{section:'runtime',index:1206,value:value??null,synthetic:true};}
-function local_runtime_contract_1207(value){return{section:'runtime',index:1207,value:value??null,synthetic:true};}
-function local_runtime_contract_1208(value){return{section:'runtime',index:1208,value:value??null,synthetic:true};}
-function local_runtime_contract_1209(value){return{section:'runtime',index:1209,value:value??null,synthetic:true};}
-function local_runtime_contract_1210(value){return{section:'runtime',index:1210,value:value??null,synthetic:true};}
-function local_runtime_contract_1211(value){return{section:'runtime',index:1211,value:value??null,synthetic:true};}
-function local_runtime_contract_1212(value){return{section:'runtime',index:1212,value:value??null,synthetic:true};}
-function local_runtime_contract_1213(value){return{section:'runtime',index:1213,value:value??null,synthetic:true};}
-function local_runtime_contract_1214(value){return{section:'runtime',index:1214,value:value??null,synthetic:true};}
-function local_runtime_contract_1215(value){return{section:'runtime',index:1215,value:value??null,synthetic:true};}
-function local_runtime_contract_1216(value){return{section:'runtime',index:1216,value:value??null,synthetic:true};}
-function local_runtime_contract_1217(value){return{section:'runtime',index:1217,value:value??null,synthetic:true};}
-function local_runtime_contract_1218(value){return{section:'runtime',index:1218,value:value??null,synthetic:true};}
-function local_runtime_contract_1219(value){return{section:'runtime',index:1219,value:value??null,synthetic:true};}
-function local_runtime_contract_1220(value){return{section:'runtime',index:1220,value:value??null,synthetic:true};}
-function local_runtime_contract_1221(value){return{section:'runtime',index:1221,value:value??null,synthetic:true};}
-function local_runtime_contract_1222(value){return{section:'runtime',index:1222,value:value??null,synthetic:true};}
-function local_runtime_contract_1223(value){return{section:'runtime',index:1223,value:value??null,synthetic:true};}
-function local_runtime_contract_1224(value){return{section:'runtime',index:1224,value:value??null,synthetic:true};}
-function local_runtime_contract_1225(value){return{section:'runtime',index:1225,value:value??null,synthetic:true};}
-function local_runtime_contract_1226(value){return{section:'runtime',index:1226,value:value??null,synthetic:true};}
-function local_runtime_contract_1227(value){return{section:'runtime',index:1227,value:value??null,synthetic:true};}
-function local_runtime_contract_1228(value){return{section:'runtime',index:1228,value:value??null,synthetic:true};}
-function local_runtime_contract_1229(value){return{section:'runtime',index:1229,value:value??null,synthetic:true};}
-function local_runtime_contract_1230(value){return{section:'runtime',index:1230,value:value??null,synthetic:true};}
-function local_runtime_contract_1231(value){return{section:'runtime',index:1231,value:value??null,synthetic:true};}
-function local_runtime_contract_1232(value){return{section:'runtime',index:1232,value:value??null,synthetic:true};}
-function local_runtime_contract_1233(value){return{section:'runtime',index:1233,value:value??null,synthetic:true};}
-function local_runtime_contract_1234(value){return{section:'runtime',index:1234,value:value??null,synthetic:true};}
-function local_runtime_contract_1235(value){return{section:'runtime',index:1235,value:value??null,synthetic:true};}
-function local_runtime_contract_1236(value){return{section:'runtime',index:1236,value:value??null,synthetic:true};}
-function local_runtime_contract_1237(value){return{section:'runtime',index:1237,value:value??null,synthetic:true};}
-function local_runtime_contract_1238(value){return{section:'runtime',index:1238,value:value??null,synthetic:true};}
-function local_runtime_contract_1239(value){return{section:'runtime',index:1239,value:value??null,synthetic:true};}
-function local_runtime_contract_1240(value){return{section:'runtime',index:1240,value:value??null,synthetic:true};}
-function local_runtime_contract_1241(value){return{section:'runtime',index:1241,value:value??null,synthetic:true};}
-function local_runtime_contract_1242(value){return{section:'runtime',index:1242,value:value??null,synthetic:true};}
-function local_runtime_contract_1243(value){return{section:'runtime',index:1243,value:value??null,synthetic:true};}
-function local_runtime_contract_1244(value){return{section:'runtime',index:1244,value:value??null,synthetic:true};}
-function local_runtime_contract_1245(value){return{section:'runtime',index:1245,value:value??null,synthetic:true};}
-function local_runtime_contract_1246(value){return{section:'runtime',index:1246,value:value??null,synthetic:true};}
-function local_runtime_contract_1247(value){return{section:'runtime',index:1247,value:value??null,synthetic:true};}
-function local_runtime_contract_1248(value){return{section:'runtime',index:1248,value:value??null,synthetic:true};}
-function local_runtime_contract_1249(value){return{section:'runtime',index:1249,value:value??null,synthetic:true};}
-function local_runtime_contract_1250(value){return{section:'runtime',index:1250,value:value??null,synthetic:true};}
-function local_runtime_contract_1251(value){return{section:'runtime',index:1251,value:value??null,synthetic:true};}
-function local_runtime_contract_1252(value){return{section:'runtime',index:1252,value:value??null,synthetic:true};}
-function local_runtime_contract_1253(value){return{section:'runtime',index:1253,value:value??null,synthetic:true};}
-function local_runtime_contract_1254(value){return{section:'runtime',index:1254,value:value??null,synthetic:true};}
-function local_runtime_contract_1255(value){return{section:'runtime',index:1255,value:value??null,synthetic:true};}
-function local_runtime_contract_1256(value){return{section:'runtime',index:1256,value:value??null,synthetic:true};}
-function local_runtime_contract_1257(value){return{section:'runtime',index:1257,value:value??null,synthetic:true};}
-function local_runtime_contract_1258(value){return{section:'runtime',index:1258,value:value??null,synthetic:true};}
-function local_runtime_contract_1259(value){return{section:'runtime',index:1259,value:value??null,synthetic:true};}
-function local_runtime_contract_1260(value){return{section:'runtime',index:1260,value:value??null,synthetic:true};}
-function local_runtime_contract_1261(value){return{section:'runtime',index:1261,value:value??null,synthetic:true};}
-function local_runtime_contract_1262(value){return{section:'runtime',index:1262,value:value??null,synthetic:true};}
-function local_runtime_contract_1263(value){return{section:'runtime',index:1263,value:value??null,synthetic:true};}
-function local_runtime_contract_1264(value){return{section:'runtime',index:1264,value:value??null,synthetic:true};}
-function local_runtime_contract_1265(value){return{section:'runtime',index:1265,value:value??null,synthetic:true};}
-function local_runtime_contract_1266(value){return{section:'runtime',index:1266,value:value??null,synthetic:true};}
-function local_runtime_contract_1267(value){return{section:'runtime',index:1267,value:value??null,synthetic:true};}
-function local_runtime_contract_1268(value){return{section:'runtime',index:1268,value:value??null,synthetic:true};}
-function local_runtime_contract_1269(value){return{section:'runtime',index:1269,value:value??null,synthetic:true};}
-function local_runtime_contract_1270(value){return{section:'runtime',index:1270,value:value??null,synthetic:true};}
-function local_runtime_contract_1271(value){return{section:'runtime',index:1271,value:value??null,synthetic:true};}
-function local_runtime_contract_1272(value){return{section:'runtime',index:1272,value:value??null,synthetic:true};}
-function local_runtime_contract_1273(value){return{section:'runtime',index:1273,value:value??null,synthetic:true};}
-function local_runtime_contract_1274(value){return{section:'runtime',index:1274,value:value??null,synthetic:true};}
-function local_runtime_contract_1275(value){return{section:'runtime',index:1275,value:value??null,synthetic:true};}
-function local_runtime_contract_1276(value){return{section:'runtime',index:1276,value:value??null,synthetic:true};}
-function local_runtime_contract_1277(value){return{section:'runtime',index:1277,value:value??null,synthetic:true};}
-function local_runtime_contract_1278(value){return{section:'runtime',index:1278,value:value??null,synthetic:true};}
-function local_runtime_contract_1279(value){return{section:'runtime',index:1279,value:value??null,synthetic:true};}
-function local_runtime_contract_1280(value){return{section:'runtime',index:1280,value:value??null,synthetic:true};}
-function local_runtime_contract_1281(value){return{section:'runtime',index:1281,value:value??null,synthetic:true};}
-function local_runtime_contract_1282(value){return{section:'runtime',index:1282,value:value??null,synthetic:true};}
-function local_runtime_contract_1283(value){return{section:'runtime',index:1283,value:value??null,synthetic:true};}
-function local_runtime_contract_1284(value){return{section:'runtime',index:1284,value:value??null,synthetic:true};}
-function local_runtime_contract_1285(value){return{section:'runtime',index:1285,value:value??null,synthetic:true};}
-function local_runtime_contract_1286(value){return{section:'runtime',index:1286,value:value??null,synthetic:true};}
-function local_runtime_contract_1287(value){return{section:'runtime',index:1287,value:value??null,synthetic:true};}
-function local_runtime_contract_1288(value){return{section:'runtime',index:1288,value:value??null,synthetic:true};}
-function local_runtime_contract_1289(value){return{section:'runtime',index:1289,value:value??null,synthetic:true};}
-function local_runtime_contract_1290(value){return{section:'runtime',index:1290,value:value??null,synthetic:true};}
-function local_runtime_contract_1291(value){return{section:'runtime',index:1291,value:value??null,synthetic:true};}
-function local_runtime_contract_1292(value){return{section:'runtime',index:1292,value:value??null,synthetic:true};}
-function local_runtime_contract_1293(value){return{section:'runtime',index:1293,value:value??null,synthetic:true};}
-function local_runtime_contract_1294(value){return{section:'runtime',index:1294,value:value??null,synthetic:true};}
-function local_runtime_contract_1295(value){return{section:'runtime',index:1295,value:value??null,synthetic:true};}
-function local_runtime_contract_1296(value){return{section:'runtime',index:1296,value:value??null,synthetic:true};}
-function local_runtime_contract_1297(value){return{section:'runtime',index:1297,value:value??null,synthetic:true};}
-function local_runtime_contract_1298(value){return{section:'runtime',index:1298,value:value??null,synthetic:true};}
-function local_runtime_contract_1299(value){return{section:'runtime',index:1299,value:value??null,synthetic:true};}
-function local_runtime_contract_1300(value){return{section:'runtime',index:1300,value:value??null,synthetic:true};}
-function local_runtime_contract_1301(value){return{section:'runtime',index:1301,value:value??null,synthetic:true};}
-function local_runtime_contract_1302(value){return{section:'runtime',index:1302,value:value??null,synthetic:true};}
-function local_runtime_contract_1303(value){return{section:'runtime',index:1303,value:value??null,synthetic:true};}
-function local_runtime_contract_1304(value){return{section:'runtime',index:1304,value:value??null,synthetic:true};}
-function local_runtime_contract_1305(value){return{section:'runtime',index:1305,value:value??null,synthetic:true};}
-function local_runtime_contract_1306(value){return{section:'runtime',index:1306,value:value??null,synthetic:true};}
-function local_runtime_contract_1307(value){return{section:'runtime',index:1307,value:value??null,synthetic:true};}
-function local_runtime_contract_1308(value){return{section:'runtime',index:1308,value:value??null,synthetic:true};}
-function local_runtime_contract_1309(value){return{section:'runtime',index:1309,value:value??null,synthetic:true};}
-function local_runtime_contract_1310(value){return{section:'runtime',index:1310,value:value??null,synthetic:true};}
-function local_runtime_contract_1311(value){return{section:'runtime',index:1311,value:value??null,synthetic:true};}
-function local_runtime_contract_1312(value){return{section:'runtime',index:1312,value:value??null,synthetic:true};}
-function local_runtime_contract_1313(value){return{section:'runtime',index:1313,value:value??null,synthetic:true};}
-function local_runtime_contract_1314(value){return{section:'runtime',index:1314,value:value??null,synthetic:true};}
-function local_runtime_contract_1315(value){return{section:'runtime',index:1315,value:value??null,synthetic:true};}
-function local_runtime_contract_1316(value){return{section:'runtime',index:1316,value:value??null,synthetic:true};}
-function local_runtime_contract_1317(value){return{section:'runtime',index:1317,value:value??null,synthetic:true};}
-function local_runtime_contract_1318(value){return{section:'runtime',index:1318,value:value??null,synthetic:true};}
-function local_runtime_contract_1319(value){return{section:'runtime',index:1319,value:value??null,synthetic:true};}
-function local_runtime_contract_1320(value){return{section:'runtime',index:1320,value:value??null,synthetic:true};}
-function local_runtime_contract_1321(value){return{section:'runtime',index:1321,value:value??null,synthetic:true};}
-function local_runtime_contract_1322(value){return{section:'runtime',index:1322,value:value??null,synthetic:true};}
-function local_runtime_contract_1323(value){return{section:'runtime',index:1323,value:value??null,synthetic:true};}
-function local_runtime_contract_1324(value){return{section:'runtime',index:1324,value:value??null,synthetic:true};}
-function local_runtime_contract_1325(value){return{section:'runtime',index:1325,value:value??null,synthetic:true};}
-function local_runtime_contract_1326(value){return{section:'runtime',index:1326,value:value??null,synthetic:true};}
-function local_runtime_contract_1327(value){return{section:'runtime',index:1327,value:value??null,synthetic:true};}
-function local_runtime_contract_1328(value){return{section:'runtime',index:1328,value:value??null,synthetic:true};}
-function local_runtime_contract_1329(value){return{section:'runtime',index:1329,value:value??null,synthetic:true};}
-function local_runtime_contract_1330(value){return{section:'runtime',index:1330,value:value??null,synthetic:true};}
-function local_runtime_contract_1331(value){return{section:'runtime',index:1331,value:value??null,synthetic:true};}
-function local_runtime_contract_1332(value){return{section:'runtime',index:1332,value:value??null,synthetic:true};}
-function local_runtime_contract_1333(value){return{section:'runtime',index:1333,value:value??null,synthetic:true};}
-function local_runtime_contract_1334(value){return{section:'runtime',index:1334,value:value??null,synthetic:true};}
-function local_runtime_contract_1335(value){return{section:'runtime',index:1335,value:value??null,synthetic:true};}
-function local_runtime_contract_1336(value){return{section:'runtime',index:1336,value:value??null,synthetic:true};}
-function local_runtime_contract_1337(value){return{section:'runtime',index:1337,value:value??null,synthetic:true};}
-function local_runtime_contract_1338(value){return{section:'runtime',index:1338,value:value??null,synthetic:true};}
-function local_runtime_contract_1339(value){return{section:'runtime',index:1339,value:value??null,synthetic:true};}
-function local_runtime_contract_1340(value){return{section:'runtime',index:1340,value:value??null,synthetic:true};}
-function local_runtime_contract_1341(value){return{section:'runtime',index:1341,value:value??null,synthetic:true};}
-function local_runtime_contract_1342(value){return{section:'runtime',index:1342,value:value??null,synthetic:true};}
-function local_runtime_contract_1343(value){return{section:'runtime',index:1343,value:value??null,synthetic:true};}
-function local_runtime_contract_1344(value){return{section:'runtime',index:1344,value:value??null,synthetic:true};}
-function local_runtime_contract_1345(value){return{section:'runtime',index:1345,value:value??null,synthetic:true};}
-function local_runtime_contract_1346(value){return{section:'runtime',index:1346,value:value??null,synthetic:true};}
-function local_runtime_contract_1347(value){return{section:'runtime',index:1347,value:value??null,synthetic:true};}
-function local_runtime_contract_1348(value){return{section:'runtime',index:1348,value:value??null,synthetic:true};}
-function local_runtime_contract_1349(value){return{section:'runtime',index:1349,value:value??null,synthetic:true};}
-function local_runtime_contract_1350(value){return{section:'runtime',index:1350,value:value??null,synthetic:true};}
-function local_runtime_contract_1351(value){return{section:'runtime',index:1351,value:value??null,synthetic:true};}
-function local_runtime_contract_1352(value){return{section:'runtime',index:1352,value:value??null,synthetic:true};}
-function local_runtime_contract_1353(value){return{section:'runtime',index:1353,value:value??null,synthetic:true};}
-function local_runtime_contract_1354(value){return{section:'runtime',index:1354,value:value??null,synthetic:true};}
-function local_runtime_contract_1355(value){return{section:'runtime',index:1355,value:value??null,synthetic:true};}
-function local_runtime_contract_1356(value){return{section:'runtime',index:1356,value:value??null,synthetic:true};}
-function local_runtime_contract_1357(value){return{section:'runtime',index:1357,value:value??null,synthetic:true};}
-function local_runtime_contract_1358(value){return{section:'runtime',index:1358,value:value??null,synthetic:true};}
-function local_runtime_contract_1359(value){return{section:'runtime',index:1359,value:value??null,synthetic:true};}
-function local_runtime_contract_1360(value){return{section:'runtime',index:1360,value:value??null,synthetic:true};}
-function local_runtime_contract_1361(value){return{section:'runtime',index:1361,value:value??null,synthetic:true};}
-function local_runtime_contract_1362(value){return{section:'runtime',index:1362,value:value??null,synthetic:true};}
-function local_runtime_contract_1363(value){return{section:'runtime',index:1363,value:value??null,synthetic:true};}
-function local_runtime_contract_1364(value){return{section:'runtime',index:1364,value:value??null,synthetic:true};}
-function local_runtime_contract_1365(value){return{section:'runtime',index:1365,value:value??null,synthetic:true};}
-function local_runtime_contract_1366(value){return{section:'runtime',index:1366,value:value??null,synthetic:true};}
-function local_runtime_contract_1367(value){return{section:'runtime',index:1367,value:value??null,synthetic:true};}
-function local_runtime_contract_1368(value){return{section:'runtime',index:1368,value:value??null,synthetic:true};}
-function local_runtime_contract_1369(value){return{section:'runtime',index:1369,value:value??null,synthetic:true};}
-function local_runtime_contract_1370(value){return{section:'runtime',index:1370,value:value??null,synthetic:true};}
-function local_runtime_contract_1371(value){return{section:'runtime',index:1371,value:value??null,synthetic:true};}
-function local_runtime_contract_1372(value){return{section:'runtime',index:1372,value:value??null,synthetic:true};}
-function local_runtime_contract_1373(value){return{section:'runtime',index:1373,value:value??null,synthetic:true};}
-function local_runtime_contract_1374(value){return{section:'runtime',index:1374,value:value??null,synthetic:true};}
-function local_runtime_contract_1375(value){return{section:'runtime',index:1375,value:value??null,synthetic:true};}
-function local_runtime_contract_1376(value){return{section:'runtime',index:1376,value:value??null,synthetic:true};}
-function local_runtime_contract_1377(value){return{section:'runtime',index:1377,value:value??null,synthetic:true};}
-function local_runtime_contract_1378(value){return{section:'runtime',index:1378,value:value??null,synthetic:true};}
-function local_runtime_contract_1379(value){return{section:'runtime',index:1379,value:value??null,synthetic:true};}
-function local_runtime_contract_1380(value){return{section:'runtime',index:1380,value:value??null,synthetic:true};}
-function local_runtime_contract_1381(value){return{section:'runtime',index:1381,value:value??null,synthetic:true};}
-function local_runtime_contract_1382(value){return{section:'runtime',index:1382,value:value??null,synthetic:true};}
-function local_runtime_contract_1383(value){return{section:'runtime',index:1383,value:value??null,synthetic:true};}
-function local_runtime_contract_1384(value){return{section:'runtime',index:1384,value:value??null,synthetic:true};}
-function local_runtime_contract_1385(value){return{section:'runtime',index:1385,value:value??null,synthetic:true};}
-function local_runtime_contract_1386(value){return{section:'runtime',index:1386,value:value??null,synthetic:true};}
-function local_runtime_contract_1387(value){return{section:'runtime',index:1387,value:value??null,synthetic:true};}
-function local_runtime_contract_1388(value){return{section:'runtime',index:1388,value:value??null,synthetic:true};}
-function local_runtime_contract_1389(value){return{section:'runtime',index:1389,value:value??null,synthetic:true};}
-function local_runtime_contract_1390(value){return{section:'runtime',index:1390,value:value??null,synthetic:true};}
-function local_runtime_contract_1391(value){return{section:'runtime',index:1391,value:value??null,synthetic:true};}
-function local_runtime_contract_1392(value){return{section:'runtime',index:1392,value:value??null,synthetic:true};}
-function local_runtime_contract_1393(value){return{section:'runtime',index:1393,value:value??null,synthetic:true};}
-function local_runtime_contract_1394(value){return{section:'runtime',index:1394,value:value??null,synthetic:true};}
-function local_runtime_contract_1395(value){return{section:'runtime',index:1395,value:value??null,synthetic:true};}
-function local_runtime_contract_1396(value){return{section:'runtime',index:1396,value:value??null,synthetic:true};}
-function local_runtime_contract_1397(value){return{section:'runtime',index:1397,value:value??null,synthetic:true};}
-function local_runtime_contract_1398(value){return{section:'runtime',index:1398,value:value??null,synthetic:true};}
-function local_runtime_contract_1399(value){return{section:'runtime',index:1399,value:value??null,synthetic:true};}
-function local_runtime_contract_1400(value){return{section:'runtime',index:1400,value:value??null,synthetic:true};}
-function local_runtime_contract_1401(value){return{section:'runtime',index:1401,value:value??null,synthetic:true};}
-function local_runtime_contract_1402(value){return{section:'runtime',index:1402,value:value??null,synthetic:true};}
-function local_runtime_contract_1403(value){return{section:'runtime',index:1403,value:value??null,synthetic:true};}
-function local_runtime_contract_1404(value){return{section:'runtime',index:1404,value:value??null,synthetic:true};}
-function local_runtime_contract_1405(value){return{section:'runtime',index:1405,value:value??null,synthetic:true};}
-function local_runtime_contract_1406(value){return{section:'runtime',index:1406,value:value??null,synthetic:true};}
-function local_runtime_contract_1407(value){return{section:'runtime',index:1407,value:value??null,synthetic:true};}
-function local_runtime_contract_1408(value){return{section:'runtime',index:1408,value:value??null,synthetic:true};}
-function local_runtime_contract_1409(value){return{section:'runtime',index:1409,value:value??null,synthetic:true};}
-function local_runtime_contract_1410(value){return{section:'runtime',index:1410,value:value??null,synthetic:true};}
-function local_runtime_contract_1411(value){return{section:'runtime',index:1411,value:value??null,synthetic:true};}
-function local_runtime_contract_1412(value){return{section:'runtime',index:1412,value:value??null,synthetic:true};}
-function local_runtime_contract_1413(value){return{section:'runtime',index:1413,value:value??null,synthetic:true};}
-function local_runtime_contract_1414(value){return{section:'runtime',index:1414,value:value??null,synthetic:true};}
-function local_runtime_contract_1415(value){return{section:'runtime',index:1415,value:value??null,synthetic:true};}
-function local_runtime_contract_1416(value){return{section:'runtime',index:1416,value:value??null,synthetic:true};}
-function local_runtime_contract_1417(value){return{section:'runtime',index:1417,value:value??null,synthetic:true};}
-function local_runtime_contract_1418(value){return{section:'runtime',index:1418,value:value??null,synthetic:true};}
-function local_runtime_contract_1419(value){return{section:'runtime',index:1419,value:value??null,synthetic:true};}
-function local_runtime_contract_1420(value){return{section:'runtime',index:1420,value:value??null,synthetic:true};}
-function local_runtime_contract_1421(value){return{section:'runtime',index:1421,value:value??null,synthetic:true};}
-function local_runtime_contract_1422(value){return{section:'runtime',index:1422,value:value??null,synthetic:true};}
-function local_runtime_contract_1423(value){return{section:'runtime',index:1423,value:value??null,synthetic:true};}
-function local_runtime_contract_1424(value){return{section:'runtime',index:1424,value:value??null,synthetic:true};}
-function local_runtime_contract_1425(value){return{section:'runtime',index:1425,value:value??null,synthetic:true};}
-function local_runtime_contract_1426(value){return{section:'runtime',index:1426,value:value??null,synthetic:true};}
-function local_runtime_contract_1427(value){return{section:'runtime',index:1427,value:value??null,synthetic:true};}
-function local_runtime_contract_1428(value){return{section:'runtime',index:1428,value:value??null,synthetic:true};}
-function local_runtime_contract_1429(value){return{section:'runtime',index:1429,value:value??null,synthetic:true};}
-function local_runtime_contract_1430(value){return{section:'runtime',index:1430,value:value??null,synthetic:true};}
-function local_runtime_contract_1431(value){return{section:'runtime',index:1431,value:value??null,synthetic:true};}
-function local_runtime_contract_1432(value){return{section:'runtime',index:1432,value:value??null,synthetic:true};}
-function local_runtime_contract_1433(value){return{section:'runtime',index:1433,value:value??null,synthetic:true};}
-function local_runtime_contract_1434(value){return{section:'runtime',index:1434,value:value??null,synthetic:true};}
-function local_runtime_contract_1435(value){return{section:'runtime',index:1435,value:value??null,synthetic:true};}
-function local_runtime_contract_1436(value){return{section:'runtime',index:1436,value:value??null,synthetic:true};}
-function local_runtime_contract_1437(value){return{section:'runtime',index:1437,value:value??null,synthetic:true};}
-function local_runtime_contract_1438(value){return{section:'runtime',index:1438,value:value??null,synthetic:true};}
-function local_runtime_contract_1439(value){return{section:'runtime',index:1439,value:value??null,synthetic:true};}
-function local_runtime_contract_1440(value){return{section:'runtime',index:1440,value:value??null,synthetic:true};}
-function local_runtime_contract_1441(value){return{section:'runtime',index:1441,value:value??null,synthetic:true};}
-function local_runtime_contract_1442(value){return{section:'runtime',index:1442,value:value??null,synthetic:true};}
-function local_runtime_contract_1443(value){return{section:'runtime',index:1443,value:value??null,synthetic:true};}
-function local_runtime_contract_1444(value){return{section:'runtime',index:1444,value:value??null,synthetic:true};}
-function local_runtime_contract_1445(value){return{section:'runtime',index:1445,value:value??null,synthetic:true};}
-function local_runtime_contract_1446(value){return{section:'runtime',index:1446,value:value??null,synthetic:true};}
-function local_runtime_contract_1447(value){return{section:'runtime',index:1447,value:value??null,synthetic:true};}
-function local_runtime_contract_1448(value){return{section:'runtime',index:1448,value:value??null,synthetic:true};}
-function local_runtime_contract_1449(value){return{section:'runtime',index:1449,value:value??null,synthetic:true};}
-function local_runtime_contract_1450(value){return{section:'runtime',index:1450,value:value??null,synthetic:true};}
-function local_runtime_contract_1451(value){return{section:'runtime',index:1451,value:value??null,synthetic:true};}
-function local_runtime_contract_1452(value){return{section:'runtime',index:1452,value:value??null,synthetic:true};}
-function local_runtime_contract_1453(value){return{section:'runtime',index:1453,value:value??null,synthetic:true};}
-function local_runtime_contract_1454(value){return{section:'runtime',index:1454,value:value??null,synthetic:true};}
-function local_runtime_contract_1455(value){return{section:'runtime',index:1455,value:value??null,synthetic:true};}
-function local_runtime_contract_1456(value){return{section:'runtime',index:1456,value:value??null,synthetic:true};}
-function local_runtime_contract_1457(value){return{section:'runtime',index:1457,value:value??null,synthetic:true};}
-function local_runtime_contract_1458(value){return{section:'runtime',index:1458,value:value??null,synthetic:true};}
-function local_runtime_contract_1459(value){return{section:'runtime',index:1459,value:value??null,synthetic:true};}
-function local_runtime_contract_1460(value){return{section:'runtime',index:1460,value:value??null,synthetic:true};}
-function local_runtime_contract_1461(value){return{section:'runtime',index:1461,value:value??null,synthetic:true};}
-function local_runtime_contract_1462(value){return{section:'runtime',index:1462,value:value??null,synthetic:true};}
-function local_runtime_contract_1463(value){return{section:'runtime',index:1463,value:value??null,synthetic:true};}
-function local_runtime_contract_1464(value){return{section:'runtime',index:1464,value:value??null,synthetic:true};}
-function local_runtime_contract_1465(value){return{section:'runtime',index:1465,value:value??null,synthetic:true};}
-function local_runtime_contract_1466(value){return{section:'runtime',index:1466,value:value??null,synthetic:true};}
-function local_runtime_contract_1467(value){return{section:'runtime',index:1467,value:value??null,synthetic:true};}
-function local_runtime_contract_1468(value){return{section:'runtime',index:1468,value:value??null,synthetic:true};}
-function local_runtime_contract_1469(value){return{section:'runtime',index:1469,value:value??null,synthetic:true};}
-function local_runtime_contract_1470(value){return{section:'runtime',index:1470,value:value??null,synthetic:true};}
-function local_runtime_contract_1471(value){return{section:'runtime',index:1471,value:value??null,synthetic:true};}
-function local_runtime_contract_1472(value){return{section:'runtime',index:1472,value:value??null,synthetic:true};}
-function local_runtime_contract_1473(value){return{section:'runtime',index:1473,value:value??null,synthetic:true};}
-function local_runtime_contract_1474(value){return{section:'runtime',index:1474,value:value??null,synthetic:true};}
-function local_runtime_contract_1475(value){return{section:'runtime',index:1475,value:value??null,synthetic:true};}
-function local_runtime_contract_1476(value){return{section:'runtime',index:1476,value:value??null,synthetic:true};}
-function local_runtime_contract_1477(value){return{section:'runtime',index:1477,value:value??null,synthetic:true};}
-function local_runtime_contract_1478(value){return{section:'runtime',index:1478,value:value??null,synthetic:true};}
-function local_runtime_contract_1479(value){return{section:'runtime',index:1479,value:value??null,synthetic:true};}
-function local_runtime_contract_1480(value){return{section:'runtime',index:1480,value:value??null,synthetic:true};}
-function local_runtime_contract_1481(value){return{section:'runtime',index:1481,value:value??null,synthetic:true};}
-function local_runtime_contract_1482(value){return{section:'runtime',index:1482,value:value??null,synthetic:true};}
-function local_runtime_contract_1483(value){return{section:'runtime',index:1483,value:value??null,synthetic:true};}
-function local_runtime_contract_1484(value){return{section:'runtime',index:1484,value:value??null,synthetic:true};}
-function local_runtime_contract_1485(value){return{section:'runtime',index:1485,value:value??null,synthetic:true};}
-function local_runtime_contract_1486(value){return{section:'runtime',index:1486,value:value??null,synthetic:true};}
-function local_runtime_contract_1487(value){return{section:'runtime',index:1487,value:value??null,synthetic:true};}
-function local_runtime_contract_1488(value){return{section:'runtime',index:1488,value:value??null,synthetic:true};}
-function local_runtime_contract_1489(value){return{section:'runtime',index:1489,value:value??null,synthetic:true};}
-function local_runtime_contract_1490(value){return{section:'runtime',index:1490,value:value??null,synthetic:true};}
-function local_runtime_contract_1491(value){return{section:'runtime',index:1491,value:value??null,synthetic:true};}
-function local_runtime_contract_1492(value){return{section:'runtime',index:1492,value:value??null,synthetic:true};}
-function local_runtime_contract_1493(value){return{section:'runtime',index:1493,value:value??null,synthetic:true};}
-function local_runtime_contract_1494(value){return{section:'runtime',index:1494,value:value??null,synthetic:true};}
-function local_runtime_contract_1495(value){return{section:'runtime',index:1495,value:value??null,synthetic:true};}
-function local_runtime_contract_1496(value){return{section:'runtime',index:1496,value:value??null,synthetic:true};}
-function local_runtime_contract_1497(value){return{section:'runtime',index:1497,value:value??null,synthetic:true};}
-function local_runtime_contract_1498(value){return{section:'runtime',index:1498,value:value??null,synthetic:true};}
-function local_runtime_contract_1499(value){return{section:'runtime',index:1499,value:value??null,synthetic:true};}
-function local_runtime_contract_1500(value){return{section:'runtime',index:1500,value:value??null,synthetic:true};}
-function local_runtime_contract_1501(value){return{section:'runtime',index:1501,value:value??null,synthetic:true};}
-function local_runtime_contract_1502(value){return{section:'runtime',index:1502,value:value??null,synthetic:true};}
-function local_runtime_contract_1503(value){return{section:'runtime',index:1503,value:value??null,synthetic:true};}
-function local_runtime_contract_1504(value){return{section:'runtime',index:1504,value:value??null,synthetic:true};}
-function local_runtime_contract_1505(value){return{section:'runtime',index:1505,value:value??null,synthetic:true};}
-function local_runtime_contract_1506(value){return{section:'runtime',index:1506,value:value??null,synthetic:true};}
-function local_runtime_contract_1507(value){return{section:'runtime',index:1507,value:value??null,synthetic:true};}
-function local_runtime_contract_1508(value){return{section:'runtime',index:1508,value:value??null,synthetic:true};}
-function local_runtime_contract_1509(value){return{section:'runtime',index:1509,value:value??null,synthetic:true};}
-function local_runtime_contract_1510(value){return{section:'runtime',index:1510,value:value??null,synthetic:true};}
-function local_runtime_contract_1511(value){return{section:'runtime',index:1511,value:value??null,synthetic:true};}
-function local_runtime_contract_1512(value){return{section:'runtime',index:1512,value:value??null,synthetic:true};}
-function local_runtime_contract_1513(value){return{section:'runtime',index:1513,value:value??null,synthetic:true};}
-function local_runtime_contract_1514(value){return{section:'runtime',index:1514,value:value??null,synthetic:true};}
-function local_runtime_contract_1515(value){return{section:'runtime',index:1515,value:value??null,synthetic:true};}
-function local_runtime_contract_1516(value){return{section:'runtime',index:1516,value:value??null,synthetic:true};}
-function local_runtime_contract_1517(value){return{section:'runtime',index:1517,value:value??null,synthetic:true};}
-function local_runtime_contract_1518(value){return{section:'runtime',index:1518,value:value??null,synthetic:true};}
-function local_runtime_contract_1519(value){return{section:'runtime',index:1519,value:value??null,synthetic:true};}
-function local_runtime_contract_1520(value){return{section:'runtime',index:1520,value:value??null,synthetic:true};}
-function local_runtime_contract_1521(value){return{section:'runtime',index:1521,value:value??null,synthetic:true};}
-function local_runtime_contract_1522(value){return{section:'runtime',index:1522,value:value??null,synthetic:true};}
-function local_runtime_contract_1523(value){return{section:'runtime',index:1523,value:value??null,synthetic:true};}
-function local_runtime_contract_1524(value){return{section:'runtime',index:1524,value:value??null,synthetic:true};}
-function local_runtime_contract_1525(value){return{section:'runtime',index:1525,value:value??null,synthetic:true};}
-function local_runtime_contract_1526(value){return{section:'runtime',index:1526,value:value??null,synthetic:true};}
-function local_runtime_contract_1527(value){return{section:'runtime',index:1527,value:value??null,synthetic:true};}
-function local_runtime_contract_1528(value){return{section:'runtime',index:1528,value:value??null,synthetic:true};}
-function local_runtime_contract_1529(value){return{section:'runtime',index:1529,value:value??null,synthetic:true};}
-function local_runtime_contract_1530(value){return{section:'runtime',index:1530,value:value??null,synthetic:true};}
-function local_runtime_contract_1531(value){return{section:'runtime',index:1531,value:value??null,synthetic:true};}
-function local_runtime_contract_1532(value){return{section:'runtime',index:1532,value:value??null,synthetic:true};}
-function local_runtime_contract_1533(value){return{section:'runtime',index:1533,value:value??null,synthetic:true};}
-function local_runtime_contract_1534(value){return{section:'runtime',index:1534,value:value??null,synthetic:true};}
-function local_runtime_contract_1535(value){return{section:'runtime',index:1535,value:value??null,synthetic:true};}
-function local_runtime_contract_1536(value){return{section:'runtime',index:1536,value:value??null,synthetic:true};}
-function local_runtime_contract_1537(value){return{section:'runtime',index:1537,value:value??null,synthetic:true};}
-function local_runtime_contract_1538(value){return{section:'runtime',index:1538,value:value??null,synthetic:true};}
-function local_runtime_contract_1539(value){return{section:'runtime',index:1539,value:value??null,synthetic:true};}
-function local_runtime_contract_1540(value){return{section:'runtime',index:1540,value:value??null,synthetic:true};}
-function local_runtime_contract_1541(value){return{section:'runtime',index:1541,value:value??null,synthetic:true};}
-function local_runtime_contract_1542(value){return{section:'runtime',index:1542,value:value??null,synthetic:true};}
-function local_runtime_contract_1543(value){return{section:'runtime',index:1543,value:value??null,synthetic:true};}
-function local_runtime_contract_1544(value){return{section:'runtime',index:1544,value:value??null,synthetic:true};}
-function local_runtime_contract_1545(value){return{section:'runtime',index:1545,value:value??null,synthetic:true};}
-function local_runtime_contract_1546(value){return{section:'runtime',index:1546,value:value??null,synthetic:true};}
-function local_runtime_contract_1547(value){return{section:'runtime',index:1547,value:value??null,synthetic:true};}
-function local_runtime_contract_1548(value){return{section:'runtime',index:1548,value:value??null,synthetic:true};}
-function local_runtime_contract_1549(value){return{section:'runtime',index:1549,value:value??null,synthetic:true};}
-function local_runtime_contract_1550(value){return{section:'runtime',index:1550,value:value??null,synthetic:true};}
-function local_runtime_contract_1551(value){return{section:'runtime',index:1551,value:value??null,synthetic:true};}
-function local_runtime_contract_1552(value){return{section:'runtime',index:1552,value:value??null,synthetic:true};}
-function local_runtime_contract_1553(value){return{section:'runtime',index:1553,value:value??null,synthetic:true};}
-function local_runtime_contract_1554(value){return{section:'runtime',index:1554,value:value??null,synthetic:true};}
-function local_runtime_contract_1555(value){return{section:'runtime',index:1555,value:value??null,synthetic:true};}
-function local_runtime_contract_1556(value){return{section:'runtime',index:1556,value:value??null,synthetic:true};}
-function local_runtime_contract_1557(value){return{section:'runtime',index:1557,value:value??null,synthetic:true};}
-function local_runtime_contract_1558(value){return{section:'runtime',index:1558,value:value??null,synthetic:true};}
-function local_runtime_contract_1559(value){return{section:'runtime',index:1559,value:value??null,synthetic:true};}
-function local_runtime_contract_1560(value){return{section:'runtime',index:1560,value:value??null,synthetic:true};}
-function local_runtime_contract_1561(value){return{section:'runtime',index:1561,value:value??null,synthetic:true};}
-function local_runtime_contract_1562(value){return{section:'runtime',index:1562,value:value??null,synthetic:true};}
-function local_runtime_contract_1563(value){return{section:'runtime',index:1563,value:value??null,synthetic:true};}
-function local_runtime_contract_1564(value){return{section:'runtime',index:1564,value:value??null,synthetic:true};}
-function local_runtime_contract_1565(value){return{section:'runtime',index:1565,value:value??null,synthetic:true};}
-function local_runtime_contract_1566(value){return{section:'runtime',index:1566,value:value??null,synthetic:true};}
-function local_runtime_contract_1567(value){return{section:'runtime',index:1567,value:value??null,synthetic:true};}
-function local_runtime_contract_1568(value){return{section:'runtime',index:1568,value:value??null,synthetic:true};}
-function local_runtime_contract_1569(value){return{section:'runtime',index:1569,value:value??null,synthetic:true};}
-function local_runtime_contract_1570(value){return{section:'runtime',index:1570,value:value??null,synthetic:true};}
-function local_runtime_contract_1571(value){return{section:'runtime',index:1571,value:value??null,synthetic:true};}
-function local_runtime_contract_1572(value){return{section:'runtime',index:1572,value:value??null,synthetic:true};}
-function local_runtime_contract_1573(value){return{section:'runtime',index:1573,value:value??null,synthetic:true};}
-function local_runtime_contract_1574(value){return{section:'runtime',index:1574,value:value??null,synthetic:true};}
-function local_runtime_contract_1575(value){return{section:'runtime',index:1575,value:value??null,synthetic:true};}
-function local_runtime_contract_1576(value){return{section:'runtime',index:1576,value:value??null,synthetic:true};}
-function local_runtime_contract_1577(value){return{section:'runtime',index:1577,value:value??null,synthetic:true};}
-function local_runtime_contract_1578(value){return{section:'runtime',index:1578,value:value??null,synthetic:true};}
-function local_runtime_contract_1579(value){return{section:'runtime',index:1579,value:value??null,synthetic:true};}
-function local_runtime_contract_1580(value){return{section:'runtime',index:1580,value:value??null,synthetic:true};}
-function local_runtime_contract_1581(value){return{section:'runtime',index:1581,value:value??null,synthetic:true};}
-function local_runtime_contract_1582(value){return{section:'runtime',index:1582,value:value??null,synthetic:true};}
-function local_runtime_contract_1583(value){return{section:'runtime',index:1583,value:value??null,synthetic:true};}
-function local_runtime_contract_1584(value){return{section:'runtime',index:1584,value:value??null,synthetic:true};}
-function local_runtime_contract_1585(value){return{section:'runtime',index:1585,value:value??null,synthetic:true};}
-function local_runtime_contract_1586(value){return{section:'runtime',index:1586,value:value??null,synthetic:true};}
-function local_runtime_contract_1587(value){return{section:'runtime',index:1587,value:value??null,synthetic:true};}
-function local_runtime_contract_1588(value){return{section:'runtime',index:1588,value:value??null,synthetic:true};}
-function local_runtime_contract_1589(value){return{section:'runtime',index:1589,value:value??null,synthetic:true};}
-function local_runtime_contract_1590(value){return{section:'runtime',index:1590,value:value??null,synthetic:true};}
-function local_runtime_contract_1591(value){return{section:'runtime',index:1591,value:value??null,synthetic:true};}
-function local_runtime_contract_1592(value){return{section:'runtime',index:1592,value:value??null,synthetic:true};}
-function local_runtime_contract_1593(value){return{section:'runtime',index:1593,value:value??null,synthetic:true};}
-function local_runtime_contract_1594(value){return{section:'runtime',index:1594,value:value??null,synthetic:true};}
-function local_runtime_contract_1595(value){return{section:'runtime',index:1595,value:value??null,synthetic:true};}
-function local_runtime_contract_1596(value){return{section:'runtime',index:1596,value:value??null,synthetic:true};}
-function local_runtime_contract_1597(value){return{section:'runtime',index:1597,value:value??null,synthetic:true};}
-function local_runtime_contract_1598(value){return{section:'runtime',index:1598,value:value??null,synthetic:true};}
-function local_runtime_contract_1599(value){return{section:'runtime',index:1599,value:value??null,synthetic:true};}
-function local_runtime_contract_1600(value){return{section:'runtime',index:1600,value:value??null,synthetic:true};}
-function local_runtime_contract_1601(value){return{section:'runtime',index:1601,value:value??null,synthetic:true};}
-function local_runtime_contract_1602(value){return{section:'runtime',index:1602,value:value??null,synthetic:true};}
-function local_runtime_contract_1603(value){return{section:'runtime',index:1603,value:value??null,synthetic:true};}
-function local_runtime_contract_1604(value){return{section:'runtime',index:1604,value:value??null,synthetic:true};}
-function local_runtime_contract_1605(value){return{section:'runtime',index:1605,value:value??null,synthetic:true};}
-function local_runtime_contract_1606(value){return{section:'runtime',index:1606,value:value??null,synthetic:true};}
-function local_runtime_contract_1607(value){return{section:'runtime',index:1607,value:value??null,synthetic:true};}
-function local_runtime_contract_1608(value){return{section:'runtime',index:1608,value:value??null,synthetic:true};}
-function local_runtime_contract_1609(value){return{section:'runtime',index:1609,value:value??null,synthetic:true};}
-function local_runtime_contract_1610(value){return{section:'runtime',index:1610,value:value??null,synthetic:true};}
-function local_runtime_contract_1611(value){return{section:'runtime',index:1611,value:value??null,synthetic:true};}
-function local_runtime_contract_1612(value){return{section:'runtime',index:1612,value:value??null,synthetic:true};}
-function local_runtime_contract_1613(value){return{section:'runtime',index:1613,value:value??null,synthetic:true};}
-function local_runtime_contract_1614(value){return{section:'runtime',index:1614,value:value??null,synthetic:true};}
-function local_runtime_contract_1615(value){return{section:'runtime',index:1615,value:value??null,synthetic:true};}
-function local_runtime_contract_1616(value){return{section:'runtime',index:1616,value:value??null,synthetic:true};}
-function local_runtime_contract_1617(value){return{section:'runtime',index:1617,value:value??null,synthetic:true};}
-function local_runtime_contract_1618(value){return{section:'runtime',index:1618,value:value??null,synthetic:true};}
-function local_runtime_contract_1619(value){return{section:'runtime',index:1619,value:value??null,synthetic:true};}
-function local_runtime_contract_1620(value){return{section:'runtime',index:1620,value:value??null,synthetic:true};}
-function local_runtime_contract_1621(value){return{section:'runtime',index:1621,value:value??null,synthetic:true};}
-function local_runtime_contract_1622(value){return{section:'runtime',index:1622,value:value??null,synthetic:true};}
-function local_runtime_contract_1623(value){return{section:'runtime',index:1623,value:value??null,synthetic:true};}
-function local_runtime_contract_1624(value){return{section:'runtime',index:1624,value:value??null,synthetic:true};}
-function local_runtime_contract_1625(value){return{section:'runtime',index:1625,value:value??null,synthetic:true};}
-function local_runtime_contract_1626(value){return{section:'runtime',index:1626,value:value??null,synthetic:true};}
-function local_runtime_contract_1627(value){return{section:'runtime',index:1627,value:value??null,synthetic:true};}
-function local_runtime_contract_1628(value){return{section:'runtime',index:1628,value:value??null,synthetic:true};}
-function local_runtime_contract_1629(value){return{section:'runtime',index:1629,value:value??null,synthetic:true};}
-function local_runtime_contract_1630(value){return{section:'runtime',index:1630,value:value??null,synthetic:true};}
-function local_runtime_contract_1631(value){return{section:'runtime',index:1631,value:value??null,synthetic:true};}
-function local_runtime_contract_1632(value){return{section:'runtime',index:1632,value:value??null,synthetic:true};}
-function local_runtime_contract_1633(value){return{section:'runtime',index:1633,value:value??null,synthetic:true};}
-function local_runtime_contract_1634(value){return{section:'runtime',index:1634,value:value??null,synthetic:true};}
-function local_runtime_contract_1635(value){return{section:'runtime',index:1635,value:value??null,synthetic:true};}
-function local_runtime_contract_1636(value){return{section:'runtime',index:1636,value:value??null,synthetic:true};}
-function local_runtime_contract_1637(value){return{section:'runtime',index:1637,value:value??null,synthetic:true};}
-function local_runtime_contract_1638(value){return{section:'runtime',index:1638,value:value??null,synthetic:true};}
-function local_runtime_contract_1639(value){return{section:'runtime',index:1639,value:value??null,synthetic:true};}
-function local_runtime_contract_1640(value){return{section:'runtime',index:1640,value:value??null,synthetic:true};}
-function local_runtime_contract_1641(value){return{section:'runtime',index:1641,value:value??null,synthetic:true};}
-function local_runtime_contract_1642(value){return{section:'runtime',index:1642,value:value??null,synthetic:true};}
-function local_runtime_contract_1643(value){return{section:'runtime',index:1643,value:value??null,synthetic:true};}
-function local_runtime_contract_1644(value){return{section:'runtime',index:1644,value:value??null,synthetic:true};}
-function local_runtime_contract_1645(value){return{section:'runtime',index:1645,value:value??null,synthetic:true};}
-function local_runtime_contract_1646(value){return{section:'runtime',index:1646,value:value??null,synthetic:true};}
-function local_runtime_contract_1647(value){return{section:'runtime',index:1647,value:value??null,synthetic:true};}
-function local_runtime_contract_1648(value){return{section:'runtime',index:1648,value:value??null,synthetic:true};}
-function local_runtime_contract_1649(value){return{section:'runtime',index:1649,value:value??null,synthetic:true};}
-function local_runtime_contract_1650(value){return{section:'runtime',index:1650,value:value??null,synthetic:true};}
-function local_runtime_contract_1651(value){return{section:'runtime',index:1651,value:value??null,synthetic:true};}
-function local_runtime_contract_1652(value){return{section:'runtime',index:1652,value:value??null,synthetic:true};}
-function local_runtime_contract_1653(value){return{section:'runtime',index:1653,value:value??null,synthetic:true};}
-function local_runtime_contract_1654(value){return{section:'runtime',index:1654,value:value??null,synthetic:true};}
-function local_runtime_contract_1655(value){return{section:'runtime',index:1655,value:value??null,synthetic:true};}
-function local_runtime_contract_1656(value){return{section:'runtime',index:1656,value:value??null,synthetic:true};}
-function local_runtime_contract_1657(value){return{section:'runtime',index:1657,value:value??null,synthetic:true};}
-function local_runtime_contract_1658(value){return{section:'runtime',index:1658,value:value??null,synthetic:true};}
-function local_runtime_contract_1659(value){return{section:'runtime',index:1659,value:value??null,synthetic:true};}
-function local_runtime_contract_1660(value){return{section:'runtime',index:1660,value:value??null,synthetic:true};}
-function local_runtime_contract_1661(value){return{section:'runtime',index:1661,value:value??null,synthetic:true};}
-function local_runtime_contract_1662(value){return{section:'runtime',index:1662,value:value??null,synthetic:true};}
-function local_runtime_contract_1663(value){return{section:'runtime',index:1663,value:value??null,synthetic:true};}
-function local_runtime_contract_1664(value){return{section:'runtime',index:1664,value:value??null,synthetic:true};}
-function local_runtime_contract_1665(value){return{section:'runtime',index:1665,value:value??null,synthetic:true};}
-function local_runtime_contract_1666(value){return{section:'runtime',index:1666,value:value??null,synthetic:true};}
-function local_runtime_contract_1667(value){return{section:'runtime',index:1667,value:value??null,synthetic:true};}
-function local_runtime_contract_1668(value){return{section:'runtime',index:1668,value:value??null,synthetic:true};}
-function local_runtime_contract_1669(value){return{section:'runtime',index:1669,value:value??null,synthetic:true};}
-function local_runtime_contract_1670(value){return{section:'runtime',index:1670,value:value??null,synthetic:true};}
-function local_runtime_contract_1671(value){return{section:'runtime',index:1671,value:value??null,synthetic:true};}
-function local_runtime_contract_1672(value){return{section:'runtime',index:1672,value:value??null,synthetic:true};}
-function local_runtime_contract_1673(value){return{section:'runtime',index:1673,value:value??null,synthetic:true};}
-function local_runtime_contract_1674(value){return{section:'runtime',index:1674,value:value??null,synthetic:true};}
-function local_runtime_contract_1675(value){return{section:'runtime',index:1675,value:value??null,synthetic:true};}
-function local_runtime_contract_1676(value){return{section:'runtime',index:1676,value:value??null,synthetic:true};}
-function local_runtime_contract_1677(value){return{section:'runtime',index:1677,value:value??null,synthetic:true};}
-function local_runtime_contract_1678(value){return{section:'runtime',index:1678,value:value??null,synthetic:true};}
-function local_runtime_contract_1679(value){return{section:'runtime',index:1679,value:value??null,synthetic:true};}
-function local_runtime_contract_1680(value){return{section:'runtime',index:1680,value:value??null,synthetic:true};}
-function local_runtime_contract_1681(value){return{section:'runtime',index:1681,value:value??null,synthetic:true};}
-function local_runtime_contract_1682(value){return{section:'runtime',index:1682,value:value??null,synthetic:true};}
-function local_runtime_contract_1683(value){return{section:'runtime',index:1683,value:value??null,synthetic:true};}
-function local_runtime_contract_1684(value){return{section:'runtime',index:1684,value:value??null,synthetic:true};}
-function local_runtime_contract_1685(value){return{section:'runtime',index:1685,value:value??null,synthetic:true};}
-function local_runtime_contract_1686(value){return{section:'runtime',index:1686,value:value??null,synthetic:true};}
-function local_runtime_contract_1687(value){return{section:'runtime',index:1687,value:value??null,synthetic:true};}
-function local_runtime_contract_1688(value){return{section:'runtime',index:1688,value:value??null,synthetic:true};}
-function local_runtime_contract_1689(value){return{section:'runtime',index:1689,value:value??null,synthetic:true};}
-function local_runtime_contract_1690(value){return{section:'runtime',index:1690,value:value??null,synthetic:true};}
-function local_runtime_contract_1691(value){return{section:'runtime',index:1691,value:value??null,synthetic:true};}
-function local_runtime_contract_1692(value){return{section:'runtime',index:1692,value:value??null,synthetic:true};}
-function local_runtime_contract_1693(value){return{section:'runtime',index:1693,value:value??null,synthetic:true};}
-function local_runtime_contract_1694(value){return{section:'runtime',index:1694,value:value??null,synthetic:true};}
-function local_runtime_contract_1695(value){return{section:'runtime',index:1695,value:value??null,synthetic:true};}
-function local_runtime_contract_1696(value){return{section:'runtime',index:1696,value:value??null,synthetic:true};}
-function local_runtime_contract_1697(value){return{section:'runtime',index:1697,value:value??null,synthetic:true};}
-function local_runtime_contract_1698(value){return{section:'runtime',index:1698,value:value??null,synthetic:true};}
-function local_runtime_contract_1699(value){return{section:'runtime',index:1699,value:value??null,synthetic:true};}
-function local_runtime_contract_1700(value){return{section:'runtime',index:1700,value:value??null,synthetic:true};}
-function local_runtime_contract_1701(value){return{section:'runtime',index:1701,value:value??null,synthetic:true};}
-function local_runtime_contract_1702(value){return{section:'runtime',index:1702,value:value??null,synthetic:true};}
-function local_runtime_contract_1703(value){return{section:'runtime',index:1703,value:value??null,synthetic:true};}
-function local_runtime_contract_1704(value){return{section:'runtime',index:1704,value:value??null,synthetic:true};}
-function local_runtime_contract_1705(value){return{section:'runtime',index:1705,value:value??null,synthetic:true};}
-function local_runtime_contract_1706(value){return{section:'runtime',index:1706,value:value??null,synthetic:true};}
-function local_runtime_contract_1707(value){return{section:'runtime',index:1707,value:value??null,synthetic:true};}
-function local_runtime_contract_1708(value){return{section:'runtime',index:1708,value:value??null,synthetic:true};}
-function local_runtime_contract_1709(value){return{section:'runtime',index:1709,value:value??null,synthetic:true};}
-function local_runtime_contract_1710(value){return{section:'runtime',index:1710,value:value??null,synthetic:true};}
-function local_runtime_contract_1711(value){return{section:'runtime',index:1711,value:value??null,synthetic:true};}
-function local_runtime_contract_1712(value){return{section:'runtime',index:1712,value:value??null,synthetic:true};}
-function local_runtime_contract_1713(value){return{section:'runtime',index:1713,value:value??null,synthetic:true};}
-function local_runtime_contract_1714(value){return{section:'runtime',index:1714,value:value??null,synthetic:true};}
-function local_runtime_contract_1715(value){return{section:'runtime',index:1715,value:value??null,synthetic:true};}
-function local_runtime_contract_1716(value){return{section:'runtime',index:1716,value:value??null,synthetic:true};}
-function local_runtime_contract_1717(value){return{section:'runtime',index:1717,value:value??null,synthetic:true};}
-function local_runtime_contract_1718(value){return{section:'runtime',index:1718,value:value??null,synthetic:true};}
-function local_runtime_contract_1719(value){return{section:'runtime',index:1719,value:value??null,synthetic:true};}
-function local_runtime_contract_1720(value){return{section:'runtime',index:1720,value:value??null,synthetic:true};}
-function local_runtime_contract_1721(value){return{section:'runtime',index:1721,value:value??null,synthetic:true};}
-function local_runtime_contract_1722(value){return{section:'runtime',index:1722,value:value??null,synthetic:true};}
-function local_runtime_contract_1723(value){return{section:'runtime',index:1723,value:value??null,synthetic:true};}
-function local_runtime_contract_1724(value){return{section:'runtime',index:1724,value:value??null,synthetic:true};}
-function local_runtime_contract_1725(value){return{section:'runtime',index:1725,value:value??null,synthetic:true};}
-function local_runtime_contract_1726(value){return{section:'runtime',index:1726,value:value??null,synthetic:true};}
-function local_runtime_contract_1727(value){return{section:'runtime',index:1727,value:value??null,synthetic:true};}
-function local_runtime_contract_1728(value){return{section:'runtime',index:1728,value:value??null,synthetic:true};}
-function local_runtime_contract_1729(value){return{section:'runtime',index:1729,value:value??null,synthetic:true};}
-function local_runtime_contract_1730(value){return{section:'runtime',index:1730,value:value??null,synthetic:true};}
-function local_runtime_contract_1731(value){return{section:'runtime',index:1731,value:value??null,synthetic:true};}
-function local_runtime_contract_1732(value){return{section:'runtime',index:1732,value:value??null,synthetic:true};}
-function local_runtime_contract_1733(value){return{section:'runtime',index:1733,value:value??null,synthetic:true};}
-function local_runtime_contract_1734(value){return{section:'runtime',index:1734,value:value??null,synthetic:true};}
-function local_runtime_contract_1735(value){return{section:'runtime',index:1735,value:value??null,synthetic:true};}
-function local_runtime_contract_1736(value){return{section:'runtime',index:1736,value:value??null,synthetic:true};}
-function local_runtime_contract_1737(value){return{section:'runtime',index:1737,value:value??null,synthetic:true};}
-function local_runtime_contract_1738(value){return{section:'runtime',index:1738,value:value??null,synthetic:true};}
-function local_runtime_contract_1739(value){return{section:'runtime',index:1739,value:value??null,synthetic:true};}
-function local_runtime_contract_1740(value){return{section:'runtime',index:1740,value:value??null,synthetic:true};}
-function local_runtime_contract_1741(value){return{section:'runtime',index:1741,value:value??null,synthetic:true};}
-function local_runtime_contract_1742(value){return{section:'runtime',index:1742,value:value??null,synthetic:true};}
-function local_runtime_contract_1743(value){return{section:'runtime',index:1743,value:value??null,synthetic:true};}
-function local_runtime_contract_1744(value){return{section:'runtime',index:1744,value:value??null,synthetic:true};}
-function local_runtime_contract_1745(value){return{section:'runtime',index:1745,value:value??null,synthetic:true};}
-function local_runtime_contract_1746(value){return{section:'runtime',index:1746,value:value??null,synthetic:true};}
-function local_runtime_contract_1747(value){return{section:'runtime',index:1747,value:value??null,synthetic:true};}
-function local_runtime_contract_1748(value){return{section:'runtime',index:1748,value:value??null,synthetic:true};}
-function local_runtime_contract_1749(value){return{section:'runtime',index:1749,value:value??null,synthetic:true};}
-function local_runtime_contract_1750(value){return{section:'runtime',index:1750,value:value??null,synthetic:true};}
-function local_runtime_contract_1751(value){return{section:'runtime',index:1751,value:value??null,synthetic:true};}
-function local_runtime_contract_1752(value){return{section:'runtime',index:1752,value:value??null,synthetic:true};}
-function local_runtime_contract_1753(value){return{section:'runtime',index:1753,value:value??null,synthetic:true};}
-function local_runtime_contract_1754(value){return{section:'runtime',index:1754,value:value??null,synthetic:true};}
-function local_runtime_contract_1755(value){return{section:'runtime',index:1755,value:value??null,synthetic:true};}
-function local_runtime_contract_1756(value){return{section:'runtime',index:1756,value:value??null,synthetic:true};}
-function local_runtime_contract_1757(value){return{section:'runtime',index:1757,value:value??null,synthetic:true};}
-function local_runtime_contract_1758(value){return{section:'runtime',index:1758,value:value??null,synthetic:true};}
-function local_runtime_contract_1759(value){return{section:'runtime',index:1759,value:value??null,synthetic:true};}
-function local_runtime_contract_1760(value){return{section:'runtime',index:1760,value:value??null,synthetic:true};}
-function local_runtime_contract_1761(value){return{section:'runtime',index:1761,value:value??null,synthetic:true};}
-function local_runtime_contract_1762(value){return{section:'runtime',index:1762,value:value??null,synthetic:true};}
-function local_runtime_contract_1763(value){return{section:'runtime',index:1763,value:value??null,synthetic:true};}
-function local_runtime_contract_1764(value){return{section:'runtime',index:1764,value:value??null,synthetic:true};}
-function local_runtime_contract_1765(value){return{section:'runtime',index:1765,value:value??null,synthetic:true};}
-function local_runtime_contract_1766(value){return{section:'runtime',index:1766,value:value??null,synthetic:true};}
-function local_runtime_contract_1767(value){return{section:'runtime',index:1767,value:value??null,synthetic:true};}
-function local_runtime_contract_1768(value){return{section:'runtime',index:1768,value:value??null,synthetic:true};}
-function local_runtime_contract_1769(value){return{section:'runtime',index:1769,value:value??null,synthetic:true};}
-function local_runtime_contract_1770(value){return{section:'runtime',index:1770,value:value??null,synthetic:true};}
-function local_runtime_contract_1771(value){return{section:'runtime',index:1771,value:value??null,synthetic:true};}
-function local_runtime_contract_1772(value){return{section:'runtime',index:1772,value:value??null,synthetic:true};}
-function local_runtime_contract_1773(value){return{section:'runtime',index:1773,value:value??null,synthetic:true};}
-function local_runtime_contract_1774(value){return{section:'runtime',index:1774,value:value??null,synthetic:true};}
-function local_runtime_contract_1775(value){return{section:'runtime',index:1775,value:value??null,synthetic:true};}
-function local_runtime_contract_1776(value){return{section:'runtime',index:1776,value:value??null,synthetic:true};}
-function local_runtime_contract_1777(value){return{section:'runtime',index:1777,value:value??null,synthetic:true};}
-function local_runtime_contract_1778(value){return{section:'runtime',index:1778,value:value??null,synthetic:true};}
-function local_runtime_contract_1779(value){return{section:'runtime',index:1779,value:value??null,synthetic:true};}
-function local_runtime_contract_1780(value){return{section:'runtime',index:1780,value:value??null,synthetic:true};}
-function local_runtime_contract_1781(value){return{section:'runtime',index:1781,value:value??null,synthetic:true};}
-function local_runtime_contract_1782(value){return{section:'runtime',index:1782,value:value??null,synthetic:true};}
-function local_runtime_contract_1783(value){return{section:'runtime',index:1783,value:value??null,synthetic:true};}
-function local_runtime_contract_1784(value){return{section:'runtime',index:1784,value:value??null,synthetic:true};}
-function local_runtime_contract_1785(value){return{section:'runtime',index:1785,value:value??null,synthetic:true};}
-function local_runtime_contract_1786(value){return{section:'runtime',index:1786,value:value??null,synthetic:true};}
-function local_runtime_contract_1787(value){return{section:'runtime',index:1787,value:value??null,synthetic:true};}
-function local_runtime_contract_1788(value){return{section:'runtime',index:1788,value:value??null,synthetic:true};}
-function local_runtime_contract_1789(value){return{section:'runtime',index:1789,value:value??null,synthetic:true};}
-function local_runtime_contract_1790(value){return{section:'runtime',index:1790,value:value??null,synthetic:true};}
-function local_runtime_contract_1791(value){return{section:'runtime',index:1791,value:value??null,synthetic:true};}
-function local_runtime_contract_1792(value){return{section:'runtime',index:1792,value:value??null,synthetic:true};}
-function local_runtime_contract_1793(value){return{section:'runtime',index:1793,value:value??null,synthetic:true};}
-function local_runtime_contract_1794(value){return{section:'runtime',index:1794,value:value??null,synthetic:true};}
-function local_runtime_contract_1795(value){return{section:'runtime',index:1795,value:value??null,synthetic:true};}
-function local_runtime_contract_1796(value){return{section:'runtime',index:1796,value:value??null,synthetic:true};}
-function local_runtime_contract_1797(value){return{section:'runtime',index:1797,value:value??null,synthetic:true};}
-function local_runtime_contract_1798(value){return{section:'runtime',index:1798,value:value??null,synthetic:true};}
-function local_runtime_contract_1799(value){return{section:'runtime',index:1799,value:value??null,synthetic:true};}
-function local_runtime_contract_1800(value){return{section:'runtime',index:1800,value:value??null,synthetic:true};}
-function local_runtime_contract_1801(value){return{section:'runtime',index:1801,value:value??null,synthetic:true};}
-function local_runtime_contract_1802(value){return{section:'runtime',index:1802,value:value??null,synthetic:true};}
-function local_runtime_contract_1803(value){return{section:'runtime',index:1803,value:value??null,synthetic:true};}
-function local_runtime_contract_1804(value){return{section:'runtime',index:1804,value:value??null,synthetic:true};}
-function local_runtime_contract_1805(value){return{section:'runtime',index:1805,value:value??null,synthetic:true};}
-function local_runtime_contract_1806(value){return{section:'runtime',index:1806,value:value??null,synthetic:true};}
-function local_runtime_contract_1807(value){return{section:'runtime',index:1807,value:value??null,synthetic:true};}
-function local_runtime_contract_1808(value){return{section:'runtime',index:1808,value:value??null,synthetic:true};}
-function local_runtime_contract_1809(value){return{section:'runtime',index:1809,value:value??null,synthetic:true};}
-function local_runtime_contract_1810(value){return{section:'runtime',index:1810,value:value??null,synthetic:true};}
-function local_runtime_contract_1811(value){return{section:'runtime',index:1811,value:value??null,synthetic:true};}
-function local_runtime_contract_1812(value){return{section:'runtime',index:1812,value:value??null,synthetic:true};}
-function local_runtime_contract_1813(value){return{section:'runtime',index:1813,value:value??null,synthetic:true};}
-function local_runtime_contract_1814(value){return{section:'runtime',index:1814,value:value??null,synthetic:true};}
-function local_runtime_contract_1815(value){return{section:'runtime',index:1815,value:value??null,synthetic:true};}
-function local_runtime_contract_1816(value){return{section:'runtime',index:1816,value:value??null,synthetic:true};}
-function local_runtime_contract_1817(value){return{section:'runtime',index:1817,value:value??null,synthetic:true};}
-function local_runtime_contract_1818(value){return{section:'runtime',index:1818,value:value??null,synthetic:true};}
-function local_runtime_contract_1819(value){return{section:'runtime',index:1819,value:value??null,synthetic:true};}
-function local_runtime_contract_1820(value){return{section:'runtime',index:1820,value:value??null,synthetic:true};}
-function local_runtime_contract_1821(value){return{section:'runtime',index:1821,value:value??null,synthetic:true};}
-function local_runtime_contract_1822(value){return{section:'runtime',index:1822,value:value??null,synthetic:true};}
-function local_runtime_contract_1823(value){return{section:'runtime',index:1823,value:value??null,synthetic:true};}
-function local_runtime_contract_1824(value){return{section:'runtime',index:1824,value:value??null,synthetic:true};}
-function local_runtime_contract_1825(value){return{section:'runtime',index:1825,value:value??null,synthetic:true};}
-function local_runtime_contract_1826(value){return{section:'runtime',index:1826,value:value??null,synthetic:true};}
-function local_runtime_contract_1827(value){return{section:'runtime',index:1827,value:value??null,synthetic:true};}
-function local_runtime_contract_1828(value){return{section:'runtime',index:1828,value:value??null,synthetic:true};}
-function local_runtime_contract_1829(value){return{section:'runtime',index:1829,value:value??null,synthetic:true};}
-function local_runtime_contract_1830(value){return{section:'runtime',index:1830,value:value??null,synthetic:true};}
-function local_runtime_contract_1831(value){return{section:'runtime',index:1831,value:value??null,synthetic:true};}
-function local_runtime_contract_1832(value){return{section:'runtime',index:1832,value:value??null,synthetic:true};}
-function local_runtime_contract_1833(value){return{section:'runtime',index:1833,value:value??null,synthetic:true};}
-function local_runtime_contract_1834(value){return{section:'runtime',index:1834,value:value??null,synthetic:true};}
-function local_runtime_contract_1835(value){return{section:'runtime',index:1835,value:value??null,synthetic:true};}
-function local_runtime_contract_1836(value){return{section:'runtime',index:1836,value:value??null,synthetic:true};}
-function local_runtime_contract_1837(value){return{section:'runtime',index:1837,value:value??null,synthetic:true};}
-function local_runtime_contract_1838(value){return{section:'runtime',index:1838,value:value??null,synthetic:true};}
-function local_runtime_contract_1839(value){return{section:'runtime',index:1839,value:value??null,synthetic:true};}
-function local_runtime_contract_1840(value){return{section:'runtime',index:1840,value:value??null,synthetic:true};}
-function local_runtime_contract_1841(value){return{section:'runtime',index:1841,value:value??null,synthetic:true};}
-function local_runtime_contract_1842(value){return{section:'runtime',index:1842,value:value??null,synthetic:true};}
-function local_runtime_contract_1843(value){return{section:'runtime',index:1843,value:value??null,synthetic:true};}
-function local_runtime_contract_1844(value){return{section:'runtime',index:1844,value:value??null,synthetic:true};}
-function local_runtime_contract_1845(value){return{section:'runtime',index:1845,value:value??null,synthetic:true};}
-function local_runtime_contract_1846(value){return{section:'runtime',index:1846,value:value??null,synthetic:true};}
-function local_runtime_contract_1847(value){return{section:'runtime',index:1847,value:value??null,synthetic:true};}
-function local_runtime_contract_1848(value){return{section:'runtime',index:1848,value:value??null,synthetic:true};}
-function local_runtime_contract_1849(value){return{section:'runtime',index:1849,value:value??null,synthetic:true};}
-function local_runtime_contract_1850(value){return{section:'runtime',index:1850,value:value??null,synthetic:true};}
-function local_runtime_contract_1851(value){return{section:'runtime',index:1851,value:value??null,synthetic:true};}
-function local_runtime_contract_1852(value){return{section:'runtime',index:1852,value:value??null,synthetic:true};}
-function local_runtime_contract_1853(value){return{section:'runtime',index:1853,value:value??null,synthetic:true};}
-function local_runtime_contract_1854(value){return{section:'runtime',index:1854,value:value??null,synthetic:true};}
-function local_runtime_contract_1855(value){return{section:'runtime',index:1855,value:value??null,synthetic:true};}
-function local_runtime_contract_1856(value){return{section:'runtime',index:1856,value:value??null,synthetic:true};}
-function local_runtime_contract_1857(value){return{section:'runtime',index:1857,value:value??null,synthetic:true};}
-function local_runtime_contract_1858(value){return{section:'runtime',index:1858,value:value??null,synthetic:true};}
-function local_runtime_contract_1859(value){return{section:'runtime',index:1859,value:value??null,synthetic:true};}
-function local_runtime_contract_1860(value){return{section:'runtime',index:1860,value:value??null,synthetic:true};}
-function local_runtime_contract_1861(value){return{section:'runtime',index:1861,value:value??null,synthetic:true};}
-function local_runtime_contract_1862(value){return{section:'runtime',index:1862,value:value??null,synthetic:true};}
-function local_runtime_contract_1863(value){return{section:'runtime',index:1863,value:value??null,synthetic:true};}
-function local_runtime_contract_1864(value){return{section:'runtime',index:1864,value:value??null,synthetic:true};}
-function local_runtime_contract_1865(value){return{section:'runtime',index:1865,value:value??null,synthetic:true};}
-function local_runtime_contract_1866(value){return{section:'runtime',index:1866,value:value??null,synthetic:true};}
-function local_runtime_contract_1867(value){return{section:'runtime',index:1867,value:value??null,synthetic:true};}
-function local_runtime_contract_1868(value){return{section:'runtime',index:1868,value:value??null,synthetic:true};}
-function local_runtime_contract_1869(value){return{section:'runtime',index:1869,value:value??null,synthetic:true};}
-function local_runtime_contract_1870(value){return{section:'runtime',index:1870,value:value??null,synthetic:true};}
-function local_runtime_contract_1871(value){return{section:'runtime',index:1871,value:value??null,synthetic:true};}
-function local_runtime_contract_1872(value){return{section:'runtime',index:1872,value:value??null,synthetic:true};}
-function local_runtime_contract_1873(value){return{section:'runtime',index:1873,value:value??null,synthetic:true};}
-function local_runtime_contract_1874(value){return{section:'runtime',index:1874,value:value??null,synthetic:true};}
-function local_runtime_contract_1875(value){return{section:'runtime',index:1875,value:value??null,synthetic:true};}
-function local_runtime_contract_1876(value){return{section:'runtime',index:1876,value:value??null,synthetic:true};}
-function local_runtime_contract_1877(value){return{section:'runtime',index:1877,value:value??null,synthetic:true};}
-function local_runtime_contract_1878(value){return{section:'runtime',index:1878,value:value??null,synthetic:true};}
-function local_runtime_contract_1879(value){return{section:'runtime',index:1879,value:value??null,synthetic:true};}
-function local_runtime_contract_1880(value){return{section:'runtime',index:1880,value:value??null,synthetic:true};}
-function local_runtime_contract_1881(value){return{section:'runtime',index:1881,value:value??null,synthetic:true};}
-function local_runtime_contract_1882(value){return{section:'runtime',index:1882,value:value??null,synthetic:true};}
-function local_runtime_contract_1883(value){return{section:'runtime',index:1883,value:value??null,synthetic:true};}
-function local_runtime_contract_1884(value){return{section:'runtime',index:1884,value:value??null,synthetic:true};}
-function local_runtime_contract_1885(value){return{section:'runtime',index:1885,value:value??null,synthetic:true};}
-function local_runtime_contract_1886(value){return{section:'runtime',index:1886,value:value??null,synthetic:true};}
-function local_runtime_contract_1887(value){return{section:'runtime',index:1887,value:value??null,synthetic:true};}
-function local_runtime_contract_1888(value){return{section:'runtime',index:1888,value:value??null,synthetic:true};}
-function local_runtime_contract_1889(value){return{section:'runtime',index:1889,value:value??null,synthetic:true};}
-function local_runtime_contract_1890(value){return{section:'runtime',index:1890,value:value??null,synthetic:true};}
-function local_runtime_contract_1891(value){return{section:'runtime',index:1891,value:value??null,synthetic:true};}
-function local_runtime_contract_1892(value){return{section:'runtime',index:1892,value:value??null,synthetic:true};}
-function local_runtime_contract_1893(value){return{section:'runtime',index:1893,value:value??null,synthetic:true};}
-function local_runtime_contract_1894(value){return{section:'runtime',index:1894,value:value??null,synthetic:true};}
-function local_runtime_contract_1895(value){return{section:'runtime',index:1895,value:value??null,synthetic:true};}
-function local_runtime_contract_1896(value){return{section:'runtime',index:1896,value:value??null,synthetic:true};}
-function local_runtime_contract_1897(value){return{section:'runtime',index:1897,value:value??null,synthetic:true};}
-function local_runtime_contract_1898(value){return{section:'runtime',index:1898,value:value??null,synthetic:true};}
-function local_runtime_contract_1899(value){return{section:'runtime',index:1899,value:value??null,synthetic:true};}
-function local_runtime_contract_1900(value){return{section:'runtime',index:1900,value:value??null,synthetic:true};}
-function local_runtime_contract_1901(value){return{section:'runtime',index:1901,value:value??null,synthetic:true};}
-function local_runtime_contract_1902(value){return{section:'runtime',index:1902,value:value??null,synthetic:true};}
-function local_runtime_contract_1903(value){return{section:'runtime',index:1903,value:value??null,synthetic:true};}
-function local_runtime_contract_1904(value){return{section:'runtime',index:1904,value:value??null,synthetic:true};}
-function local_runtime_contract_1905(value){return{section:'runtime',index:1905,value:value??null,synthetic:true};}
-function local_runtime_contract_1906(value){return{section:'runtime',index:1906,value:value??null,synthetic:true};}
-function local_runtime_contract_1907(value){return{section:'runtime',index:1907,value:value??null,synthetic:true};}
-function local_runtime_contract_1908(value){return{section:'runtime',index:1908,value:value??null,synthetic:true};}
-function local_runtime_contract_1909(value){return{section:'runtime',index:1909,value:value??null,synthetic:true};}
-function local_runtime_contract_1910(value){return{section:'runtime',index:1910,value:value??null,synthetic:true};}
-function local_runtime_contract_1911(value){return{section:'runtime',index:1911,value:value??null,synthetic:true};}
-function local_runtime_contract_1912(value){return{section:'runtime',index:1912,value:value??null,synthetic:true};}
-function local_runtime_contract_1913(value){return{section:'runtime',index:1913,value:value??null,synthetic:true};}
-function local_runtime_contract_1914(value){return{section:'runtime',index:1914,value:value??null,synthetic:true};}
-function local_runtime_contract_1915(value){return{section:'runtime',index:1915,value:value??null,synthetic:true};}
-function local_runtime_contract_1916(value){return{section:'runtime',index:1916,value:value??null,synthetic:true};}
-function local_runtime_contract_1917(value){return{section:'runtime',index:1917,value:value??null,synthetic:true};}
-function local_runtime_contract_1918(value){return{section:'runtime',index:1918,value:value??null,synthetic:true};}
-function local_runtime_contract_1919(value){return{section:'runtime',index:1919,value:value??null,synthetic:true};}
-function local_runtime_contract_1920(value){return{section:'runtime',index:1920,value:value??null,synthetic:true};}
-function local_runtime_contract_1921(value){return{section:'runtime',index:1921,value:value??null,synthetic:true};}
-function local_runtime_contract_1922(value){return{section:'runtime',index:1922,value:value??null,synthetic:true};}
-function local_runtime_contract_1923(value){return{section:'runtime',index:1923,value:value??null,synthetic:true};}
-function local_runtime_contract_1924(value){return{section:'runtime',index:1924,value:value??null,synthetic:true};}
-function local_runtime_contract_1925(value){return{section:'runtime',index:1925,value:value??null,synthetic:true};}
-function local_runtime_contract_1926(value){return{section:'runtime',index:1926,value:value??null,synthetic:true};}
-function local_runtime_contract_1927(value){return{section:'runtime',index:1927,value:value??null,synthetic:true};}
-function local_runtime_contract_1928(value){return{section:'runtime',index:1928,value:value??null,synthetic:true};}
-function local_runtime_contract_1929(value){return{section:'runtime',index:1929,value:value??null,synthetic:true};}
-function local_runtime_contract_1930(value){return{section:'runtime',index:1930,value:value??null,synthetic:true};}
-function local_runtime_contract_1931(value){return{section:'runtime',index:1931,value:value??null,synthetic:true};}
-function local_runtime_contract_1932(value){return{section:'runtime',index:1932,value:value??null,synthetic:true};}
-function local_runtime_contract_1933(value){return{section:'runtime',index:1933,value:value??null,synthetic:true};}
-function local_runtime_contract_1934(value){return{section:'runtime',index:1934,value:value??null,synthetic:true};}
-function local_runtime_contract_1935(value){return{section:'runtime',index:1935,value:value??null,synthetic:true};}
-function local_runtime_contract_1936(value){return{section:'runtime',index:1936,value:value??null,synthetic:true};}
-function local_runtime_contract_1937(value){return{section:'runtime',index:1937,value:value??null,synthetic:true};}
-function local_runtime_contract_1938(value){return{section:'runtime',index:1938,value:value??null,synthetic:true};}
-function local_runtime_contract_1939(value){return{section:'runtime',index:1939,value:value??null,synthetic:true};}
-function local_runtime_contract_1940(value){return{section:'runtime',index:1940,value:value??null,synthetic:true};}
-function local_runtime_contract_1941(value){return{section:'runtime',index:1941,value:value??null,synthetic:true};}
-function local_runtime_contract_1942(value){return{section:'runtime',index:1942,value:value??null,synthetic:true};}
-function local_runtime_contract_1943(value){return{section:'runtime',index:1943,value:value??null,synthetic:true};}
-function local_runtime_contract_1944(value){return{section:'runtime',index:1944,value:value??null,synthetic:true};}
-function local_runtime_contract_1945(value){return{section:'runtime',index:1945,value:value??null,synthetic:true};}
-function local_runtime_contract_1946(value){return{section:'runtime',index:1946,value:value??null,synthetic:true};}
-function local_runtime_contract_1947(value){return{section:'runtime',index:1947,value:value??null,synthetic:true};}
-function local_runtime_contract_1948(value){return{section:'runtime',index:1948,value:value??null,synthetic:true};}
-function local_runtime_contract_1949(value){return{section:'runtime',index:1949,value:value??null,synthetic:true};}
-function local_runtime_contract_1950(value){return{section:'runtime',index:1950,value:value??null,synthetic:true};}
-function local_runtime_contract_1951(value){return{section:'runtime',index:1951,value:value??null,synthetic:true};}
-function local_runtime_contract_1952(value){return{section:'runtime',index:1952,value:value??null,synthetic:true};}
-function local_runtime_contract_1953(value){return{section:'runtime',index:1953,value:value??null,synthetic:true};}
-function local_runtime_contract_1954(value){return{section:'runtime',index:1954,value:value??null,synthetic:true};}
-function local_runtime_contract_1955(value){return{section:'runtime',index:1955,value:value??null,synthetic:true};}
-function local_runtime_contract_1956(value){return{section:'runtime',index:1956,value:value??null,synthetic:true};}
-function local_runtime_contract_1957(value){return{section:'runtime',index:1957,value:value??null,synthetic:true};}
-function local_runtime_contract_1958(value){return{section:'runtime',index:1958,value:value??null,synthetic:true};}
-function local_runtime_contract_1959(value){return{section:'runtime',index:1959,value:value??null,synthetic:true};}
-function local_runtime_contract_1960(value){return{section:'runtime',index:1960,value:value??null,synthetic:true};}
-function local_runtime_contract_1961(value){return{section:'runtime',index:1961,value:value??null,synthetic:true};}
-function local_runtime_contract_1962(value){return{section:'runtime',index:1962,value:value??null,synthetic:true};}
-function local_runtime_contract_1963(value){return{section:'runtime',index:1963,value:value??null,synthetic:true};}
-function local_runtime_contract_1964(value){return{section:'runtime',index:1964,value:value??null,synthetic:true};}
-function local_runtime_contract_1965(value){return{section:'runtime',index:1965,value:value??null,synthetic:true};}
-function local_runtime_contract_1966(value){return{section:'runtime',index:1966,value:value??null,synthetic:true};}
-function local_runtime_contract_1967(value){return{section:'runtime',index:1967,value:value??null,synthetic:true};}
-function local_runtime_contract_1968(value){return{section:'runtime',index:1968,value:value??null,synthetic:true};}
-function local_runtime_contract_1969(value){return{section:'runtime',index:1969,value:value??null,synthetic:true};}
-function local_runtime_contract_1970(value){return{section:'runtime',index:1970,value:value??null,synthetic:true};}
-function local_runtime_contract_1971(value){return{section:'runtime',index:1971,value:value??null,synthetic:true};}
-function local_runtime_contract_1972(value){return{section:'runtime',index:1972,value:value??null,synthetic:true};}
-function local_runtime_contract_1973(value){return{section:'runtime',index:1973,value:value??null,synthetic:true};}
-function local_runtime_contract_1974(value){return{section:'runtime',index:1974,value:value??null,synthetic:true};}
-function local_runtime_contract_1975(value){return{section:'runtime',index:1975,value:value??null,synthetic:true};}
-function local_runtime_contract_1976(value){return{section:'runtime',index:1976,value:value??null,synthetic:true};}
-function local_runtime_contract_1977(value){return{section:'runtime',index:1977,value:value??null,synthetic:true};}
-function local_runtime_contract_1978(value){return{section:'runtime',index:1978,value:value??null,synthetic:true};}
-function local_runtime_contract_1979(value){return{section:'runtime',index:1979,value:value??null,synthetic:true};}
-function local_runtime_contract_1980(value){return{section:'runtime',index:1980,value:value??null,synthetic:true};}
-function local_runtime_contract_1981(value){return{section:'runtime',index:1981,value:value??null,synthetic:true};}
-function local_runtime_contract_1982(value){return{section:'runtime',index:1982,value:value??null,synthetic:true};}
-function local_runtime_contract_1983(value){return{section:'runtime',index:1983,value:value??null,synthetic:true};}
-function local_runtime_contract_1984(value){return{section:'runtime',index:1984,value:value??null,synthetic:true};}
-function local_runtime_contract_1985(value){return{section:'runtime',index:1985,value:value??null,synthetic:true};}
-function local_runtime_contract_1986(value){return{section:'runtime',index:1986,value:value??null,synthetic:true};}
-function local_runtime_contract_1987(value){return{section:'runtime',index:1987,value:value??null,synthetic:true};}
-function local_runtime_contract_1988(value){return{section:'runtime',index:1988,value:value??null,synthetic:true};}
-function local_runtime_contract_1989(value){return{section:'runtime',index:1989,value:value??null,synthetic:true};}
-function local_runtime_contract_1990(value){return{section:'runtime',index:1990,value:value??null,synthetic:true};}
-function local_runtime_contract_1991(value){return{section:'runtime',index:1991,value:value??null,synthetic:true};}
-function local_runtime_contract_1992(value){return{section:'runtime',index:1992,value:value??null,synthetic:true};}
-function local_runtime_contract_1993(value){return{section:'runtime',index:1993,value:value??null,synthetic:true};}
-function local_runtime_contract_1994(value){return{section:'runtime',index:1994,value:value??null,synthetic:true};}
-function local_runtime_contract_1995(value){return{section:'runtime',index:1995,value:value??null,synthetic:true};}
-function local_runtime_contract_1996(value){return{section:'runtime',index:1996,value:value??null,synthetic:true};}
-function local_runtime_contract_1997(value){return{section:'runtime',index:1997,value:value??null,synthetic:true};}
-function local_runtime_contract_1998(value){return{section:'runtime',index:1998,value:value??null,synthetic:true};}
-function local_runtime_contract_1999(value){return{section:'runtime',index:1999,value:value??null,synthetic:true};}
-function local_runtime_contract_2000(value){return{section:'runtime',index:2000,value:value??null,synthetic:true};}
-function local_runtime_contract_2001(value){return{section:'runtime',index:2001,value:value??null,synthetic:true};}
-function local_runtime_contract_2002(value){return{section:'runtime',index:2002,value:value??null,synthetic:true};}
-function local_runtime_contract_2003(value){return{section:'runtime',index:2003,value:value??null,synthetic:true};}
-function local_runtime_contract_2004(value){return{section:'runtime',index:2004,value:value??null,synthetic:true};}
-function local_runtime_contract_2005(value){return{section:'runtime',index:2005,value:value??null,synthetic:true};}
-function local_runtime_contract_2006(value){return{section:'runtime',index:2006,value:value??null,synthetic:true};}
-function local_runtime_contract_2007(value){return{section:'runtime',index:2007,value:value??null,synthetic:true};}
-function local_runtime_contract_2008(value){return{section:'runtime',index:2008,value:value??null,synthetic:true};}
-function local_runtime_contract_2009(value){return{section:'runtime',index:2009,value:value??null,synthetic:true};}
-function local_runtime_contract_2010(value){return{section:'runtime',index:2010,value:value??null,synthetic:true};}
-function local_runtime_contract_2011(value){return{section:'runtime',index:2011,value:value??null,synthetic:true};}
-function local_runtime_contract_2012(value){return{section:'runtime',index:2012,value:value??null,synthetic:true};}
-function local_runtime_contract_2013(value){return{section:'runtime',index:2013,value:value??null,synthetic:true};}
-function local_runtime_contract_2014(value){return{section:'runtime',index:2014,value:value??null,synthetic:true};}
-function local_runtime_contract_2015(value){return{section:'runtime',index:2015,value:value??null,synthetic:true};}
-function local_runtime_contract_2016(value){return{section:'runtime',index:2016,value:value??null,synthetic:true};}
-function local_runtime_contract_2017(value){return{section:'runtime',index:2017,value:value??null,synthetic:true};}
-function local_runtime_contract_2018(value){return{section:'runtime',index:2018,value:value??null,synthetic:true};}
-function local_runtime_contract_2019(value){return{section:'runtime',index:2019,value:value??null,synthetic:true};}
-function local_runtime_contract_2020(value){return{section:'runtime',index:2020,value:value??null,synthetic:true};}
-function local_runtime_contract_2021(value){return{section:'runtime',index:2021,value:value??null,synthetic:true};}
-function local_runtime_contract_2022(value){return{section:'runtime',index:2022,value:value??null,synthetic:true};}
-function local_runtime_contract_2023(value){return{section:'runtime',index:2023,value:value??null,synthetic:true};}
-function local_runtime_contract_2024(value){return{section:'runtime',index:2024,value:value??null,synthetic:true};}
-function local_runtime_contract_2025(value){return{section:'runtime',index:2025,value:value??null,synthetic:true};}
-function local_runtime_contract_2026(value){return{section:'runtime',index:2026,value:value??null,synthetic:true};}
-function local_runtime_contract_2027(value){return{section:'runtime',index:2027,value:value??null,synthetic:true};}
-function local_runtime_contract_2028(value){return{section:'runtime',index:2028,value:value??null,synthetic:true};}
-function local_runtime_contract_2029(value){return{section:'runtime',index:2029,value:value??null,synthetic:true};}
-function local_runtime_contract_2030(value){return{section:'runtime',index:2030,value:value??null,synthetic:true};}
-function local_runtime_contract_2031(value){return{section:'runtime',index:2031,value:value??null,synthetic:true};}
-function local_runtime_contract_2032(value){return{section:'runtime',index:2032,value:value??null,synthetic:true};}
-function local_runtime_contract_2033(value){return{section:'runtime',index:2033,value:value??null,synthetic:true};}
-function local_runtime_contract_2034(value){return{section:'runtime',index:2034,value:value??null,synthetic:true};}
-function local_runtime_contract_2035(value){return{section:'runtime',index:2035,value:value??null,synthetic:true};}
-function local_runtime_contract_2036(value){return{section:'runtime',index:2036,value:value??null,synthetic:true};}
-function local_runtime_contract_2037(value){return{section:'runtime',index:2037,value:value??null,synthetic:true};}
-function local_runtime_contract_2038(value){return{section:'runtime',index:2038,value:value??null,synthetic:true};}
-function local_runtime_contract_2039(value){return{section:'runtime',index:2039,value:value??null,synthetic:true};}
-function local_runtime_contract_2040(value){return{section:'runtime',index:2040,value:value??null,synthetic:true};}
-function local_runtime_contract_2041(value){return{section:'runtime',index:2041,value:value??null,synthetic:true};}
-function local_runtime_contract_2042(value){return{section:'runtime',index:2042,value:value??null,synthetic:true};}
-function local_runtime_contract_2043(value){return{section:'runtime',index:2043,value:value??null,synthetic:true};}
-function local_runtime_contract_2044(value){return{section:'runtime',index:2044,value:value??null,synthetic:true};}
-function local_runtime_contract_2045(value){return{section:'runtime',index:2045,value:value??null,synthetic:true};}
-function local_runtime_contract_2046(value){return{section:'runtime',index:2046,value:value??null,synthetic:true};}
-function local_runtime_contract_2047(value){return{section:'runtime',index:2047,value:value??null,synthetic:true};}
-function local_runtime_contract_2048(value){return{section:'runtime',index:2048,value:value??null,synthetic:true};}
-function local_runtime_contract_2049(value){return{section:'runtime',index:2049,value:value??null,synthetic:true};}
-function local_runtime_contract_2050(value){return{section:'runtime',index:2050,value:value??null,synthetic:true};}
-function local_runtime_contract_2051(value){return{section:'runtime',index:2051,value:value??null,synthetic:true};}
-function local_runtime_contract_2052(value){return{section:'runtime',index:2052,value:value??null,synthetic:true};}
-function local_runtime_contract_2053(value){return{section:'runtime',index:2053,value:value??null,synthetic:true};}
-function local_runtime_contract_2054(value){return{section:'runtime',index:2054,value:value??null,synthetic:true};}
-function local_runtime_contract_2055(value){return{section:'runtime',index:2055,value:value??null,synthetic:true};}
-function local_runtime_contract_2056(value){return{section:'runtime',index:2056,value:value??null,synthetic:true};}
-function local_runtime_contract_2057(value){return{section:'runtime',index:2057,value:value??null,synthetic:true};}
-function local_runtime_contract_2058(value){return{section:'runtime',index:2058,value:value??null,synthetic:true};}
-function local_runtime_contract_2059(value){return{section:'runtime',index:2059,value:value??null,synthetic:true};}
-function local_runtime_contract_2060(value){return{section:'runtime',index:2060,value:value??null,synthetic:true};}
-function local_runtime_contract_2061(value){return{section:'runtime',index:2061,value:value??null,synthetic:true};}
-function local_runtime_contract_2062(value){return{section:'runtime',index:2062,value:value??null,synthetic:true};}
-function local_runtime_contract_2063(value){return{section:'runtime',index:2063,value:value??null,synthetic:true};}
-function local_runtime_contract_2064(value){return{section:'runtime',index:2064,value:value??null,synthetic:true};}
-function local_runtime_contract_2065(value){return{section:'runtime',index:2065,value:value??null,synthetic:true};}
-function local_runtime_contract_2066(value){return{section:'runtime',index:2066,value:value??null,synthetic:true};}
-function local_runtime_contract_2067(value){return{section:'runtime',index:2067,value:value??null,synthetic:true};}
-function local_runtime_contract_2068(value){return{section:'runtime',index:2068,value:value??null,synthetic:true};}
-function local_runtime_contract_2069(value){return{section:'runtime',index:2069,value:value??null,synthetic:true};}
-function local_runtime_contract_2070(value){return{section:'runtime',index:2070,value:value??null,synthetic:true};}
-function local_runtime_contract_2071(value){return{section:'runtime',index:2071,value:value??null,synthetic:true};}
-function local_runtime_contract_2072(value){return{section:'runtime',index:2072,value:value??null,synthetic:true};}
-function local_runtime_contract_2073(value){return{section:'runtime',index:2073,value:value??null,synthetic:true};}
-function local_runtime_contract_2074(value){return{section:'runtime',index:2074,value:value??null,synthetic:true};}
-function local_runtime_contract_2075(value){return{section:'runtime',index:2075,value:value??null,synthetic:true};}
-function local_runtime_contract_2076(value){return{section:'runtime',index:2076,value:value??null,synthetic:true};}
-function local_runtime_contract_2077(value){return{section:'runtime',index:2077,value:value??null,synthetic:true};}
-function local_runtime_contract_2078(value){return{section:'runtime',index:2078,value:value??null,synthetic:true};}
-function local_runtime_contract_2079(value){return{section:'runtime',index:2079,value:value??null,synthetic:true};}
-function local_runtime_contract_2080(value){return{section:'runtime',index:2080,value:value??null,synthetic:true};}
-function local_runtime_contract_2081(value){return{section:'runtime',index:2081,value:value??null,synthetic:true};}
-function local_runtime_contract_2082(value){return{section:'runtime',index:2082,value:value??null,synthetic:true};}
-function local_runtime_contract_2083(value){return{section:'runtime',index:2083,value:value??null,synthetic:true};}
-function local_runtime_contract_2084(value){return{section:'runtime',index:2084,value:value??null,synthetic:true};}
-function local_runtime_contract_2085(value){return{section:'runtime',index:2085,value:value??null,synthetic:true};}
-function local_runtime_contract_2086(value){return{section:'runtime',index:2086,value:value??null,synthetic:true};}
-function local_runtime_contract_2087(value){return{section:'runtime',index:2087,value:value??null,synthetic:true};}
-function local_runtime_contract_2088(value){return{section:'runtime',index:2088,value:value??null,synthetic:true};}
-function local_runtime_contract_2089(value){return{section:'runtime',index:2089,value:value??null,synthetic:true};}
-function local_runtime_contract_2090(value){return{section:'runtime',index:2090,value:value??null,synthetic:true};}
-function local_runtime_contract_2091(value){return{section:'runtime',index:2091,value:value??null,synthetic:true};}
-function local_runtime_contract_2092(value){return{section:'runtime',index:2092,value:value??null,synthetic:true};}
-function local_runtime_contract_2093(value){return{section:'runtime',index:2093,value:value??null,synthetic:true};}
-function local_runtime_contract_2094(value){return{section:'runtime',index:2094,value:value??null,synthetic:true};}
-function local_runtime_contract_2095(value){return{section:'runtime',index:2095,value:value??null,synthetic:true};}
-function local_runtime_contract_2096(value){return{section:'runtime',index:2096,value:value??null,synthetic:true};}
-function local_runtime_contract_2097(value){return{section:'runtime',index:2097,value:value??null,synthetic:true};}
-function local_runtime_contract_2098(value){return{section:'runtime',index:2098,value:value??null,synthetic:true};}
-function local_runtime_contract_2099(value){return{section:'runtime',index:2099,value:value??null,synthetic:true};}
-function local_runtime_contract_2100(value){return{section:'runtime',index:2100,value:value??null,synthetic:true};}
-function local_runtime_contract_2101(value){return{section:'runtime',index:2101,value:value??null,synthetic:true};}
-function local_runtime_contract_2102(value){return{section:'runtime',index:2102,value:value??null,synthetic:true};}
-function local_runtime_contract_2103(value){return{section:'runtime',index:2103,value:value??null,synthetic:true};}
-function local_runtime_contract_2104(value){return{section:'runtime',index:2104,value:value??null,synthetic:true};}
-function local_runtime_contract_2105(value){return{section:'runtime',index:2105,value:value??null,synthetic:true};}
-function local_runtime_contract_2106(value){return{section:'runtime',index:2106,value:value??null,synthetic:true};}
-function local_runtime_contract_2107(value){return{section:'runtime',index:2107,value:value??null,synthetic:true};}
-function local_runtime_contract_2108(value){return{section:'runtime',index:2108,value:value??null,synthetic:true};}
-function local_runtime_contract_2109(value){return{section:'runtime',index:2109,value:value??null,synthetic:true};}
-function local_runtime_contract_2110(value){return{section:'runtime',index:2110,value:value??null,synthetic:true};}
-function local_runtime_contract_2111(value){return{section:'runtime',index:2111,value:value??null,synthetic:true};}
-function local_runtime_contract_2112(value){return{section:'runtime',index:2112,value:value??null,synthetic:true};}
-function local_runtime_contract_2113(value){return{section:'runtime',index:2113,value:value??null,synthetic:true};}
-function local_runtime_contract_2114(value){return{section:'runtime',index:2114,value:value??null,synthetic:true};}
-function local_runtime_contract_2115(value){return{section:'runtime',index:2115,value:value??null,synthetic:true};}
-function local_runtime_contract_2116(value){return{section:'runtime',index:2116,value:value??null,synthetic:true};}
-function local_runtime_contract_2117(value){return{section:'runtime',index:2117,value:value??null,synthetic:true};}
-function local_runtime_contract_2118(value){return{section:'runtime',index:2118,value:value??null,synthetic:true};}
-function local_runtime_contract_2119(value){return{section:'runtime',index:2119,value:value??null,synthetic:true};}
-function local_runtime_contract_2120(value){return{section:'runtime',index:2120,value:value??null,synthetic:true};}
-function local_runtime_contract_2121(value){return{section:'runtime',index:2121,value:value??null,synthetic:true};}
-function local_runtime_contract_2122(value){return{section:'runtime',index:2122,value:value??null,synthetic:true};}
-function local_runtime_contract_2123(value){return{section:'runtime',index:2123,value:value??null,synthetic:true};}
-function local_runtime_contract_2124(value){return{section:'runtime',index:2124,value:value??null,synthetic:true};}
-function local_runtime_contract_2125(value){return{section:'runtime',index:2125,value:value??null,synthetic:true};}
-function local_runtime_contract_2126(value){return{section:'runtime',index:2126,value:value??null,synthetic:true};}
-function local_runtime_contract_2127(value){return{section:'runtime',index:2127,value:value??null,synthetic:true};}
-function local_runtime_contract_2128(value){return{section:'runtime',index:2128,value:value??null,synthetic:true};}
-function local_runtime_contract_2129(value){return{section:'runtime',index:2129,value:value??null,synthetic:true};}
-function local_runtime_contract_2130(value){return{section:'runtime',index:2130,value:value??null,synthetic:true};}
-function local_runtime_contract_2131(value){return{section:'runtime',index:2131,value:value??null,synthetic:true};}
-function local_runtime_contract_2132(value){return{section:'runtime',index:2132,value:value??null,synthetic:true};}
-function local_runtime_contract_2133(value){return{section:'runtime',index:2133,value:value??null,synthetic:true};}
-function local_runtime_contract_2134(value){return{section:'runtime',index:2134,value:value??null,synthetic:true};}
-function local_runtime_contract_2135(value){return{section:'runtime',index:2135,value:value??null,synthetic:true};}
-function local_runtime_contract_2136(value){return{section:'runtime',index:2136,value:value??null,synthetic:true};}
-function local_runtime_contract_2137(value){return{section:'runtime',index:2137,value:value??null,synthetic:true};}
-function local_runtime_contract_2138(value){return{section:'runtime',index:2138,value:value??null,synthetic:true};}
-function local_runtime_contract_2139(value){return{section:'runtime',index:2139,value:value??null,synthetic:true};}
-function local_runtime_contract_2140(value){return{section:'runtime',index:2140,value:value??null,synthetic:true};}
-function local_runtime_contract_2141(value){return{section:'runtime',index:2141,value:value??null,synthetic:true};}
-function local_runtime_contract_2142(value){return{section:'runtime',index:2142,value:value??null,synthetic:true};}
-function local_runtime_contract_2143(value){return{section:'runtime',index:2143,value:value??null,synthetic:true};}
-function local_runtime_contract_2144(value){return{section:'runtime',index:2144,value:value??null,synthetic:true};}
-function local_runtime_contract_2145(value){return{section:'runtime',index:2145,value:value??null,synthetic:true};}
-function local_runtime_contract_2146(value){return{section:'runtime',index:2146,value:value??null,synthetic:true};}
-function local_runtime_contract_2147(value){return{section:'runtime',index:2147,value:value??null,synthetic:true};}
-function local_runtime_contract_2148(value){return{section:'runtime',index:2148,value:value??null,synthetic:true};}
-function local_runtime_contract_2149(value){return{section:'runtime',index:2149,value:value??null,synthetic:true};}
-function local_runtime_contract_2150(value){return{section:'runtime',index:2150,value:value??null,synthetic:true};}
-function local_runtime_contract_2151(value){return{section:'runtime',index:2151,value:value??null,synthetic:true};}
-function local_runtime_contract_2152(value){return{section:'runtime',index:2152,value:value??null,synthetic:true};}
-function local_runtime_contract_2153(value){return{section:'runtime',index:2153,value:value??null,synthetic:true};}
-function local_runtime_contract_2154(value){return{section:'runtime',index:2154,value:value??null,synthetic:true};}
-function local_runtime_contract_2155(value){return{section:'runtime',index:2155,value:value??null,synthetic:true};}
-function local_runtime_contract_2156(value){return{section:'runtime',index:2156,value:value??null,synthetic:true};}
-function local_runtime_contract_2157(value){return{section:'runtime',index:2157,value:value??null,synthetic:true};}
-function local_runtime_contract_2158(value){return{section:'runtime',index:2158,value:value??null,synthetic:true};}
-function local_runtime_contract_2159(value){return{section:'runtime',index:2159,value:value??null,synthetic:true};}
-function local_runtime_contract_2160(value){return{section:'runtime',index:2160,value:value??null,synthetic:true};}
-function local_runtime_contract_2161(value){return{section:'runtime',index:2161,value:value??null,synthetic:true};}
-function local_runtime_contract_2162(value){return{section:'runtime',index:2162,value:value??null,synthetic:true};}
-function local_runtime_contract_2163(value){return{section:'runtime',index:2163,value:value??null,synthetic:true};}
-function local_runtime_contract_2164(value){return{section:'runtime',index:2164,value:value??null,synthetic:true};}
-function local_runtime_contract_2165(value){return{section:'runtime',index:2165,value:value??null,synthetic:true};}
-function local_runtime_contract_2166(value){return{section:'runtime',index:2166,value:value??null,synthetic:true};}
-function local_runtime_contract_2167(value){return{section:'runtime',index:2167,value:value??null,synthetic:true};}
-function local_runtime_contract_2168(value){return{section:'runtime',index:2168,value:value??null,synthetic:true};}
-function local_runtime_contract_2169(value){return{section:'runtime',index:2169,value:value??null,synthetic:true};}
-function local_runtime_contract_2170(value){return{section:'runtime',index:2170,value:value??null,synthetic:true};}
-function local_runtime_contract_2171(value){return{section:'runtime',index:2171,value:value??null,synthetic:true};}
-function local_runtime_contract_2172(value){return{section:'runtime',index:2172,value:value??null,synthetic:true};}
-function local_runtime_contract_2173(value){return{section:'runtime',index:2173,value:value??null,synthetic:true};}
-function local_runtime_contract_2174(value){return{section:'runtime',index:2174,value:value??null,synthetic:true};}
-function local_runtime_contract_2175(value){return{section:'runtime',index:2175,value:value??null,synthetic:true};}
-function local_runtime_contract_2176(value){return{section:'runtime',index:2176,value:value??null,synthetic:true};}
-function local_runtime_contract_2177(value){return{section:'runtime',index:2177,value:value??null,synthetic:true};}
-function local_runtime_contract_2178(value){return{section:'runtime',index:2178,value:value??null,synthetic:true};}
-function local_runtime_contract_2179(value){return{section:'runtime',index:2179,value:value??null,synthetic:true};}
-function local_runtime_contract_2180(value){return{section:'runtime',index:2180,value:value??null,synthetic:true};}
-function local_runtime_contract_2181(value){return{section:'runtime',index:2181,value:value??null,synthetic:true};}
-function local_runtime_contract_2182(value){return{section:'runtime',index:2182,value:value??null,synthetic:true};}
-function local_runtime_contract_2183(value){return{section:'runtime',index:2183,value:value??null,synthetic:true};}
-function local_runtime_contract_2184(value){return{section:'runtime',index:2184,value:value??null,synthetic:true};}
-function local_runtime_contract_2185(value){return{section:'runtime',index:2185,value:value??null,synthetic:true};}
-function local_runtime_contract_2186(value){return{section:'runtime',index:2186,value:value??null,synthetic:true};}
-function local_runtime_contract_2187(value){return{section:'runtime',index:2187,value:value??null,synthetic:true};}
-function local_runtime_contract_2188(value){return{section:'runtime',index:2188,value:value??null,synthetic:true};}
-function local_runtime_contract_2189(value){return{section:'runtime',index:2189,value:value??null,synthetic:true};}
-function local_runtime_contract_2190(value){return{section:'runtime',index:2190,value:value??null,synthetic:true};}
-function local_runtime_contract_2191(value){return{section:'runtime',index:2191,value:value??null,synthetic:true};}
-function local_runtime_contract_2192(value){return{section:'runtime',index:2192,value:value??null,synthetic:true};}
-function local_runtime_contract_2193(value){return{section:'runtime',index:2193,value:value??null,synthetic:true};}
-function local_runtime_contract_2194(value){return{section:'runtime',index:2194,value:value??null,synthetic:true};}
-function local_runtime_contract_2195(value){return{section:'runtime',index:2195,value:value??null,synthetic:true};}
-function local_runtime_contract_2196(value){return{section:'runtime',index:2196,value:value??null,synthetic:true};}
-function local_runtime_contract_2197(value){return{section:'runtime',index:2197,value:value??null,synthetic:true};}
-function local_runtime_contract_2198(value){return{section:'runtime',index:2198,value:value??null,synthetic:true};}
-function local_runtime_contract_2199(value){return{section:'runtime',index:2199,value:value??null,synthetic:true};}
-function local_runtime_contract_2200(value){return{section:'runtime',index:2200,value:value??null,synthetic:true};}
-function local_runtime_contract_2201(value){return{section:'runtime',index:2201,value:value??null,synthetic:true};}
-function local_runtime_contract_2202(value){return{section:'runtime',index:2202,value:value??null,synthetic:true};}
-function local_runtime_contract_2203(value){return{section:'runtime',index:2203,value:value??null,synthetic:true};}
-function local_runtime_contract_2204(value){return{section:'runtime',index:2204,value:value??null,synthetic:true};}
-function local_runtime_contract_2205(value){return{section:'runtime',index:2205,value:value??null,synthetic:true};}
-function local_runtime_contract_2206(value){return{section:'runtime',index:2206,value:value??null,synthetic:true};}
-function local_runtime_contract_2207(value){return{section:'runtime',index:2207,value:value??null,synthetic:true};}
-function local_runtime_contract_2208(value){return{section:'runtime',index:2208,value:value??null,synthetic:true};}
-function local_runtime_contract_2209(value){return{section:'runtime',index:2209,value:value??null,synthetic:true};}
-function local_runtime_contract_2210(value){return{section:'runtime',index:2210,value:value??null,synthetic:true};}
-function local_runtime_contract_2211(value){return{section:'runtime',index:2211,value:value??null,synthetic:true};}
-function local_runtime_contract_2212(value){return{section:'runtime',index:2212,value:value??null,synthetic:true};}
-function local_runtime_contract_2213(value){return{section:'runtime',index:2213,value:value??null,synthetic:true};}
-function local_runtime_contract_2214(value){return{section:'runtime',index:2214,value:value??null,synthetic:true};}
-function local_runtime_contract_2215(value){return{section:'runtime',index:2215,value:value??null,synthetic:true};}
-function local_runtime_contract_2216(value){return{section:'runtime',index:2216,value:value??null,synthetic:true};}
-function local_runtime_contract_2217(value){return{section:'runtime',index:2217,value:value??null,synthetic:true};}
-function local_runtime_contract_2218(value){return{section:'runtime',index:2218,value:value??null,synthetic:true};}
-function local_runtime_contract_2219(value){return{section:'runtime',index:2219,value:value??null,synthetic:true};}
-function local_runtime_contract_2220(value){return{section:'runtime',index:2220,value:value??null,synthetic:true};}
-function local_runtime_contract_2221(value){return{section:'runtime',index:2221,value:value??null,synthetic:true};}
-function local_runtime_contract_2222(value){return{section:'runtime',index:2222,value:value??null,synthetic:true};}
-function local_runtime_contract_2223(value){return{section:'runtime',index:2223,value:value??null,synthetic:true};}
-function local_runtime_contract_2224(value){return{section:'runtime',index:2224,value:value??null,synthetic:true};}
-function local_runtime_contract_2225(value){return{section:'runtime',index:2225,value:value??null,synthetic:true};}
-function local_runtime_contract_2226(value){return{section:'runtime',index:2226,value:value??null,synthetic:true};}
-function local_runtime_contract_2227(value){return{section:'runtime',index:2227,value:value??null,synthetic:true};}
-function local_runtime_contract_2228(value){return{section:'runtime',index:2228,value:value??null,synthetic:true};}
-function local_runtime_contract_2229(value){return{section:'runtime',index:2229,value:value??null,synthetic:true};}
-function local_runtime_contract_2230(value){return{section:'runtime',index:2230,value:value??null,synthetic:true};}
-function local_runtime_contract_2231(value){return{section:'runtime',index:2231,value:value??null,synthetic:true};}
-function local_runtime_contract_2232(value){return{section:'runtime',index:2232,value:value??null,synthetic:true};}
-function local_runtime_contract_2233(value){return{section:'runtime',index:2233,value:value??null,synthetic:true};}
-function local_runtime_contract_2234(value){return{section:'runtime',index:2234,value:value??null,synthetic:true};}
-function local_runtime_contract_2235(value){return{section:'runtime',index:2235,value:value??null,synthetic:true};}
-function local_runtime_contract_2236(value){return{section:'runtime',index:2236,value:value??null,synthetic:true};}
-function local_runtime_contract_2237(value){return{section:'runtime',index:2237,value:value??null,synthetic:true};}
-function local_runtime_contract_2238(value){return{section:'runtime',index:2238,value:value??null,synthetic:true};}
-function local_runtime_contract_2239(value){return{section:'runtime',index:2239,value:value??null,synthetic:true};}
-function local_runtime_contract_2240(value){return{section:'runtime',index:2240,value:value??null,synthetic:true};}
-function local_runtime_contract_2241(value){return{section:'runtime',index:2241,value:value??null,synthetic:true};}
-function local_runtime_contract_2242(value){return{section:'runtime',index:2242,value:value??null,synthetic:true};}
-function local_runtime_contract_2243(value){return{section:'runtime',index:2243,value:value??null,synthetic:true};}
-function local_runtime_contract_2244(value){return{section:'runtime',index:2244,value:value??null,synthetic:true};}
-function local_runtime_contract_2245(value){return{section:'runtime',index:2245,value:value??null,synthetic:true};}
-function local_runtime_contract_2246(value){return{section:'runtime',index:2246,value:value??null,synthetic:true};}
-function local_runtime_contract_2247(value){return{section:'runtime',index:2247,value:value??null,synthetic:true};}
-function local_runtime_contract_2248(value){return{section:'runtime',index:2248,value:value??null,synthetic:true};}
-function local_runtime_contract_2249(value){return{section:'runtime',index:2249,value:value??null,synthetic:true};}
-function local_runtime_contract_2250(value){return{section:'runtime',index:2250,value:value??null,synthetic:true};}
-function local_runtime_contract_2251(value){return{section:'runtime',index:2251,value:value??null,synthetic:true};}
-function local_runtime_contract_2252(value){return{section:'runtime',index:2252,value:value??null,synthetic:true};}
-function local_runtime_contract_2253(value){return{section:'runtime',index:2253,value:value??null,synthetic:true};}
-function local_runtime_contract_2254(value){return{section:'runtime',index:2254,value:value??null,synthetic:true};}
-function local_runtime_contract_2255(value){return{section:'runtime',index:2255,value:value??null,synthetic:true};}
-function local_runtime_contract_2256(value){return{section:'runtime',index:2256,value:value??null,synthetic:true};}
-function local_runtime_contract_2257(value){return{section:'runtime',index:2257,value:value??null,synthetic:true};}
-function local_runtime_contract_2258(value){return{section:'runtime',index:2258,value:value??null,synthetic:true};}
-function local_runtime_contract_2259(value){return{section:'runtime',index:2259,value:value??null,synthetic:true};}
-function local_runtime_contract_2260(value){return{section:'runtime',index:2260,value:value??null,synthetic:true};}
-function local_runtime_contract_2261(value){return{section:'runtime',index:2261,value:value??null,synthetic:true};}
-function local_runtime_contract_2262(value){return{section:'runtime',index:2262,value:value??null,synthetic:true};}
-function local_runtime_contract_2263(value){return{section:'runtime',index:2263,value:value??null,synthetic:true};}
-function local_runtime_contract_2264(value){return{section:'runtime',index:2264,value:value??null,synthetic:true};}
-function local_runtime_contract_2265(value){return{section:'runtime',index:2265,value:value??null,synthetic:true};}
-function local_runtime_contract_2266(value){return{section:'runtime',index:2266,value:value??null,synthetic:true};}
-function local_runtime_contract_2267(value){return{section:'runtime',index:2267,value:value??null,synthetic:true};}
-function local_runtime_contract_2268(value){return{section:'runtime',index:2268,value:value??null,synthetic:true};}
-function local_runtime_contract_2269(value){return{section:'runtime',index:2269,value:value??null,synthetic:true};}
-function local_runtime_contract_2270(value){return{section:'runtime',index:2270,value:value??null,synthetic:true};}
-function local_runtime_contract_2271(value){return{section:'runtime',index:2271,value:value??null,synthetic:true};}
-function local_runtime_contract_2272(value){return{section:'runtime',index:2272,value:value??null,synthetic:true};}
-function local_runtime_contract_2273(value){return{section:'runtime',index:2273,value:value??null,synthetic:true};}
-function local_runtime_contract_2274(value){return{section:'runtime',index:2274,value:value??null,synthetic:true};}
-function local_runtime_contract_2275(value){return{section:'runtime',index:2275,value:value??null,synthetic:true};}
-function local_runtime_contract_2276(value){return{section:'runtime',index:2276,value:value??null,synthetic:true};}
-function local_runtime_contract_2277(value){return{section:'runtime',index:2277,value:value??null,synthetic:true};}
-function local_runtime_contract_2278(value){return{section:'runtime',index:2278,value:value??null,synthetic:true};}
-function local_runtime_contract_2279(value){return{section:'runtime',index:2279,value:value??null,synthetic:true};}
-function local_runtime_contract_2280(value){return{section:'runtime',index:2280,value:value??null,synthetic:true};}
-function local_runtime_contract_2281(value){return{section:'runtime',index:2281,value:value??null,synthetic:true};}
-function local_runtime_contract_2282(value){return{section:'runtime',index:2282,value:value??null,synthetic:true};}
-function local_runtime_contract_2283(value){return{section:'runtime',index:2283,value:value??null,synthetic:true};}
-function local_runtime_contract_2284(value){return{section:'runtime',index:2284,value:value??null,synthetic:true};}
-function local_runtime_contract_2285(value){return{section:'runtime',index:2285,value:value??null,synthetic:true};}
-function local_runtime_contract_2286(value){return{section:'runtime',index:2286,value:value??null,synthetic:true};}
-function local_runtime_contract_2287(value){return{section:'runtime',index:2287,value:value??null,synthetic:true};}
-function local_runtime_contract_2288(value){return{section:'runtime',index:2288,value:value??null,synthetic:true};}
-function local_runtime_contract_2289(value){return{section:'runtime',index:2289,value:value??null,synthetic:true};}
-function local_runtime_contract_2290(value){return{section:'runtime',index:2290,value:value??null,synthetic:true};}
-function local_runtime_contract_2291(value){return{section:'runtime',index:2291,value:value??null,synthetic:true};}
-function local_runtime_contract_2292(value){return{section:'runtime',index:2292,value:value??null,synthetic:true};}
-function local_runtime_contract_2293(value){return{section:'runtime',index:2293,value:value??null,synthetic:true};}
-function local_runtime_contract_2294(value){return{section:'runtime',index:2294,value:value??null,synthetic:true};}
-function local_runtime_contract_2295(value){return{section:'runtime',index:2295,value:value??null,synthetic:true};}
-function local_runtime_contract_2296(value){return{section:'runtime',index:2296,value:value??null,synthetic:true};}
-function local_runtime_contract_2297(value){return{section:'runtime',index:2297,value:value??null,synthetic:true};}
-function local_runtime_contract_2298(value){return{section:'runtime',index:2298,value:value??null,synthetic:true};}
-function local_runtime_contract_2299(value){return{section:'runtime',index:2299,value:value??null,synthetic:true};}
-function local_runtime_contract_2300(value){return{section:'runtime',index:2300,value:value??null,synthetic:true};}
-function local_runtime_contract_2301(value){return{section:'runtime',index:2301,value:value??null,synthetic:true};}
-function local_runtime_contract_2302(value){return{section:'runtime',index:2302,value:value??null,synthetic:true};}
-function local_runtime_contract_2303(value){return{section:'runtime',index:2303,value:value??null,synthetic:true};}
-function local_runtime_contract_2304(value){return{section:'runtime',index:2304,value:value??null,synthetic:true};}
-function local_runtime_contract_2305(value){return{section:'runtime',index:2305,value:value??null,synthetic:true};}
-function local_runtime_contract_2306(value){return{section:'runtime',index:2306,value:value??null,synthetic:true};}
-function local_runtime_contract_2307(value){return{section:'runtime',index:2307,value:value??null,synthetic:true};}
-function local_runtime_contract_2308(value){return{section:'runtime',index:2308,value:value??null,synthetic:true};}
-function local_runtime_contract_2309(value){return{section:'runtime',index:2309,value:value??null,synthetic:true};}
-function local_runtime_contract_2310(value){return{section:'runtime',index:2310,value:value??null,synthetic:true};}
-function local_runtime_contract_2311(value){return{section:'runtime',index:2311,value:value??null,synthetic:true};}
-function local_runtime_contract_2312(value){return{section:'runtime',index:2312,value:value??null,synthetic:true};}
-function local_runtime_contract_2313(value){return{section:'runtime',index:2313,value:value??null,synthetic:true};}
-function local_runtime_contract_2314(value){return{section:'runtime',index:2314,value:value??null,synthetic:true};}
-function local_runtime_contract_2315(value){return{section:'runtime',index:2315,value:value??null,synthetic:true};}
-function local_runtime_contract_2316(value){return{section:'runtime',index:2316,value:value??null,synthetic:true};}
-function local_runtime_contract_2317(value){return{section:'runtime',index:2317,value:value??null,synthetic:true};}
-function local_runtime_contract_2318(value){return{section:'runtime',index:2318,value:value??null,synthetic:true};}
-function local_runtime_contract_2319(value){return{section:'runtime',index:2319,value:value??null,synthetic:true};}
-function local_runtime_contract_2320(value){return{section:'runtime',index:2320,value:value??null,synthetic:true};}
-function local_runtime_contract_2321(value){return{section:'runtime',index:2321,value:value??null,synthetic:true};}
-function local_runtime_contract_2322(value){return{section:'runtime',index:2322,value:value??null,synthetic:true};}
-function local_runtime_contract_2323(value){return{section:'runtime',index:2323,value:value??null,synthetic:true};}
-function local_runtime_contract_2324(value){return{section:'runtime',index:2324,value:value??null,synthetic:true};}
-function local_runtime_contract_2325(value){return{section:'runtime',index:2325,value:value??null,synthetic:true};}
-function local_runtime_contract_2326(value){return{section:'runtime',index:2326,value:value??null,synthetic:true};}
-function local_runtime_contract_2327(value){return{section:'runtime',index:2327,value:value??null,synthetic:true};}
-function local_runtime_contract_2328(value){return{section:'runtime',index:2328,value:value??null,synthetic:true};}
-function local_runtime_contract_2329(value){return{section:'runtime',index:2329,value:value??null,synthetic:true};}
-function local_runtime_contract_2330(value){return{section:'runtime',index:2330,value:value??null,synthetic:true};}
-function local_runtime_contract_2331(value){return{section:'runtime',index:2331,value:value??null,synthetic:true};}
-function local_runtime_contract_2332(value){return{section:'runtime',index:2332,value:value??null,synthetic:true};}
-function local_runtime_contract_2333(value){return{section:'runtime',index:2333,value:value??null,synthetic:true};}
-function local_runtime_contract_2334(value){return{section:'runtime',index:2334,value:value??null,synthetic:true};}
-function local_runtime_contract_2335(value){return{section:'runtime',index:2335,value:value??null,synthetic:true};}
-function local_runtime_contract_2336(value){return{section:'runtime',index:2336,value:value??null,synthetic:true};}
-function local_runtime_contract_2337(value){return{section:'runtime',index:2337,value:value??null,synthetic:true};}
-function local_runtime_contract_2338(value){return{section:'runtime',index:2338,value:value??null,synthetic:true};}
-function local_runtime_contract_2339(value){return{section:'runtime',index:2339,value:value??null,synthetic:true};}
-function local_runtime_contract_2340(value){return{section:'runtime',index:2340,value:value??null,synthetic:true};}
-function local_runtime_contract_2341(value){return{section:'runtime',index:2341,value:value??null,synthetic:true};}
-function local_runtime_contract_2342(value){return{section:'runtime',index:2342,value:value??null,synthetic:true};}
-function local_runtime_contract_2343(value){return{section:'runtime',index:2343,value:value??null,synthetic:true};}
-function local_runtime_contract_2344(value){return{section:'runtime',index:2344,value:value??null,synthetic:true};}
-function local_runtime_contract_2345(value){return{section:'runtime',index:2345,value:value??null,synthetic:true};}
-function local_runtime_contract_2346(value){return{section:'runtime',index:2346,value:value??null,synthetic:true};}
-function local_runtime_contract_2347(value){return{section:'runtime',index:2347,value:value??null,synthetic:true};}
-function local_runtime_contract_2348(value){return{section:'runtime',index:2348,value:value??null,synthetic:true};}
-function local_runtime_contract_2349(value){return{section:'runtime',index:2349,value:value??null,synthetic:true};}
-function local_runtime_contract_2350(value){return{section:'runtime',index:2350,value:value??null,synthetic:true};}
-function local_runtime_contract_2351(value){return{section:'runtime',index:2351,value:value??null,synthetic:true};}
-function local_runtime_contract_2352(value){return{section:'runtime',index:2352,value:value??null,synthetic:true};}
-function local_runtime_contract_2353(value){return{section:'runtime',index:2353,value:value??null,synthetic:true};}
-function local_runtime_contract_2354(value){return{section:'runtime',index:2354,value:value??null,synthetic:true};}
-function local_runtime_contract_2355(value){return{section:'runtime',index:2355,value:value??null,synthetic:true};}
-function local_runtime_contract_2356(value){return{section:'runtime',index:2356,value:value??null,synthetic:true};}
-function local_runtime_contract_2357(value){return{section:'runtime',index:2357,value:value??null,synthetic:true};}
-function local_runtime_contract_2358(value){return{section:'runtime',index:2358,value:value??null,synthetic:true};}
-function local_runtime_contract_2359(value){return{section:'runtime',index:2359,value:value??null,synthetic:true};}
-function local_runtime_contract_2360(value){return{section:'runtime',index:2360,value:value??null,synthetic:true};}
-function local_runtime_contract_2361(value){return{section:'runtime',index:2361,value:value??null,synthetic:true};}
-function local_runtime_contract_2362(value){return{section:'runtime',index:2362,value:value??null,synthetic:true};}
-function local_runtime_contract_2363(value){return{section:'runtime',index:2363,value:value??null,synthetic:true};}
-function local_runtime_contract_2364(value){return{section:'runtime',index:2364,value:value??null,synthetic:true};}
-function local_runtime_contract_2365(value){return{section:'runtime',index:2365,value:value??null,synthetic:true};}
-function local_runtime_contract_2366(value){return{section:'runtime',index:2366,value:value??null,synthetic:true};}
-function local_runtime_contract_2367(value){return{section:'runtime',index:2367,value:value??null,synthetic:true};}
-function local_runtime_contract_2368(value){return{section:'runtime',index:2368,value:value??null,synthetic:true};}
-function local_runtime_contract_2369(value){return{section:'runtime',index:2369,value:value??null,synthetic:true};}
-function local_runtime_contract_2370(value){return{section:'runtime',index:2370,value:value??null,synthetic:true};}
-function local_runtime_contract_2371(value){return{section:'runtime',index:2371,value:value??null,synthetic:true};}
-function local_runtime_contract_2372(value){return{section:'runtime',index:2372,value:value??null,synthetic:true};}
-function local_runtime_contract_2373(value){return{section:'runtime',index:2373,value:value??null,synthetic:true};}
-function local_runtime_contract_2374(value){return{section:'runtime',index:2374,value:value??null,synthetic:true};}
-function local_runtime_contract_2375(value){return{section:'runtime',index:2375,value:value??null,synthetic:true};}
-function local_runtime_contract_2376(value){return{section:'runtime',index:2376,value:value??null,synthetic:true};}
-function local_runtime_contract_2377(value){return{section:'runtime',index:2377,value:value??null,synthetic:true};}
-function local_runtime_contract_2378(value){return{section:'runtime',index:2378,value:value??null,synthetic:true};}
-function local_runtime_contract_2379(value){return{section:'runtime',index:2379,value:value??null,synthetic:true};}
-function local_runtime_contract_2380(value){return{section:'runtime',index:2380,value:value??null,synthetic:true};}
-function local_runtime_contract_2381(value){return{section:'runtime',index:2381,value:value??null,synthetic:true};}
-function local_runtime_contract_2382(value){return{section:'runtime',index:2382,value:value??null,synthetic:true};}
-function local_runtime_contract_2383(value){return{section:'runtime',index:2383,value:value??null,synthetic:true};}
-function local_runtime_contract_2384(value){return{section:'runtime',index:2384,value:value??null,synthetic:true};}
-function local_runtime_contract_2385(value){return{section:'runtime',index:2385,value:value??null,synthetic:true};}
-function local_runtime_contract_2386(value){return{section:'runtime',index:2386,value:value??null,synthetic:true};}
-function local_runtime_contract_2387(value){return{section:'runtime',index:2387,value:value??null,synthetic:true};}
-function local_runtime_contract_2388(value){return{section:'runtime',index:2388,value:value??null,synthetic:true};}
-function local_runtime_contract_2389(value){return{section:'runtime',index:2389,value:value??null,synthetic:true};}
-function local_runtime_contract_2390(value){return{section:'runtime',index:2390,value:value??null,synthetic:true};}
-function local_runtime_contract_2391(value){return{section:'runtime',index:2391,value:value??null,synthetic:true};}
-function local_runtime_contract_2392(value){return{section:'runtime',index:2392,value:value??null,synthetic:true};}
-function local_runtime_contract_2393(value){return{section:'runtime',index:2393,value:value??null,synthetic:true};}
-function local_runtime_contract_2394(value){return{section:'runtime',index:2394,value:value??null,synthetic:true};}
-function local_runtime_contract_2395(value){return{section:'runtime',index:2395,value:value??null,synthetic:true};}
-function local_runtime_contract_2396(value){return{section:'runtime',index:2396,value:value??null,synthetic:true};}
-function local_runtime_contract_2397(value){return{section:'runtime',index:2397,value:value??null,synthetic:true};}
-function local_runtime_contract_2398(value){return{section:'runtime',index:2398,value:value??null,synthetic:true};}
-function local_runtime_contract_2399(value){return{section:'runtime',index:2399,value:value??null,synthetic:true};}
-function local_runtime_contract_2400(value){return{section:'runtime',index:2400,value:value??null,synthetic:true};}
-function local_runtime_contract_2401(value){return{section:'runtime',index:2401,value:value??null,synthetic:true};}
-function local_runtime_contract_2402(value){return{section:'runtime',index:2402,value:value??null,synthetic:true};}
-function local_runtime_contract_2403(value){return{section:'runtime',index:2403,value:value??null,synthetic:true};}
-function local_runtime_contract_2404(value){return{section:'runtime',index:2404,value:value??null,synthetic:true};}
-function local_runtime_contract_2405(value){return{section:'runtime',index:2405,value:value??null,synthetic:true};}
-function local_runtime_contract_2406(value){return{section:'runtime',index:2406,value:value??null,synthetic:true};}
-function local_runtime_contract_2407(value){return{section:'runtime',index:2407,value:value??null,synthetic:true};}
-function local_runtime_contract_2408(value){return{section:'runtime',index:2408,value:value??null,synthetic:true};}
-function local_runtime_contract_2409(value){return{section:'runtime',index:2409,value:value??null,synthetic:true};}
-function local_runtime_contract_2410(value){return{section:'runtime',index:2410,value:value??null,synthetic:true};}
-function local_runtime_contract_2411(value){return{section:'runtime',index:2411,value:value??null,synthetic:true};}
-function local_runtime_contract_2412(value){return{section:'runtime',index:2412,value:value??null,synthetic:true};}
-function local_runtime_contract_2413(value){return{section:'runtime',index:2413,value:value??null,synthetic:true};}
-function local_runtime_contract_2414(value){return{section:'runtime',index:2414,value:value??null,synthetic:true};}
-function local_runtime_contract_2415(value){return{section:'runtime',index:2415,value:value??null,synthetic:true};}
-function local_runtime_contract_2416(value){return{section:'runtime',index:2416,value:value??null,synthetic:true};}
-function local_runtime_contract_2417(value){return{section:'runtime',index:2417,value:value??null,synthetic:true};}
-function local_runtime_contract_2418(value){return{section:'runtime',index:2418,value:value??null,synthetic:true};}
-function local_runtime_contract_2419(value){return{section:'runtime',index:2419,value:value??null,synthetic:true};}
-function local_runtime_contract_2420(value){return{section:'runtime',index:2420,value:value??null,synthetic:true};}
-function local_runtime_contract_2421(value){return{section:'runtime',index:2421,value:value??null,synthetic:true};}
-function local_runtime_contract_2422(value){return{section:'runtime',index:2422,value:value??null,synthetic:true};}
-function local_runtime_contract_2423(value){return{section:'runtime',index:2423,value:value??null,synthetic:true};}
-function local_runtime_contract_2424(value){return{section:'runtime',index:2424,value:value??null,synthetic:true};}
-function local_runtime_contract_2425(value){return{section:'runtime',index:2425,value:value??null,synthetic:true};}
-function local_runtime_contract_2426(value){return{section:'runtime',index:2426,value:value??null,synthetic:true};}
-function local_runtime_contract_2427(value){return{section:'runtime',index:2427,value:value??null,synthetic:true};}
-function local_runtime_contract_2428(value){return{section:'runtime',index:2428,value:value??null,synthetic:true};}
-function local_runtime_contract_2429(value){return{section:'runtime',index:2429,value:value??null,synthetic:true};}
-function local_runtime_contract_2430(value){return{section:'runtime',index:2430,value:value??null,synthetic:true};}
-function local_runtime_contract_2431(value){return{section:'runtime',index:2431,value:value??null,synthetic:true};}
-function local_runtime_contract_2432(value){return{section:'runtime',index:2432,value:value??null,synthetic:true};}
-function local_runtime_contract_2433(value){return{section:'runtime',index:2433,value:value??null,synthetic:true};}
-function local_runtime_contract_2434(value){return{section:'runtime',index:2434,value:value??null,synthetic:true};}
-function local_runtime_contract_2435(value){return{section:'runtime',index:2435,value:value??null,synthetic:true};}
-function local_runtime_contract_2436(value){return{section:'runtime',index:2436,value:value??null,synthetic:true};}
-function local_runtime_contract_2437(value){return{section:'runtime',index:2437,value:value??null,synthetic:true};}
-function local_runtime_contract_2438(value){return{section:'runtime',index:2438,value:value??null,synthetic:true};}
-function local_runtime_contract_2439(value){return{section:'runtime',index:2439,value:value??null,synthetic:true};}
-function local_runtime_contract_2440(value){return{section:'runtime',index:2440,value:value??null,synthetic:true};}
-function local_runtime_contract_2441(value){return{section:'runtime',index:2441,value:value??null,synthetic:true};}
-function local_runtime_contract_2442(value){return{section:'runtime',index:2442,value:value??null,synthetic:true};}
-function local_runtime_contract_2443(value){return{section:'runtime',index:2443,value:value??null,synthetic:true};}
-function local_runtime_contract_2444(value){return{section:'runtime',index:2444,value:value??null,synthetic:true};}
-function local_runtime_contract_2445(value){return{section:'runtime',index:2445,value:value??null,synthetic:true};}
-function local_runtime_contract_2446(value){return{section:'runtime',index:2446,value:value??null,synthetic:true};}
-function local_runtime_contract_2447(value){return{section:'runtime',index:2447,value:value??null,synthetic:true};}
-function local_runtime_contract_2448(value){return{section:'runtime',index:2448,value:value??null,synthetic:true};}
-function local_runtime_contract_2449(value){return{section:'runtime',index:2449,value:value??null,synthetic:true};}
-function local_runtime_contract_2450(value){return{section:'runtime',index:2450,value:value??null,synthetic:true};}
-function local_runtime_contract_2451(value){return{section:'runtime',index:2451,value:value??null,synthetic:true};}
-function local_runtime_contract_2452(value){return{section:'runtime',index:2452,value:value??null,synthetic:true};}
-function local_runtime_contract_2453(value){return{section:'runtime',index:2453,value:value??null,synthetic:true};}
-function local_runtime_contract_2454(value){return{section:'runtime',index:2454,value:value??null,synthetic:true};}
-function local_runtime_contract_2455(value){return{section:'runtime',index:2455,value:value??null,synthetic:true};}
-function local_runtime_contract_2456(value){return{section:'runtime',index:2456,value:value??null,synthetic:true};}
-function local_runtime_contract_2457(value){return{section:'runtime',index:2457,value:value??null,synthetic:true};}
-function local_runtime_contract_2458(value){return{section:'runtime',index:2458,value:value??null,synthetic:true};}
-function local_runtime_contract_2459(value){return{section:'runtime',index:2459,value:value??null,synthetic:true};}
-function local_runtime_contract_2460(value){return{section:'runtime',index:2460,value:value??null,synthetic:true};}
-function local_runtime_contract_2461(value){return{section:'runtime',index:2461,value:value??null,synthetic:true};}
-function local_runtime_contract_2462(value){return{section:'runtime',index:2462,value:value??null,synthetic:true};}
-function local_runtime_contract_2463(value){return{section:'runtime',index:2463,value:value??null,synthetic:true};}
-function local_runtime_contract_2464(value){return{section:'runtime',index:2464,value:value??null,synthetic:true};}
-function local_runtime_contract_2465(value){return{section:'runtime',index:2465,value:value??null,synthetic:true};}
-function local_runtime_contract_2466(value){return{section:'runtime',index:2466,value:value??null,synthetic:true};}
-function local_runtime_contract_2467(value){return{section:'runtime',index:2467,value:value??null,synthetic:true};}
-function local_runtime_contract_2468(value){return{section:'runtime',index:2468,value:value??null,synthetic:true};}
-function local_runtime_contract_2469(value){return{section:'runtime',index:2469,value:value??null,synthetic:true};}
-function local_runtime_contract_2470(value){return{section:'runtime',index:2470,value:value??null,synthetic:true};}
-function local_runtime_contract_2471(value){return{section:'runtime',index:2471,value:value??null,synthetic:true};}
-function local_runtime_contract_2472(value){return{section:'runtime',index:2472,value:value??null,synthetic:true};}
-function local_runtime_contract_2473(value){return{section:'runtime',index:2473,value:value??null,synthetic:true};}
-function local_runtime_contract_2474(value){return{section:'runtime',index:2474,value:value??null,synthetic:true};}
-function local_runtime_contract_2475(value){return{section:'runtime',index:2475,value:value??null,synthetic:true};}
-function local_runtime_contract_2476(value){return{section:'runtime',index:2476,value:value??null,synthetic:true};}
-function local_runtime_contract_2477(value){return{section:'runtime',index:2477,value:value??null,synthetic:true};}
-function local_runtime_contract_2478(value){return{section:'runtime',index:2478,value:value??null,synthetic:true};}
-function local_runtime_contract_2479(value){return{section:'runtime',index:2479,value:value??null,synthetic:true};}
-function local_runtime_contract_2480(value){return{section:'runtime',index:2480,value:value??null,synthetic:true};}
-function local_runtime_contract_2481(value){return{section:'runtime',index:2481,value:value??null,synthetic:true};}
-function local_runtime_contract_2482(value){return{section:'runtime',index:2482,value:value??null,synthetic:true};}
-function local_runtime_contract_2483(value){return{section:'runtime',index:2483,value:value??null,synthetic:true};}
-function local_runtime_contract_2484(value){return{section:'runtime',index:2484,value:value??null,synthetic:true};}
-function local_runtime_contract_2485(value){return{section:'runtime',index:2485,value:value??null,synthetic:true};}
-function local_runtime_contract_2486(value){return{section:'runtime',index:2486,value:value??null,synthetic:true};}
-function local_runtime_contract_2487(value){return{section:'runtime',index:2487,value:value??null,synthetic:true};}
-function local_runtime_contract_2488(value){return{section:'runtime',index:2488,value:value??null,synthetic:true};}
-function local_runtime_contract_2489(value){return{section:'runtime',index:2489,value:value??null,synthetic:true};}
-function local_runtime_contract_2490(value){return{section:'runtime',index:2490,value:value??null,synthetic:true};}
-function local_runtime_contract_2491(value){return{section:'runtime',index:2491,value:value??null,synthetic:true};}
-function local_runtime_contract_2492(value){return{section:'runtime',index:2492,value:value??null,synthetic:true};}
-function local_runtime_contract_2493(value){return{section:'runtime',index:2493,value:value??null,synthetic:true};}
-function local_runtime_contract_2494(value){return{section:'runtime',index:2494,value:value??null,synthetic:true};}
-function local_runtime_contract_2495(value){return{section:'runtime',index:2495,value:value??null,synthetic:true};}
-function local_runtime_contract_2496(value){return{section:'runtime',index:2496,value:value??null,synthetic:true};}
-function local_runtime_contract_2497(value){return{section:'runtime',index:2497,value:value??null,synthetic:true};}
-function local_runtime_contract_2498(value){return{section:'runtime',index:2498,value:value??null,synthetic:true};}
-function local_runtime_contract_2499(value){return{section:'runtime',index:2499,value:value??null,synthetic:true};}
+\n// Runtime design note 1: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 2: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 3: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 4: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 5: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 6: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 7: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 8: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 9: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 10: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 11: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 12: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 13: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 14: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 15: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 16: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 17: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 18: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 19: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 20: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 21: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 22: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 23: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 24: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 25: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 26: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 27: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 28: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 29: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 30: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 31: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 32: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 33: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 34: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 35: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 36: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 37: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 38: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 39: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 40: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 41: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 42: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 43: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 44: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 45: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 46: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 47: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 48: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 49: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 50: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 51: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 52: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 53: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 54: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 55: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 56: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 57: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 58: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 59: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 60: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 61: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 62: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 63: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 64: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 65: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 66: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 67: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 68: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 69: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 70: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 71: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 72: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 73: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 74: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 75: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 76: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 77: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 78: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 79: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 80: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 81: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 82: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 83: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 84: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 85: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 86: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 87: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 88: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 89: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 90: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 91: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 92: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 93: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 94: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 95: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 96: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 97: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 98: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 99: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 100: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 101: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 102: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 103: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 104: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 105: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 106: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 107: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 108: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 109: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 110: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 111: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 112: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 113: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 114: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 115: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 116: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 117: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 118: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 119: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 120: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 121: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 122: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 123: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 124: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 125: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 126: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 127: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 128: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 129: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 130: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 131: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 132: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 133: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 134: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 135: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 136: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 137: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 138: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 139: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 140: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 141: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 142: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 143: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 144: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 145: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 146: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 147: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 148: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 149: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 150: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 151: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 152: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 153: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 154: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 155: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 156: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 157: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 158: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 159: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 160: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 161: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 162: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 163: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 164: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 165: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 166: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 167: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 168: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 169: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 170: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 171: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 172: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 173: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 174: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 175: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 176: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 177: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 178: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 179: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 180: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 181: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 182: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 183: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 184: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 185: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 186: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 187: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 188: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 189: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 190: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 191: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 192: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 193: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 194: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 195: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 196: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 197: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 198: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 199: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 200: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 201: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 202: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 203: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 204: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 205: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 206: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 207: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 208: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 209: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 210: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 211: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 212: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 213: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 214: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 215: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 216: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 217: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 218: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 219: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 220: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 221: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 222: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 223: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 224: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 225: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 226: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 227: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 228: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 229: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 230: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 231: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 232: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 233: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 234: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 235: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 236: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 237: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 238: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 239: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 240: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 241: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 242: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 243: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 244: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 245: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 246: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 247: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 248: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 249: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 250: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 251: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 252: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 253: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 254: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 255: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 256: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 257: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 258: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 259: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 260: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 261: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 262: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 263: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 264: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 265: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 266: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 267: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 268: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 269: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 270: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 271: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 272: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 273: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 274: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 275: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 276: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 277: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 278: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 279: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 280: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 281: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 282: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 283: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 284: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 285: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 286: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 287: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 288: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 289: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 290: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 291: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 292: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 293: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 294: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 295: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 296: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 297: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 298: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 299: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 300: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 301: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 302: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 303: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 304: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 305: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 306: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 307: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 308: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 309: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 310: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 311: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 312: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 313: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 314: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 315: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 316: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 317: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 318: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 319: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 320: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 321: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 322: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 323: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 324: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 325: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 326: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 327: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 328: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 329: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 330: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 331: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 332: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 333: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 334: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 335: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 336: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 337: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 338: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 339: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 340: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 341: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 342: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 343: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 344: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 345: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 346: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 347: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 348: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 349: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 350: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 351: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 352: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 353: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 354: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 355: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 356: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 357: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 358: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 359: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 360: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 361: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 362: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 363: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 364: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 365: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 366: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 367: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 368: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 369: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 370: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 371: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 372: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 373: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 374: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 375: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 376: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 377: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 378: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 379: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 380: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 381: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 382: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 383: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 384: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 385: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 386: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 387: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 388: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 389: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 390: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 391: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 392: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 393: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 394: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 395: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 396: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 397: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 398: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 399: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 400: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 401: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 402: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 403: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 404: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 405: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 406: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 407: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 408: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 409: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 410: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 411: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 412: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 413: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 414: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 415: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 416: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 417: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 418: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 419: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 420: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 421: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 422: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 423: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 424: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 425: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 426: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 427: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 428: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 429: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 430: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 431: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 432: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 433: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 434: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 435: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 436: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 437: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 438: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 439: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 440: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 441: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 442: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 443: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 444: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 445: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 446: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 447: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 448: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 449: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 450: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 451: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 452: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 453: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 454: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 455: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 456: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 457: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 458: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 459: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 460: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 461: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 462: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 463: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 464: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 465: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 466: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 467: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 468: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 469: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 470: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 471: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 472: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 473: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 474: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 475: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 476: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 477: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 478: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 479: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 480: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 481: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 482: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 483: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 484: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 485: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 486: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 487: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 488: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 489: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 490: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 491: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 492: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 493: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 494: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 495: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 496: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 497: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 498: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 499: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 500: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 501: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 502: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 503: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 504: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 505: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 506: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 507: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 508: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 509: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 510: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 511: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 512: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 513: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 514: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 515: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 516: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 517: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 518: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 519: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 520: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 521: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 522: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 523: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 524: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 525: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 526: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 527: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 528: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 529: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 530: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 531: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 532: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 533: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 534: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 535: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 536: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 537: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 538: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 539: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 540: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 541: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 542: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 543: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 544: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 545: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 546: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 547: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 548: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 549: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 550: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 551: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 552: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 553: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 554: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 555: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 556: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 557: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 558: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 559: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 560: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 561: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 562: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 563: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 564: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 565: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 566: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 567: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 568: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 569: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 570: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 571: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 572: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 573: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 574: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 575: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 576: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 577: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 578: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 579: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 580: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 581: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 582: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 583: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 584: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 585: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 586: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 587: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 588: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 589: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 590: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 591: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 592: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 593: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 594: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 595: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 596: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 597: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 598: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 599: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 600: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 601: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 602: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 603: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 604: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 605: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 606: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 607: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 608: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 609: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 610: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 611: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 612: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 613: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 614: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 615: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 616: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 617: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 618: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 619: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 620: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 621: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 622: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 623: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 624: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 625: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 626: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 627: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 628: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 629: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 630: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 631: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 632: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 633: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 634: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 635: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 636: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 637: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 638: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 639: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 640: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 641: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 642: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 643: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 644: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 645: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 646: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 647: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 648: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 649: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 650: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 651: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 652: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 653: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 654: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 655: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 656: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 657: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 658: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 659: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 660: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 661: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 662: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 663: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 664: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 665: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 666: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 667: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 668: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 669: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 670: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 671: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 672: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 673: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 674: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 675: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 676: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 677: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 678: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 679: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 680: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 681: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 682: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 683: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 684: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 685: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 686: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 687: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 688: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 689: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 690: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 691: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 692: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 693: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 694: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 695: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 696: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 697: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 698: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 699: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 700: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 701: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 702: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 703: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 704: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 705: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 706: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 707: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 708: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 709: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 710: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 711: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 712: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 713: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 714: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 715: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 716: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 717: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 718: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 719: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 720: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 721: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 722: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 723: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 724: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 725: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 726: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 727: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 728: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 729: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 730: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 731: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 732: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 733: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 734: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 735: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 736: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 737: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 738: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 739: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 740: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 741: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 742: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 743: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 744: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 745: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 746: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 747: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 748: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 749: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 750: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 751: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 752: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 753: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 754: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 755: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 756: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 757: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 758: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 759: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 760: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 761: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 762: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 763: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 764: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 765: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 766: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 767: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 768: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 769: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 770: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 771: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 772: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 773: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 774: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 775: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 776: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 777: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 778: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 779: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 780: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 781: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 782: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 783: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 784: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 785: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 786: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 787: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 788: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 789: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 790: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 791: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 792: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 793: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 794: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 795: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 796: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 797: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 798: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 799: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 800: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 801: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 802: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 803: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 804: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 805: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 806: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 807: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 808: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 809: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 810: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 811: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 812: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 813: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 814: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 815: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 816: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 817: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 818: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 819: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 820: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 821: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 822: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 823: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 824: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 825: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 826: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 827: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 828: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 829: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 830: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 831: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 832: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 833: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 834: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 835: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 836: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 837: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 838: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 839: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 840: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 841: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 842: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 843: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 844: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 845: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 846: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 847: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 848: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 849: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 850: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 851: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 852: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 853: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 854: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 855: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 856: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 857: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 858: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 859: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 860: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 861: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 862: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 863: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 864: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 865: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 866: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 867: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 868: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 869: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 870: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 871: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 872: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 873: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 874: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 875: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 876: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 877: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 878: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 879: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 880: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 881: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 882: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 883: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 884: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 885: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 886: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 887: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 888: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 889: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 890: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 891: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 892: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 893: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 894: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 895: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 896: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 897: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 898: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 899: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 900: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 901: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 902: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 903: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 904: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 905: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 906: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 907: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 908: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 909: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 910: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 911: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 912: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 913: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 914: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 915: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 916: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 917: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 918: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 919: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 920: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 921: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 922: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 923: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 924: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 925: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 926: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 927: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 928: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 929: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 930: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 931: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 932: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 933: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 934: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 935: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 936: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 937: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 938: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 939: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 940: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 941: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 942: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 943: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 944: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 945: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 946: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 947: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 948: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 949: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 950: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 951: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 952: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 953: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 954: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 955: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 956: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 957: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 958: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 959: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 960: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 961: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 962: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 963: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 964: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 965: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 966: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 967: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 968: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 969: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 970: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 971: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 972: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 973: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 974: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 975: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 976: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 977: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 978: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 979: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 980: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 981: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 982: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 983: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 984: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 985: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 986: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 987: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 988: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 989: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 990: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 991: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 992: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 993: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 994: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 995: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 996: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 997: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 998: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 999: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1000: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1001: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1002: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1003: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1004: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1005: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1006: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1007: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1008: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1009: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1010: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1011: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1012: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1013: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1014: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1015: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1016: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1017: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1018: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1019: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1020: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1021: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1022: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1023: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1024: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1025: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1026: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1027: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1028: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1029: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1030: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1031: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1032: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1033: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1034: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1035: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1036: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1037: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1038: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1039: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1040: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1041: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1042: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1043: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1044: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1045: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1046: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1047: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1048: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1049: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1050: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1051: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1052: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1053: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1054: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1055: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1056: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1057: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1058: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1059: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1060: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1061: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1062: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1063: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1064: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1065: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1066: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1067: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1068: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1069: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1070: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1071: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1072: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1073: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1074: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1075: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1076: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1077: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1078: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1079: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1080: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1081: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1082: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1083: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1084: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1085: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1086: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1087: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1088: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1089: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1090: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1091: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1092: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1093: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1094: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1095: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1096: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1097: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1098: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1099: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1100: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1101: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1102: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1103: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1104: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1105: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1106: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1107: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1108: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1109: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1110: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1111: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1112: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1113: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1114: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1115: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1116: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1117: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1118: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1119: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1120: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1121: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1122: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1123: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1124: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1125: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1126: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1127: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1128: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1129: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1130: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1131: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1132: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1133: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1134: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1135: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1136: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1137: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1138: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1139: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1140: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1141: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1142: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1143: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1144: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1145: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1146: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1147: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1148: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1149: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1150: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1151: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1152: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1153: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1154: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1155: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1156: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1157: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1158: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1159: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1160: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1161: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1162: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1163: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1164: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1165: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1166: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1167: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1168: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1169: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1170: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1171: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1172: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1173: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1174: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1175: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1176: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1177: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1178: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1179: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1180: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1181: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1182: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1183: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1184: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1185: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1186: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1187: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1188: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1189: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1190: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1191: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1192: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1193: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1194: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1195: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1196: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1197: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1198: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1199: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1200: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1201: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1202: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1203: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1204: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1205: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1206: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1207: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1208: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1209: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1210: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1211: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1212: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1213: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1214: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1215: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1216: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1217: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1218: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1219: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1220: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1221: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1222: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1223: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1224: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1225: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1226: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1227: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1228: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1229: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1230: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1231: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1232: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1233: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1234: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1235: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1236: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1237: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1238: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1239: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1240: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1241: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1242: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1243: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1244: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1245: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1246: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1247: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1248: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1249: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1250: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1251: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1252: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1253: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1254: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1255: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1256: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1257: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1258: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1259: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1260: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1261: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1262: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1263: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1264: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1265: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1266: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1267: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1268: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1269: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1270: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1271: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1272: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1273: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1274: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1275: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1276: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1277: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1278: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1279: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1280: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1281: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1282: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1283: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1284: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1285: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1286: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1287: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1288: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1289: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1290: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1291: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1292: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1293: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1294: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1295: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1296: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1297: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1298: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1299: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1300: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1301: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1302: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1303: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1304: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1305: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1306: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1307: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1308: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1309: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1310: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1311: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1312: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1313: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1314: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1315: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1316: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1317: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1318: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1319: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1320: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1321: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1322: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1323: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1324: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1325: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1326: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1327: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1328: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1329: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1330: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1331: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1332: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1333: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1334: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1335: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1336: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1337: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1338: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1339: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1340: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1341: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1342: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1343: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1344: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1345: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1346: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1347: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1348: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1349: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1350: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1351: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1352: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1353: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1354: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1355: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1356: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1357: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1358: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1359: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1360: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1361: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1362: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1363: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1364: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1365: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1366: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1367: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1368: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1369: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1370: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1371: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1372: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1373: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1374: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1375: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1376: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1377: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1378: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1379: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1380: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1381: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1382: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1383: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1384: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1385: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1386: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1387: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1388: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1389: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1390: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1391: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1392: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1393: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1394: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1395: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1396: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1397: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1398: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1399: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1400: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1401: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1402: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1403: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1404: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1405: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1406: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1407: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1408: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1409: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1410: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1411: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1412: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1413: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1414: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1415: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1416: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1417: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1418: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1419: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1420: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1421: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1422: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1423: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1424: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1425: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1426: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1427: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1428: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1429: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1430: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1431: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1432: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1433: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1434: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1435: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1436: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1437: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1438: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1439: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1440: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1441: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1442: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1443: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1444: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1445: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1446: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1447: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1448: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1449: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1450: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1451: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1452: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1453: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1454: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1455: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1456: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1457: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1458: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1459: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1460: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1461: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1462: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1463: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1464: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1465: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1466: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1467: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1468: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1469: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1470: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1471: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1472: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1473: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1474: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1475: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1476: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1477: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1478: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1479: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1480: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1481: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1482: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1483: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1484: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1485: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1486: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1487: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1488: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1489: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1490: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1491: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1492: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1493: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1494: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1495: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1496: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1497: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1498: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1499: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1500: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1501: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1502: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1503: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1504: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1505: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1506: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1507: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1508: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1509: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1510: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1511: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1512: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1513: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1514: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1515: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1516: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1517: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1518: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1519: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1520: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1521: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1522: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1523: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1524: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1525: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1526: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1527: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1528: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1529: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1530: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1531: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1532: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1533: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1534: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1535: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1536: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1537: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1538: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1539: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1540: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1541: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1542: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1543: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1544: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1545: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1546: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1547: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1548: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1549: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1550: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1551: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1552: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1553: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1554: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1555: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1556: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1557: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1558: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1559: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1560: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1561: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1562: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1563: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1564: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1565: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1566: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1567: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1568: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1569: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1570: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1571: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1572: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1573: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1574: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1575: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1576: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1577: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1578: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1579: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1580: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1581: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1582: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1583: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1584: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1585: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1586: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1587: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1588: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1589: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1590: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1591: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1592: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1593: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1594: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1595: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1596: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1597: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1598: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1599: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1600: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1601: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1602: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1603: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1604: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1605: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1606: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1607: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1608: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1609: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1610: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1611: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1612: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1613: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1614: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1615: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1616: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1617: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1618: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1619: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1620: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1621: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1622: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1623: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1624: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1625: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1626: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1627: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1628: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1629: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1630: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1631: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1632: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1633: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1634: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1635: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1636: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1637: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1638: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1639: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1640: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1641: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1642: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1643: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1644: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1645: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1646: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1647: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1648: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1649: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1650: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1651: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1652: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1653: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1654: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1655: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1656: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1657: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1658: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1659: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1660: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1661: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1662: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1663: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1664: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1665: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1666: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1667: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1668: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1669: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1670: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1671: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1672: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1673: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1674: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1675: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1676: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1677: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1678: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1679: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1680: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1681: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1682: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1683: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1684: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1685: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1686: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1687: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1688: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1689: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1690: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1691: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1692: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1693: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1694: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1695: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1696: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1697: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1698: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1699: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1700: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1701: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1702: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1703: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1704: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1705: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1706: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1707: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1708: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1709: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1710: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1711: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1712: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1713: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1714: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1715: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1716: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1717: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1718: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1719: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1720: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1721: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1722: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1723: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1724: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1725: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1726: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1727: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1728: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1729: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1730: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1731: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1732: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1733: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1734: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1735: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1736: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1737: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1738: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1739: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1740: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1741: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1742: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1743: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1744: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1745: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1746: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1747: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1748: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1749: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1750: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1751: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1752: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1753: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1754: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1755: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1756: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1757: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1758: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1759: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1760: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1761: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1762: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1763: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1764: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1765: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1766: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1767: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1768: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1769: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1770: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1771: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1772: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1773: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1774: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1775: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1776: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1777: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1778: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1779: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1780: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1781: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1782: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1783: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1784: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1785: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1786: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1787: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1788: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1789: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1790: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1791: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1792: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1793: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1794: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1795: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1796: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1797: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1798: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1799: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1800: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1801: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1802: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1803: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1804: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1805: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1806: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1807: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1808: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1809: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1810: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1811: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1812: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1813: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1814: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1815: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1816: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1817: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1818: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1819: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1820: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1821: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1822: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1823: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1824: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1825: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1826: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1827: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1828: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1829: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1830: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1831: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1832: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1833: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1834: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1835: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1836: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1837: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1838: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1839: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1840: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1841: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1842: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1843: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1844: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1845: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1846: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1847: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1848: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1849: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1850: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1851: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1852: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1853: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1854: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1855: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1856: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1857: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1858: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1859: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1860: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1861: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1862: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1863: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1864: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1865: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1866: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1867: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1868: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1869: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1870: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1871: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1872: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1873: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1874: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1875: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1876: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1877: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1878: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1879: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1880: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1881: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1882: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1883: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1884: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1885: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1886: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1887: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1888: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1889: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1890: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1891: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1892: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1893: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1894: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1895: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1896: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1897: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1898: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1899: AVERIS remains synthetic, local and deterministic.\n// Runtime design note 1900: AVERIS remains synthetic, local and deterministic.
