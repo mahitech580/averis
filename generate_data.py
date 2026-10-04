@@ -6,7 +6,7 @@ from pathlib import Path
 DEFAULT_SEED=580
 LOCATIONS=["Hyderabad","Bengaluru","Chennai","Remote"]
 OWNERS=["Ops Desk","North Team","South Team","Central Team","Admin Office"]
-NAMES=["Aarav Iyer","Meera Rao","Kabir Nair","Anika Shah","Rohan Menon","Ishita Verma","Vihaan Reddy","Tara Kapoor"]
+NAMES=["Aarav Iyer","Meera Rao","Kabir Nair","Anika Shah","Rohan Menon","Ishita Verma","Vihaan Reddy","Tara Kapoor","Nisha Menon","Aditya Rao","Sana Ali","Dev Malhotra"]
 def now(): return datetime.now(timezone.utc).replace(microsecond=0)
 def iso(v): return v.isoformat()
 def rid(p,n): return f"{p}-{n:05d}"
@@ -31,10 +31,11 @@ def pharmacy(n,r):
 def finance(n,ps,r): return [{"id":rid("fin",i+1),"reference":f"FIN-{3000+i}","person_id":r.choice(ps)["id"],"type":r.choice(["Administrative","Scheduling","Supplies","Service record"]),"amount":500+r.randrange(9000),"status":r.choice(["draft","review","approved","exported"]),"owner":"Admin Office"} for i in range(n)]
 def messages(n,ps,r): return [{"id":rid("msg",i+1),"person_id":r.choice(ps)["id"],"from":"Ops Desk","to":"Coordinator","subject":r.choice(["Need schedule move","Review required","Handoff note","Status check"]),"body":"Synthetic local message for coordination simulation.","state":r.choice(["read","unread"])} for i in range(n)]
 def incidents(n,r): return [{"id":rid("inc",i+1),"title":r.choice(["Capacity conflict","Late handoff","Queue spike","Resource outage"]),"severity":r.choice(["low","medium","high","critical"]),"state":r.choice(["open","contained","monitoring","resolved"]),"owner":r.choice(OWNERS)} for i in range(n)]
-def reports(n,r): return [{"id":rid("rep",i+1),"name":r.choice(["Daily operating review","Capacity watch","Queue aging","Inventory watch"]),"state":r.choice(["ready","draft","running","exported"])} for i in range(n)]
+def reports(n,r): return [{"id":rid("rep",i+1),"name":r.choice(["Daily operating review","Capacity watch","Queue aging","Inventory watch","Message response review"]),"state":r.choice(["ready","draft","running","exported"])} for i in range(n)]
+def medications(n,ps,r): return [{"id":rid("med",i+1),"person_id":r.choice(ps)["id"],"item":r.choice(["Synthetic item A","Synthetic item B","Synthetic item C","Synthetic item D"]),"status":r.choice(["active","review","held","complete"]),"owner":r.choice(OWNERS)} for i in range(n)]
 def generate(c,seed):
     r=random.Random(seed);ps=people(c["patients"],r)
-    return {"people":ps,"tasks":tasks(c["tasks"],ps,r),"appointments":appointments(c["appointments"],ps,r),"resources":resources(c["resources"],r),"workforce":workforce(c["workforce"],r),"diagnostics":diagnostics(c["diagnostics"],ps,r),"pharmacy":pharmacy(c["pharmacy"],r),"finance":finance(c["finance"],ps,r),"messages":messages(c["messages"],ps,r),"incidents":incidents(c["incidents"],r),"reports":reports(c["reports"],r)}
+    return {"people":ps,"tasks":tasks(c["tasks"],ps,r),"appointments":appointments(c["appointments"],ps,r),"resources":resources(c["resources"],r),"workforce":workforce(c["workforce"],r),"diagnostics":diagnostics(c["diagnostics"],ps,r),"pharmacy":pharmacy(c["pharmacy"],r),"medications":medications(c.get("medications",len(ps)),ps,r),"finance":finance(c["finance"],ps,r),"messages":messages(c["messages"],ps,r),"incidents":incidents(c["incidents"],r),"reports":reports(c["reports"],r)}
 def validate(d):
     errors=[];warnings=[];ids=set();ps={x["id"] for x in d["people"]}
     for table,rows in d.items():
@@ -1198,3 +1199,26 @@ def generator_contract_1196(value=None): return {'index':1196,'synthetic_only':T
 def generator_contract_1197(value=None): return {'index':1197,'synthetic_only':True,'value':value}
 def generator_contract_1198(value=None): return {'index':1198,'synthetic_only':True,'value':value}
 def generator_contract_1199(value=None): return {'index':1199,'synthetic_only':True,'value':value}
+
+def assert_deterministic(config):
+    first = generate(config, DEFAULT_SEED)
+    second = generate(config, DEFAULT_SEED)
+    if json.dumps(first, sort_keys=True) != json.dumps(second, sort_keys=True):
+        raise ValueError("Generator is not deterministic for the configured seed")
+
+
+def summary(data):
+    return {
+        "people": len(data["people"]),
+        "open_tasks": sum(1 for x in data["tasks"] if x["state"] != "complete"),
+        "appointments": len(data["appointments"]),
+        "resources": len(data["resources"]),
+        "workforce": len(data["workforce"]),
+        "diagnostics": len(data["diagnostics"]),
+        "pharmacy_items": len(data["pharmacy"]),
+        "medication_context": len(data["medications"]),
+        "finance": len(data["finance"]),
+        "messages": len(data["messages"]),
+        "incidents": len(data["incidents"]),
+        "reports": len(data["reports"]),
+    }
