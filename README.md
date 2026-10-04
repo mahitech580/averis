@@ -1,498 +1,868 @@
-# [AVERIS](https://mahitech580.github.io/averis/#/today) by Mahi · OPERATIONS OS
+# AVERIS by Mahi · Operations OS
 
-> **A browser-local healthcare operations website for understanding, coordinating and simulating complex operational workflows.**
+> **A browser-local healthcare operations website for understanding, coordinating and simulating a complex operational environment.**
 
-**Environment:** `SIMULATED / LOCAL`  
 **Live website:** https://mahitech580.github.io/averis/  
-**Repository:** https://github.com/mahitech580/averis
+**Repository:** https://github.com/mahitech580/averis  
+**Environment:** `SIMULATED / LOCAL`  
+**Owner:** Mahi
 
 ---
 
-## What is AVERIS?
+## 1. What AVERIS is
 
-AVERIS is a complete static healthcare-operations website designed as a portfolio-grade simulation of how a complex operating environment can be understood from one clear starting point and then explored through connected workspaces.
+AVERIS is a portfolio-grade static website that demonstrates how a complex healthcare-operations environment can be presented as one connected operating surface.
 
-The **Website Overview** is the front door of the product. It explains the entire site, the operating model, the major operational layers, the intelligence layer and the governance boundary before the visitor enters an individual workspace.
+The product is intentionally designed as a **website first**, not as a generic admin dashboard. The first route is **Website Overview**, which explains the complete product before visitors enter an individual workspace.
 
-The website is intentionally **browser-local and synthetic**. It demonstrates information architecture, responsive UI engineering, workflow state management, local persistence, operational analytics, reporting, search, forms and governance concepts without connecting to real healthcare infrastructure.
+The website connects operational concepts that are often shown as separate tools:
 
-AVERIS does **not** diagnose, recommend treatment, make clinical decisions, communicate with real patients, or call external AI services.
+- people and coordination
+- journeys and handoffs
+- workflow and queue management
+- schedules and appointments
+- capacity and resources
+- workforce balance
+- diagnostics workflow tracking
+- pharmacy inventory
+- finance records
+- local communication
+- incident lifecycle
+- quality assurance
+- operational intelligence
+- deterministic assistant responses
+- reports and exports
+- local audit history
+- settings and persistence
+
+Everything in the operational dataset is synthetic and stays inside the browser.
 
 ---
 
-## Core product story
+## 2. Product promise
 
-AVERIS follows a simple operational loop:
+AVERIS is built around one simple idea:
+
+> **Understand the operating environment first, then move deliberately into the work that needs attention.**
+
+The experience follows this flow:
 
 **Understand → Coordinate → Prioritize → Act locally → Review → Govern**
 
-The website separates that story into 18 connected workspaces:
+The Website Overview provides the map. The workspaces provide the detail. Local state connects the interactions so the application behaves like a coherent product instead of a collection of static screens.
 
-| Area | Workspace | Purpose |
+---
+
+## 3. Website Overview
+
+The home route is `#/today` and is intentionally structured as a real product website.
+
+### What the visitor sees
+
+**Website Overview**  
+Explains what AVERIS contains, how the 18 workspaces connect, and where to go next.
+
+**Capabilities**  
+Introduces the major operating areas before asking the visitor to open a workspace.
+
+**How it Works**  
+Shows a simple three-step model:
+
+1. **SEE** — bring the signal into focus.
+2. **PRIORITIZE** — decide what matters next.
+3. **ACT LOCALLY** — change the synthetic state.
+
+**Operational Layers**  
+Connects the overview to scheduling, workforce, diagnostics, pharmacy, finance, messaging, incidents and quality.
+
+**Environment**  
+Uses representative healthcare photography for presentation while keeping all operational records synthetic.
+
+**Built-in Boundary**  
+Makes the local simulation boundary explicit. The interface never presents synthetic workflow data as real clinical data.
+
+**Start Here**  
+Provides direct actions into operational workspaces, intelligence and settings.
+
+The overview avoids redundant hero KPI cards and floating metric noise. Its primary job is to explain the product clearly.
+
+---
+
+## 4. The 18 connected workspaces
+
+| Workspace | Group | What it demonstrates |
 |---|---|---|
-| Entry | **Website Overview** | Understand the entire product, operating model and navigation |
-| Coordination | **People** | Search people records, attention, ownership and context |
-| Coordination | **Journeys** | Follow synthetic stages, handoffs and progress |
-| Execution | **Queue / Workflow** | Work through open, overdue, blocked and in-progress tasks |
-| Execution | **Schedule** | Explore appointment flow and controlled local movement |
-| Execution | **Capacity** | Inspect resources, occupancy and utilization |
-| Execution | **Workforce** | Understand workload and synthetic workforce balance |
-| Execution | **Diagnostics** | Demonstrate operational diagnostic workflow tracking |
-| Execution | **Pharmacy** | Demonstrate inventory and threshold workflows |
-| Execution | **Finance** | Explore synthetic operational finance records |
-| Coordination | **Messages** | Read, compose and reply to local synthetic threads |
-| Governance | **Incidents** | Progress incident lifecycle states |
-| Governance | **Quality** | Run transparent synthetic workflow-quality checks |
-| Intelligence | **Insights** | Explore trends, metrics and explainable signals |
-| Intelligence | **Assistant** | Ask deterministic questions about current local state |
-| Intelligence | **Reports** | Preview, run and export synthetic reports |
-| Governance | **Audit** | Review local changes made during the session |
-| Governance | **Settings** | Manage profile, density, notifications, persistence and reset |
+| Website Overview | Entry | Complete product map and navigation |
+| People | Coordination | People records, ownership, attention and context |
+| Journeys | Coordination | Journey stages, handoffs and movement |
+| Queue | Execution | Prioritized operational work and blockers |
+| Schedule | Execution | Appointments, time slots and local movement |
+| Capacity | Execution | Resource state, utilization and pressure |
+| Workforce | Execution | Workload, role balance and coverage |
+| Diagnostics | Execution | Synthetic workflow result tracking |
+| Pharmacy | Execution | Inventory quantities, thresholds and adjustments |
+| Finance | Execution | Synthetic ledger and transaction workflows |
+| Messages | Coordination | Local message threads and replies |
+| Incidents | Governance | Severity, lifecycle and containment states |
+| Quality | Assurance | Synthetic workflow-quality indicators |
+| Insights | Intelligence | Derived metrics, trends and operational signals |
+| Assistant | Intelligence | Deterministic, browser-local operational summaries |
+| Reports | Intelligence | Preview, run and export reporting workflows |
+| Audit | Governance | Local history of user-triggered changes |
+| Settings | Governance | Profile, density, notifications, persistence and reset |
 
 ---
 
-## Website Overview
+## 5. Navigation
 
-The home route is deliberately different from a traditional administration dashboard.
+The global website navigation is intentionally small and clear:
 
-It acts as a **website-level product introduction**:
+**Website Overview · People · Journeys · Workflow · Capacity · Insights · Reports**
 
-### 01 · Complete website picture
-A concise explanation of what AVERIS is, what it contains and how the major workspace groups connect.
+The detailed workspaces remain reachable through overview sections, command search, workflow links and explicit actions.
 
-### 02 · Capabilities
-The site introduces the core operational capabilities before sending the visitor into the detailed workspaces.
-
-### 03 · How it works
-The operating model is shown as three understandable moves:
-
-**SEE** → understand the signal  
-**PRIORITIZE** → decide what matters next  
-**ACT LOCALLY** → modify the synthetic operational state
-
-### 04 · Operational layers
-The overview connects the high-level story to schedules, workforce, diagnostics, pharmacy, finance, messages, incidents and quality.
-
-### 05 · Environment
-Healthcare imagery is presentation-only. The underlying records remain synthetic.
-
-### 06 · Boundary & privacy
-The product makes the simulation boundary explicit instead of making the interface look like a live clinical system.
-
-### 07 · Start here
-Clear actions move directly into operational workspaces, intelligence and settings.
-
-The overview intentionally avoids fake dashboard noise such as redundant KPI cards. The hero focuses on **what AVERIS is and where the visitor should go next**.
+This keeps the top navigation understandable on desktop, tablet and mobile rather than exposing every internal workspace at once.
 
 ---
 
-## Interaction model
+## 6. Interaction model
 
-AVERIS is designed so that the interface does not make every card or visual surface appear clickable.
+AVERIS follows an explicit-interaction design.
 
-### Explicit controls
-Application actions are triggered by deliberate controls such as:
+### Click behavior
 
-- navigation buttons
-- action buttons
-- form submission controls
-- command-search results
+Decorative surfaces are not treated as accidental actions.
+
+Clicking empty page space, headings, images, background areas or decorative surfaces does not trigger navigation or workflow changes.
+
+Application interactions are performed through deliberate controls:
+
+- buttons
+- form controls
+- command-search controls
+- submit controls
+- explicit inspect/open controls
 - explicit create/edit/save controls
 - explicit workflow transition controls
 
-Decorative cards, headings, images and empty page regions are not treated as application buttons.
+This is intentionally strict so the interface feels controlled rather than making every visual block appear clickable.
 
-### Command search
+### Keyboard behavior
 
-Use:
+**Ctrl + K** opens command search on Windows/Linux.
 
-**Ctrl + K** on Windows/Linux  
-**Cmd + K** on macOS
+**Cmd + K** opens command search on macOS.
 
-The command surface searches the local AVERIS environment and provides direct workspace navigation.
+**Escape** closes active overlays/drawers.
 
-### Drawers and modals
+Command search supports keyboard navigation with:
 
-The interface uses contained drawers and modal forms for:
+- Arrow Up
+- Arrow Down
+- Enter
+- Escape
 
-- person inspection
-- task inspection
-- appointment inspection
-- resource inspection
-- workforce inspection
-- diagnostic inspection
-- finance inspection
-- message threads
+---
+
+## 7. Local-first state model
+
+AVERIS uses browser storage instead of a remote application server.
+
+### Local state includes
+
+- profile information
+- synthetic people
+- tasks
+- appointments
+- resources
+- workforce records
+- diagnostic records
+- pharmacy inventory
+- finance records
+- messages
 - incidents
-- profile/settings actions
-- record creation and editing
+- audit history
+- preferences
+- interface settings
 
-### Local state changes
+State changes are persisted to the browser and reflected throughout the connected workspaces.
 
-Workflow controls can change the synthetic state in this browser, including:
-
-- task state progression and reopening
-- appointment movement
-- incident lifecycle progression
-- inventory quantity adjustment
-- message read/reply state
-- report state
-- profile and preference updates
-- local audit entries
+This allows the project to demonstrate real application behavior on GitHub Pages without exposing operational state to an external backend.
 
 ---
 
-## Button and interaction QA
+## 8. Synthetic data boundary
 
-The current source was checked for action wiring after the recent interaction changes.
+AVERIS is a simulation and portfolio project.
 
-### Static checks completed
+### The system is intentionally limited to
 
-- **18/18 navigation route IDs** are represented in the route map.
-- **39 exact button action IDs** used by generated/static buttons have matching handlers.
-- **No unhandled exact action IDs** were found in the current `app.js`.
-- Dynamic action families are handled for people editing, task transitions, appointment movement, message replies and incident transitions.
-- The global click guard recognizes an actual `button` before allowing an application action.
-- Non-control page clicks are prevented from triggering application behavior.
-- The removed hero KPI cards (**10 open work** and **59% resource load**) are no longer rendered.
-- The removed **AVERIS CONTROL LAYER / browser local** hero panel is no longer rendered.
-- The current `app.js` contains no literal escaped-newline corruption from the previous failed click-handler edit.
+- synthetic records
+- browser-local state
+- deterministic local logic
+- static hosting
+- presentation-only healthcare imagery
+- workflow and operations concepts
 
-### CI validation
+### The system does not provide
 
-The GitHub Pages workflow validates the application JavaScript with:
+- real patient records
+- production healthcare integrations
+- diagnosis
+- treatment recommendations
+- clinical decision support
+- real patient messaging
+- real appointments
+- real financial transactions
+- external AI API calls
+- production automation
+- real-world medical advice
 
-```bash
-node --check app.js
+The interface is an engineering and product demonstration, not a clinical system.
+
+---
+
+## 9. Core workflows
+
+### People workflow
+
+Search people by:
+
+- name
+- ID
+- cluster
+- attention
+
+Sort and inspect a record, review related work, and open synthetic context.
+
+### Journey workflow
+
+View synthetic journey stages and inspect where people sit in the operating flow.
+
+### Queue workflow
+
+Search work, filter by:
+
+- all
+- critical
+- blocked
+- open
+
+Then inspect tasks or deliberately advance their synthetic state.
+
+### Schedule workflow
+
+Inspect an appointment or use the explicit **Move +30m** action to change its local simulated time.
+
+### Capacity workflow
+
+Inspect resources, review utilization and add synthetic resources.
+
+### Workforce workflow
+
+Review workload distribution and create additional synthetic workforce records.
+
+### Diagnostics workflow
+
+Create and inspect workflow-result records.
+
+### Pharmacy workflow
+
+Inspect inventory, adjust quantity, and create local inventory entries.
+
+### Finance workflow
+
+Inspect transactions, create new synthetic records and export JSON.
+
+### Messages workflow
+
+Open local threads, compose messages and send simulated replies.
+
+### Incidents workflow
+
+Inspect incidents and advance their lifecycle through explicit state transitions.
+
+### Quality workflow
+
+Run a local quality pass against the synthetic operating state.
+
+### Insights workflow
+
+Review derived operational metrics and export analytics as JSON.
+
+### Assistant workflow
+
+Use deterministic presets such as:
+
+- What needs attention?
+- Summarize today
+- What are AVERIS boundaries?
+
+Responses are generated from the current browser-local state.
+
+### Reports workflow
+
+Preview reports, run reports and export report data.
+
+### Audit workflow
+
+Review locally recorded changes created by supported actions.
+
+### Settings workflow
+
+Manage profile details, display density, notification preference, export and reset behavior.
+
+---
+
+## 10. Responsive website behavior
+
+AVERIS is designed to remain usable across:
+
+**Desktop / Laptop**  
+Wide content areas, multi-column layouts, tables, navigation and detailed workspaces.
+
+**Tablet**  
+Reduced density, wrapping navigation, flexible grids and horizontally scrollable data tables where needed.
+
+**Mobile**  
+Single-column layouts, readable typography, touch-sized controls, wrapped content, responsive tables and compact navigation.
+
+The responsive design goal is not simply to shrink desktop content. Components reflow based on available width so text remains readable and controls remain accessible.
+
+---
+
+## 11. Visual system
+
+AVERIS uses a cinematic healthcare-operations aesthetic without turning the interface into a generic SaaS template.
+
+### Visual principles
+
+- strong editorial hierarchy
+- readable body copy
+- controlled dark interface
+- high-contrast controls
+- restrained glass surfaces
+- healthcare environment imagery
+- section-level background photography
+- consistent spacing
+- clear interaction states
+- responsive content widths
+- explicit simulation boundary
+
+The Website Overview uses image-backed sections to create a website-like storytelling flow.
+
+---
+
+## 12. Accessibility and usability intent
+
+The implementation emphasizes:
+
+- semantic button controls
+- explicit button labels
+- `type="button"` on non-submit buttons
+- readable text sizing
+- visible state changes
+- predictable keyboard controls
+- alt text for presentation imagery
+- responsive wrapping
+- horizontal overflow for wide tables
+- deliberate click targets
+- reduced accidental interactions
+
+The project remains a portfolio simulation, so this is not a claim of formal WCAG certification.
+
+---
+
+## 13. Technical architecture
+
+AVERIS is a static client-side application.
+
+### Front end
+
+**HTML**
+- application shell
+- site header
+- global navigation
+- workspace root
+- overlays
+- drawers
+- footer
+- semantic controls
+
+**CSS**
+- global reset and base styling
+- responsive layout system
+- website landing sections
+- workspace cards
+- tables
+- forms
+- drawers
+- command search
+- mobile breakpoints
+- dark visual system
+- interaction states
+
+**JavaScript**
+- routing
+- rendering
+- local state
+- localStorage persistence
+- command search
+- forms
+- workspace interactions
+- synthetic state transitions
+- reports
+- exports
+- notifications
+- profile drawer
+- focus mode
+- audit trail
+- PWA registration
+
+### Hosting
+
+The project is intended for:
+
+**GitHub Pages**
+
+No application server is required.
+
+---
+
+## 14. Project structure
+
+```text
+averis/
+├── index.html
+├── styles.css
+├── app.js
+├── sw.js
+├── manifest.webmanifest
+├── README.md
+└── .github/
+    └── workflows/
+        └── pages.yml
 ```
-
-and validates the synthetic data generator with:
-
-```bash
-python -m py_compile generate_data.py
-```
-
-A full browser smoke test should still be used when making large UI changes, especially across real desktop, tablet and mobile browsers.
-
----
-
-## Responsive design
-
-AVERIS is intended to remain usable across:
-
-**Desktop · Laptop · Tablet · Mobile**
-
-The layout uses flexible grids, fluid widths, responsive navigation, contained media, flexible controls and breakpoint-specific spacing rather than relying on a single fixed desktop canvas.
-
-The current shell is designed around:
-
-- sticky website header
-- responsive primary navigation
-- flexible workspace content
-- responsive image containers
-- drawer/modal containment
-- horizontal scrolling for dense tables instead of page-level overflow
-- readable text widths
-- touch-friendly controls on smaller screens
-- portrait and landscape adaptation
-- viewport-safe sizing
-- reduced visual density where needed
-
-The website should be checked at narrow mobile widths as well as larger desktop widths because the application contains tables, forms, drawers and command interfaces in addition to the marketing-style overview.
-
----
-
-## Accessibility and usability
-
-The shell includes:
-
-- semantic header, navigation, main and footer structure
-- a **Skip to workspace** link
-- explicit button types
-- visible focus treatment
-- accessible labels for icon-only top actions
-- dialog semantics for command search and modal surfaces
-- `aria-live` for toast notifications
-- readable text hierarchy
-- controlled content widths to reduce overlapping text
-
-The visual system prioritizes clear hierarchy rather than relying only on color.
-
----
-
-## Safety boundary
-
-AVERIS is a **portfolio simulation**, not a clinical application.
-
-### Synthetic only
-
-All records are synthetic examples created for demonstration.
-
-### Browser local
-
-Application state is kept in the browser through local persistence.
-
-### No real patient integration
-
-AVERIS does not connect to:
-
-- hospital information systems
-- electronic health records
-- real laboratories
-- real pharmacies
-- payment processors
-- patient communication providers
-- production scheduling systems
-- external clinical decision systems
-
-### No clinical decisioning
-
-Diagnostics and Pharmacy demonstrate **operational workflows only**. Their data must not be interpreted as medical advice, a diagnosis, treatment guidance or clinical recommendations.
-
-### No external AI calls
-
-The Assistant uses deterministic local rules over the current synthetic state. It is not an external AI service and does not transmit the local simulation to an AI provider.
-
----
-
-## Architecture
-
-AVERIS is intentionally framework-free and deployable as static files.
 
 ### `index.html`
 
-The application shell and accessible page structure.
-
-Contains the website header, primary navigation, workspace mount point, footer, overlays, modal containers, drawer container and client-side script/style references.
+Defines the stable application shell and global website structure.
 
 ### `styles.css`
 
-The visual system.
-
-Responsible for:
-
-- dark interface foundations
-- typography
-- responsive grids
-- workspace components
-- cards and tables
-- forms
-- drawers and modals
-- website-style overview sections
-- healthcare image presentation
-- mobile/tablet breakpoints
-- focus and interaction states
-- responsive overflow containment
+Contains the visual system, responsive layout rules, landing-page presentation and workspace styling.
 
 ### `app.js`
 
-The application runtime.
-
-Responsible for:
-
-- route definitions
-- hash navigation
-- synthetic state
-- rendering
-- local persistence
-- migrations/repair logic
-- workspace actions
-- forms
-- command search
-- drawers
-- modals
-- toasts
-- exports
-- audit events
-- assistant rules
-- local workflow transitions
-
-### `manifest.json`
-
-PWA metadata for installable/app-like browser behavior.
+Contains application routing, rendering, state, persistence and interactions.
 
 ### `sw.js`
 
-Service-worker caching for the static website shell and local assets.
+Registers the service worker and maintains the static cache for the GitHub Pages experience.
 
-### `assets/`
+### `manifest.webmanifest`
 
-Local interface artwork such as the AVERIS orbit mark.
+Defines the installable web-app metadata.
 
-### `generate_data.py`
+### `.github/workflows/pages.yml`
 
-Deterministic synthetic fixture generation for development/demo data.
-
-### `schema.sql`
-
-Relational schema reference containing synthetic operational entities, constraints and reporting-oriented database structures.
+Builds and deploys the static project to GitHub Pages.
 
 ---
 
-## Local persistence model
+## 15. Routing model
 
-The application uses versioned browser storage.
+AVERIS uses browser hash routing so it works on static GitHub Pages hosting.
 
-The runtime is designed to:
+Examples:
 
-1. create a deterministic synthetic dataset when no local state exists,
-2. restore missing collections during state repair,
-3. recover from malformed local JSON,
-4. persist workflow changes locally,
-5. add audit records for relevant changes,
-6. export local state to JSON,
-7. reset the synthetic workspace back to a clean seed.
-
-Resetting the application changes only the current browser state. It does not modify the GitHub repository.
-
----
-
-## Workspace behavior
-
-### People
-Search and sort synthetic people records, inspect operational context, open journeys, review tasks and related activity, and create/edit records.
-
-### Journeys
-View synthetic progression across journey stages and operational handoffs.
-
-### Queue
-Search, filter and inspect work; advance task states, reopen tasks and create new work.
-
-### Schedule
-Inspect appointments, create records and move a synthetic appointment forward by 30 minutes.
-
-### Capacity
-Inspect resource state, utilization and ownership; add resources.
-
-### Workforce
-Inspect workforce state and load; add workforce records.
-
-### Diagnostics
-Create and inspect operational diagnostic workflow records and their synthetic state.
-
-### Pharmacy
-Inspect inventory and adjust local synthetic quantities.
-
-### Finance
-Inspect synthetic finance records, progress their state and export finance data.
-
-### Messages
-Open local threads, mark messages read and send simulated replies.
-
-### Incidents
-Inspect incidents and advance the lifecycle from open through investigation, containment and resolution.
-
-### Quality
-Run transparent synthetic quality checks without presenting clinical quality claims.
-
-### Insights
-Review synthetic operational metrics and export local analytics JSON.
-
-### Assistant
-Use deterministic local prompts to surface attention, brief operational summaries and the synthetic/local boundary.
-
-### Reports
-Preview reports, run them locally and export report/state information.
-
-### Audit
-Review browser-local change history.
-
-### Settings
-Update local profile information, notification preference, display density, export state and reset the demo.
-
----
-
-## Data and exports
-
-The application can export browser-local information without sending it to a server.
-
-Examples include:
-
-```
-averis-state.json
-averis-audit.json
-averis-finance.json
-averis-analytics.json
+```text
+#/today
+#/people
+#/journeys
+#/queue
+#/schedule
+#/capacity
+#/workforce
+#/diagnostics
+#/pharmacy
+#/finance
+#/messages
+#/incidents
+#/quality
+#/insights
+#/assistant
+#/reports
+#/audit
+#/settings
 ```
 
-These files represent synthetic demo state and should be treated as development/portfolio artifacts, not production healthcare records.
+The application can move between these routes without requiring a server-side router.
 
 ---
 
-## Visual direction
+## 16. Persistence model
 
-The visual system is built around a **dark operational environment** with healthcare-context imagery and restrained interface emphasis.
+The application uses `localStorage` for client-side persistence.
 
-Key principles:
+The pattern is:
 
-- website-style introduction first
-- operational workspaces second
-- clear text hierarchy
-- realistic but presentation-only healthcare imagery
-- responsive layouts instead of fixed desktop compositions
-- controlled glass/surface treatments
-- restrained motion
-- clear action hierarchy
-- no decorative interaction that behaves like an invisible button
-- no rotating rainbow button effect
-- no fake clinical claims
+```text
+UI action
+   ↓
+state mutation
+   ↓
+audit entry when applicable
+   ↓
+save()
+   ↓
+render()
+   ↓
+updated interface
+```
 
-The Overview is intentionally more editorial and explanatory than the detailed operational workspaces.
+This makes the demo behave like an actual local application while retaining static hosting.
 
 ---
 
-## GitHub Pages deployment
+## 17. Export model
 
-AVERIS is designed for static hosting on GitHub Pages.
+Supported areas can export browser-generated JSON snapshots.
 
-Live target:
+Exports are intended for demonstration and debugging.
+
+They are not connected to a real healthcare information system.
+
+---
+
+## 18. Service worker and cache versioning
+
+The service worker keeps a named cache for the static application assets.
+
+Cache-busting query versions are used on core JavaScript/CSS references so updated deployments can invalidate stale browser resources.
+
+When changing core front-end assets:
+
+1. update the asset query version
+2. update the service-worker cache name
+3. deploy
+4. verify the generated GitHub Pages workflow
+
+This project is intentionally static, so cache hygiene matters.
+
+---
+
+## 19. Deployment
+
+The intended deployment target is:
+
+**GitHub Pages**
+
+The GitHub Actions workflow runs syntax validation before publishing the static site.
+
+A successful deployment should result in:
 
 https://mahitech580.github.io/averis/
 
-All runtime asset paths are relative so the project remains portable under:
+### Typical deployment flow
 
+```text
+Commit
+  ↓
+GitHub Actions
+  ↓
+JavaScript syntax check
+  ↓
+GitHub Pages upload
+  ↓
+Live static website
 ```
-/averis/
-```
-
-The Pages workflow validates the JavaScript and Python sources before publishing the static site.
 
 ---
 
-## Recommended development workflow
+## 20. Quality assurance checklist
 
-For a UI or interaction change:
+Before considering a release complete, verify:
 
-1. update the relevant source file,
-2. keep route/action IDs consistent,
-3. run JavaScript syntax validation,
-4. inspect responsive behavior,
-5. verify the affected control flow,
-6. verify persistence and state transitions where applicable,
-7. update documentation when product behavior changes,
-8. deploy through GitHub Pages.
+### Code health
 
-For larger changes, test the Website Overview and at least one workspace from each major group: coordination, execution, intelligence and governance.
+- `node --check app.js`
+- no invalid JavaScript literals
+- no broken asset references
+- no malformed HTML generated by JavaScript
+- no stale cache versions
+- no accidental duplicate controls
+
+### Navigation
+
+- Website Overview opens
+- People opens
+- Journeys opens
+- Workflow opens
+- Capacity opens
+- Insights opens
+- Reports opens
+- detailed workspace routes remain reachable
+
+### Buttons
+
+Each explicit button should either:
+
+- navigate
+- open a drawer
+- open a modal
+- submit a form
+- update local state
+- export data
+- refresh the view
+- open command search
+- close an active surface
+
+### Interaction safety
+
+- clicking empty areas does nothing
+- clicking images does nothing
+- clicking headings does nothing
+- clicking decorative surfaces does nothing
+- form controls remain usable
+- buttons retain their intended actions
+
+### Responsive QA
+
+Test at:
+
+- wide desktop
+- laptop
+- tablet portrait
+- tablet landscape
+- mobile portrait
+- narrow mobile
+
+Check for:
+
+- clipped headings
+- overlapping text
+- broken buttons
+- horizontal overflow outside intended table containers
+- hidden form labels
+- unreadable typography
+- navigation collision
+- image cropping that hides content
+- drawer overflow
+- modal overflow
 
 ---
 
-## Project identity
+## 21. Interaction coverage
+
+The project contains explicit handling for major action groups including:
+
+```text
+go-*
+new-*
+edit-person:*
+save-*
+task-state:*
+reopen-task:*
+move-appointment:*
+reply:*
+incident:*
+export-*
+run-quality
+refresh-view
+assistant-run
+logout
+toggle-password
+open-login
+open-register
+login-demo
+```
+
+The implementation uses both direct button IDs and `data-action` routing for predictable event handling.
+
+---
+
+## 22. Command search coverage
+
+The command interface can surface:
+
+- workspaces
+- people
+- tasks
+
+Results are explicit button controls and can be activated with mouse/touch or keyboard navigation.
+
+This keeps command-search behavior compatible with the site's intentional button-first interaction model.
+
+---
+
+## 23. Why the home page is not a dashboard
+
+A traditional dashboard often begins with a grid of metrics.
+
+AVERIS starts differently.
+
+The first page answers:
+
+**What is this website?**  
+**What areas does it contain?**  
+**How do those areas connect?**  
+**Where should the visitor go next?**
+
+Metrics still exist inside the operational workspaces where they are meaningful.
+
+The homepage instead behaves like a product introduction and operating-model map.
+
+---
+
+## 24. Portfolio engineering value
+
+AVERIS demonstrates several engineering skills in a single static project:
+
+- responsive front-end architecture
+- semantic HTML
+- component-like rendering helpers
+- client-side routing
+- state modeling
+- local persistence
+- CRUD-style interactions
+- deterministic business logic
+- search and filtering
+- command palette UX
+- workflow transitions
+- export flows
+- audit tracking
+- PWA/service-worker integration
+- responsive tables
+- mobile adaptation
+- GitHub Pages deployment
+- CI syntax validation
+- product-oriented information architecture
+
+---
+
+## 25. Healthcare presentation boundary
+
+Healthcare imagery is used only to establish visual context.
+
+The presence of healthcare environments does not mean AVERIS is connected to:
+
+- hospitals
+- clinics
+- laboratories
+- pharmacies
+- insurers
+- patient portals
+- electronic health records
+
+All such operational records displayed by the website are synthetic.
+
+---
+
+## 26. Security and privacy model
+
+There is no remote data service in the application.
+
+The intended privacy boundary is:
+
+```text
+Browser
+ ├── UI
+ ├── synthetic state
+ ├── localStorage
+ ├── deterministic logic
+ └── optional service-worker cache
+```
+
+The project does not send its synthetic operational state to an application server.
+
+This should not be confused with a formal security audit or production healthcare compliance certification.
+
+---
+
+## 27. Development notes
+
+When extending the project:
+
+### Add a workspace
+
+1. add the route metadata
+2. add the navigation entry when appropriate
+3. add a renderer function
+4. connect the route to the render switch
+5. add explicit buttons
+6. add action handling
+7. add state only when needed
+8. add responsive CSS
+9. add audit behavior for meaningful mutations
+10. run syntax validation
+
+### Add a new action
+
+Prefer:
+
+```html
+<button type="button" data-action="example-action">
+  Example action
+</button>
+```
+
+Then handle the action centrally.
+
+### Avoid accidental interactions
+
+Do not make an entire visual card clickable unless that interaction is a deliberate product decision. Prefer a clear button such as:
+
+```html
+<button type="button">Open profile</button>
+```
+
+---
+
+## 28. Current product identity
 
 **AVERIS**  
-**by Mahi · OPERATIONS OS**
+**by Mahi**  
+**OPERATIONS OS**
 
-A portfolio project demonstrating how a complex healthcare operational environment can be made understandable, navigable and interactive without using real healthcare data or production integrations.
+The project is positioned as a modern browser-local operating surface for complex healthcare coordination and operational workflows.
 
----
-
-## Links
-
-**Live:** https://mahitech580.github.io/averis/  
-**GitHub:** https://github.com/mahitech580/averis  
-**Home / Website Overview:** https://mahitech580.github.io/averis/#/today
+It is designed to be understood quickly, explored deeply and run entirely as a static website.
 
 ---
 
-## License / usage
+## 29. Live links
 
-This project is a portfolio and demonstration application. The healthcare terminology, records and operational signals are synthetic and intended only to demonstrate interface and workflow concepts.
+**Website:**  
+https://mahitech580.github.io/averis/
+
+**Website Overview:**  
+https://mahitech580.github.io/averis/#/today
+
+**GitHub repository:**  
+https://github.com/mahitech580/averis
+
+---
+
+## 30. Final boundary
+
+AVERIS is a **synthetic healthcare-operations portfolio simulation**.
+
+Use it to demonstrate:
+
+**product thinking · UI engineering · workflow modeling · front-end architecture · responsive design · browser-local persistence · operational storytelling**
+
+Do not use it as:
+
+**a clinical system · patient record system · medical decision tool · production healthcare integration**
+
+---
+
+## 31. Credits
+
+**Project:** AVERIS  
+**Creator:** Mahi  
+**Deployment:** GitHub Pages  
+**Runtime:** Browser-local  
+**Data:** Synthetic  
+**Architecture:** Static client-side application
