@@ -13,14 +13,14 @@ All visible records are synthetic. AVERIS does not connect to real patients, hea
 The Diagnostics and Pharmacy workspaces demonstrate operational workflows only. The People drawer can show synthetic medication/pharmacy context, explicitly marked as non-clinical operational data.
 
 ## Product experience
-The interface uses a cinematic healthcare-control-room presentation with realistic healthcare photography, responsive cards, larger readability-focused typography, dark mode, light mode, live operational signals, and local interactive workflows. Visual imagery is used as contextual presentation only; the application remains synthetic and non-clinical.
+The interface uses a cinematic healthcare-control-room presentation with realistic healthcare photography, responsive cards, larger readability-focused typography, dark/light mode, live operational signals, and local interactive workflows. Visual imagery is used as contextual presentation only; the application remains synthetic and non-clinical.
 
 ## Product structure
 - Home / Website Overview — the starting point for understanding the entire website. It explains the product, the operating model, the main workspaces, the operational layers, the synthetic-only boundary and the next places to explore.
 - People — search, filter, sort, profiles, journeys, work, appointments, diagnostic workflow, synthetic medication context, messages and activity.
 - Journeys — stage, progress, ownership and person counts.
 - Queue — create/edit, owner assignment, priority, state, complete/reopen and blocked movement.
-- Schedule — create/edit, inspect, state changes and explicit +60 minute synthetic move.
+- Schedule — create/edit, inspect, state changes and explicit +30 minute synthetic move.
 - Capacity — resources, occupancy, availability, synthetic person linkage and state transitions.
 - Workforce — add/edit, state and workload.
 - Diagnostics — create/edit, inspect, workflow state and synthetic result note.
