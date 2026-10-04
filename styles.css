@@ -1,7 +1,7 @@
 /* =========================================================
    AVERIS — design system + components
-   Palette: cool slate surface, single signal-teal accent,
-   amber reserved for risk/attention states only.
+   Palette: clinical white + medical blue + healthcare teal,
+   with restrained amber/red states for attention and risk.
    ========================================================= */
 
 :root{
@@ -307,7 +307,8 @@ a{color:inherit}
 .nav-item{
   display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-s);
   color:var(--text-muted);cursor:pointer;font-size:13.5px;font-weight:520;
-  transition:background .18s var(--ease),color .18s var(--ease);position:relative;
+  transition:background .18s var(--ease),color .18s var(--ease),transform .25s var(--ease);
+  position:relative;overflow:hidden;isolation:isolate;
 }
 .nav-item svg{width:17px;height:17px;flex:none;opacity:.9}
 .nav-item:hover{background:color-mix(in srgb,var(--surface-2) 88%,var(--accent) 12%);color:var(--text);transform:translateX(2px)}
@@ -319,8 +320,21 @@ a{color:inherit}
 .sidebar-foot{margin-top:auto;padding-top:12px;border-top:1px solid var(--border-soft)}
 .role-pill{
   display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:var(--radius-s);
-  background:var(--surface-2);cursor:pointer;font-size:12.5px;
+  background:var(--surface-2);cursor:pointer;font-size:12.5px;position:relative;overflow:hidden;isolation:isolate;
+  transition:background .25s var(--ease),border-color .25s var(--ease),transform .25s var(--ease);
+  border:1px solid transparent;
 }
+.role-pill::before{
+  content:"";position:absolute;inset:-55%;z-index:-1;border-radius:50%;pointer-events:none;
+  background:
+    radial-gradient(circle at 34% 34%,rgba(0,137,123,.12),transparent 38%),
+    radial-gradient(circle at 70% 66%,rgba(21,101,192,.08),transparent 42%);
+  filter:blur(20px);opacity:0;transform:scale(.75);
+  transition:opacity .35s ease,transform .55s var(--ease);
+}
+.role-pill:hover{transform:translateY(-1px);border-color:var(--border);background:var(--surface-3)}
+.role-pill:hover::before{opacity:1;transform:scale(1.05);animation:hoverSmoke 2.8s ease-in-out infinite alternate}
+
 
 /* topbar */
 .topbar{
@@ -332,7 +346,8 @@ a{color:inherit}
 .search-trigger{
   display:flex;align-items:center;gap:8px;color:var(--text-faint);background:var(--surface-2);
   border:1px solid var(--border);padding:7px 12px;border-radius:var(--radius-s);cursor:pointer;
-  font-size:12.5px;width:280px;transition:border-color .2s;
+  font-size:12.5px;width:280px;transition:border-color .2s,box-shadow .3s var(--ease),color .2s;
+  position:relative;overflow:hidden;isolation:isolate;
 }
 .search-trigger:hover{border-color:var(--accent);color:var(--text);box-shadow:0 8px 22px -14px rgba(21,101,192,.35)}
 .search-trigger:hover::before{opacity:.8;transform:translate3d(2%,0,0) scale(1)}
@@ -340,7 +355,8 @@ a{color:inherit}
 .top-actions{display:flex;align-items:center;gap:8px}
 .icon-btn{
   width:34px;height:34px;border-radius:var(--radius-s);display:flex;align-items:center;justify-content:center;
-  color:var(--text-muted);cursor:pointer;position:relative;transition:background .18s,color .18s;
+  color:var(--text-muted);cursor:pointer;position:relative;overflow:hidden;isolation:isolate;
+  transition:background .18s,color .18s,transform .25s var(--ease);
 }
 .icon-btn:hover{background:var(--surface-2);color:var(--accent);transform:translateY(-1px)}
 .icon-btn:hover::before{opacity:.85;transform:translate3d(2%,0,0) scale(1)}
@@ -440,7 +456,7 @@ tbody tr:last-child td{border-bottom:none}
 .msg-shell{display:grid;grid-template-columns:300px 1fr;gap:0;border:1px solid var(--border);border-radius:var(--radius-m);overflow:hidden;height:600px;background:var(--surface)}
 .conv-list{border-right:1px solid var(--border-soft);overflow-y:auto}
 .conv-item{display:flex;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border-soft);cursor:pointer;transition:background .15s}
-.conv-item:hover,.conv-item.active{background:var(--surface-2)}
+.conv-item:hover,.conv-item.active{background:color-mix(in srgb,var(--surface-2) 90%,var(--accent) 10%);transform:translateX(1px)}
 .conv-item .n{font-size:13px;font-weight:600}
 .conv-item .p{font-size:12px;color:var(--text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .unread-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:auto;flex:none;align-self:center}
