@@ -547,11 +547,6 @@ body{line-height:1.6;letter-spacing:.005em}
 .landing-hero-visual{position:relative;min-height:500px}
 .hero-image-window{width:min(100%,510px);height:480px;margin:auto;border-radius:28px;overflow:hidden;border:1px solid rgba(255,255,255,.18);box-shadow:0 35px 100px rgba(0,0,0,.42)}
 .hero-image-window img{width:100%;height:100%;object-fit:cover}
-.hero-floating{position:absolute;z-index:4;padding:13px 16px;min-width:110px;border:1px solid rgba(255,255,255,.16);border-radius:15px;background:rgba(4,12,21,.84);backdrop-filter:blur(16px);box-shadow:0 15px 40px rgba(0,0,0,.28);text-align:center}
-.hero-floating b{display:block;font-size:26px}.hero-floating span{display:block;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.1em;margin-top:5px}
-.hero-floating-a{left:0;top:22%}.hero-floating-b{right:0;bottom:24%}
-.hero-status{position:absolute;bottom:7%;left:50%;transform:translateX(-50%);width:min(84%,390px);z-index:5;display:flex;align-items:center;gap:11px;padding:14px 16px;border:1px solid rgba(255,255,255,.16);border-radius:16px;background:rgba(4,11,19,.79);backdrop-filter:blur(18px)}
-.hero-status b{display:block;font-size:11px;letter-spacing:.08em}.hero-status small{display:block;margin-top:4px;color:var(--muted);font-size:9px}
 .metrics-bg{background-image:url("https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960")}
 .landing-metric-band{padding:0}
 .landing-metrics-inner{position:relative;z-index:2;width:min(100%,1320px);margin:0 auto;padding:18px clamp(18px,4vw,60px);display:grid;grid-template-columns:repeat(4,1fr);gap:1px}
@@ -636,8 +631,6 @@ body{line-height:1.6;letter-spacing:.005em}
   .landing-lead{font-size:14px}
   .landing-hero-visual{min-height:400px}
   .hero-image-window{height:390px}
-  .hero-floating-a{left:3px}.hero-floating-b{right:3px}
-  .hero-status{bottom:2%}
   .landing-metrics-inner{grid-template-columns:repeat(2,1fr);padding:10px 16px}
   .landing-metrics-inner>div{border-bottom:1px solid rgba(255,255,255,.10)}
   .capability-grid,.process-grid,.showcase-grid{grid-template-columns:1fr}
@@ -706,60 +699,40 @@ body{line-height:1.6;letter-spacing:.005em}
 .website-shell .command-group,.website-shell .command-help{font-size:10px!important}
 .website-shell .toast p{font-size:11px!important}
 .website-shell .footer-note{font-size:11px!important;line-height:1.6}
-
-/* HERO FLOATING INFO — move status stack toward the right */
-.website-shell .hero-floating-b{
-  right:-8px;
-  left:auto;
-  bottom:auto;
-  top:24%;
-}
-.website-shell .hero-status{
-  left:auto;
-  right:-8px;
-  transform:none;
-  bottom:7%;
-  width:min(360px,78%);
-  min-width:280px;
-  white-space:normal;
-}
-.website-shell .hero-status div{min-width:0;flex:1}
-.website-shell .hero-status b{white-space:nowrap}
-.website-shell .hero-status small{white-space:normal;overflow-wrap:anywhere}
+/* FINAL CROSS-DEVICE HARDENING */
+html,body{max-width:100%;overflow-x:hidden}
+.website-shell img,.website-shell svg{max-width:100%}
+.website-shell .landing-hero-inner,.website-shell .section-inner,.website-shell .feature-layout,.website-shell .boundary-layout{min-width:0}
+.website-shell .landing-hero-copy,.website-shell .landing-hero-visual,.website-shell .feature-copy,.website-shell .feature-media{min-width:0}
+.website-shell h1,.website-shell h2,.website-shell h3,.website-shell p,.website-shell span,.website-shell b,.website-shell small{overflow-wrap:anywhere}
+.website-shell .landing-lead{max-width:760px;margin-left:auto;margin-right:auto}
+.website-shell .landing-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:10px}
+.website-shell .button{touch-action:manipulation}
 @media(max-width:1050px){
-  .website-shell .hero-floating-b{right:8px;top:24%}
-  .website-shell .hero-status{right:8px;bottom:5%;width:min(380px,82%)}
+  .website-shell .landing-hero-inner{grid-template-columns:1fr;gap:42px}
+  .website-shell .landing-hero-visual{width:min(100%,720px);margin:0 auto;min-height:500px}
+  .website-shell .hero-image-window{width:min(100%,560px)}
+  .website-shell .capability-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .website-shell .landing-hero{min-height:0;padding:52px 0 58px}
+  .website-shell .landing-hero-inner{padding:0 16px;gap:34px}
+  .website-shell .landing-hero-copy h1{font-size:clamp(40px,11vw,58px);line-height:1}
+  .website-shell .landing-hero-visual{min-height:0}
+  .website-shell .hero-image-window{height:min(78vw,390px);min-height:280px;border-radius:20px}
+  .website-shell .landing-actions .button{flex:1 1 180px}
+  .website-shell .capability-grid,.website-shell .process-grid,.website-shell .showcase-grid{grid-template-columns:1fr}
+  .website-shell .layer-grid{grid-template-columns:1fr}
+  .website-shell .feature-layout,.website-shell .boundary-layout{grid-template-columns:1fr;gap:34px}
 }
 @media(max-width:560px){
-  .website-shell .hero-floating-b{right:6px;top:22%}
-  .website-shell .hero-status{right:6px;bottom:3%;width:calc(100% - 12px);min-width:0}
-  .website-shell .hero-status b{font-size:10px}
-  .website-shell .hero-status small{font-size:9px}
-}
-
-/* FINAL HERO CARD SPACING */
-.website-shell .hero-floating-a{
-  left:auto;
-  right:-8px;
-  top:14%;
-  bottom:auto;
-  min-width:132px;
-}
-.website-shell .hero-floating-b{
-  left:auto;
-  right:-8px;
-  top:34%;
-  bottom:auto;
-  min-width:132px;
-}
-.website-shell .hero-floating{
-  white-space:nowrap;
-}
-@media(max-width:1050px){
-  .website-shell .hero-floating-a{right:8px;top:12%}
-  .website-shell .hero-floating-b{right:8px;top:34%}
-}
-@media(max-width:560px){
-  .website-shell .hero-floating-a{right:6px;top:10%;min-width:116px}
-  .website-shell .hero-floating-b{right:6px;top:34%;min-width:116px}
+  .website-shell .landing-hero-inner,.website-shell .section-inner{padding-left:14px;padding-right:14px}
+  .website-shell .hero-image-window{height:74vw;min-height:250px}
+  .website-shell .landing-actions{flex-direction:column}
+  .website-shell .landing-actions .button{width:100%}
+  .website-shell .landing-metrics-inner{grid-template-columns:1fr 1fr;padding-left:14px;padding-right:14px}
+  .website-shell .landing-metrics-inner>div{min-width:0}
+  .website-shell .feature-media{height:280px}
+  .website-shell .boundary-points{grid-template-columns:1fr}
+  .website-shell .cta-inner{padding:0 14px}
 }
