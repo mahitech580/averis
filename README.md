@@ -2,7 +2,7 @@
 
 **SIMULATED / LOCAL**
 
-AVERIS is a browser-local healthcare operations website designed to make a complex operating environment easy to understand. The **Home / Website Overview** page explains what AVERIS is, how its major areas connect, what each workspace is for, and where to go next. The detailed workspaces then let you explore people, journeys, workflow, schedules, capacity, communication, incidents, intelligence, reports and governance. Everything shown is synthetic and stays inside the browser.
+AVERIS is a browser-local healthcare operations website that brings people, journeys, workflow, schedules, capacity, communication, incidents, intelligence, reports and governance into one understandable operating surface. The **Website Overview** is the starting point for the whole site: it explains what AVERIS is, how the major areas connect, what each workspace is responsible for, and where to continue exploring. The detailed workspaces then let you explore people, journeys, workflow, schedules, capacity, communication, incidents, intelligence, reports and governance. Everything shown is synthetic and stays inside the browser.
 
 ## Live
 https://mahitech580.github.io/averis/
@@ -16,7 +16,7 @@ The Diagnostics and Pharmacy workspaces demonstrate operational workflows only. 
 The interface uses a cinematic healthcare-control-room presentation with realistic healthcare photography, responsive cards, larger readability-focused typography, dark/light mode, live operational signals, and local interactive workflows. Visual imagery is used as contextual presentation only; the application remains synthetic and non-clinical.
 
 ## Product structure
-- Home / Website Overview — the starting point for understanding the entire website. It explains the product, the operating model, the main workspaces, the operational layers, the synthetic-only boundary and the next places to explore.
+- Website Overview — the starting point for understanding the entire AVERIS website. It explains the product, the operating model, the main workspaces, the operational layers, the synthetic-only boundary and the next places to explore.
 - People — search, filter, sort, profiles, journeys, work, appointments, diagnostic workflow, synthetic medication context, messages and activity.
 - Journeys — stage, progress, ownership and person counts.
 - Queue — create/edit, owner assignment, priority, state, complete/reopen and blocked movement.
