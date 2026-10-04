@@ -696,3 +696,13 @@ body{line-height:1.6;letter-spacing:.005em}
   .website-shell .page-head{align-items:flex-start;flex-direction:column}
   .website-shell .page-title{line-height:1.05}
 }
+
+/* FINAL TYPOGRAPHY SAFETY OVERRIDES */
+.website-shell .simulation-badge small,.website-shell .clock small{font-size:10px!important}
+.website-shell .notif b{font-size:9px!important}
+.website-shell .hero-stat span,.website-shell .floating-chip,.website-shell .signal-top,.website-shell .timeline-meta,.website-shell .alert-row p,.website-shell .alert-row small,.website-shell .network-tag,.website-shell .bar-row{font-size:11px!important}
+.website-shell .small-stat small{font-size:10px!important}
+.website-shell .ring small{font-size:10px!important}
+.website-shell .command-group,.website-shell .command-help{font-size:10px!important}
+.website-shell .toast p{font-size:11px!important}
+.website-shell .footer-note{font-size:11px!important;line-height:1.6}
