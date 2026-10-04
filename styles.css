@@ -736,3 +736,38 @@ html,body{max-width:100%;overflow-x:hidden}
   .website-shell .boundary-points{grid-template-columns:1fr}
   .website-shell .cta-inner{padding:0 14px}
 }
+
+
+/* FINAL HOMEPAGE LAYOUT + DEVICE SAFETY */
+.website-shell .landing-hero-inner{grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);align-items:center}
+.website-shell .landing-hero-copy{text-align:left;margin:0;max-width:760px}
+.website-shell .landing-hero-copy .hero-kicker{justify-content:flex-start}
+.website-shell .landing-actions{justify-content:flex-start}
+.website-shell .landing-trust{justify-content:flex-start}
+.website-shell .landing-hero-visual{min-width:0}
+.website-shell .hero-image-window{width:min(100%,540px);margin-left:auto;margin-right:0}
+.website-shell .landing-metrics-inner{grid-template-columns:repeat(2,minmax(0,1fr))}
+.website-shell .landing-metrics-inner>div{min-width:0}
+@media(max-width:1050px){
+  .website-shell .landing-hero-inner{grid-template-columns:1fr;gap:36px}
+  .website-shell .landing-hero-copy{text-align:left;margin:0}
+  .website-shell .landing-hero-copy .hero-kicker{justify-content:flex-start}
+  .website-shell .landing-hero-visual{width:100%;justify-content:center}
+  .website-shell .hero-image-window{margin:0 auto}
+}
+@media(max-width:760px){
+  .website-shell .landing-hero-inner{padding-left:16px;padding-right:16px}
+  .website-shell .landing-hero-copy h1{font-size:clamp(42px,12vw,58px);line-height:.98;letter-spacing:-.055em}
+  .website-shell .landing-lead{font-size:14px;line-height:1.75}
+  .website-shell .landing-actions,.website-shell .landing-trust{justify-content:flex-start}
+  .website-shell .hero-image-window{width:100%;height:min(72vw,390px);min-height:280px;border-radius:22px}
+  .website-shell .landing-metrics-inner{grid-template-columns:1fr;padding:10px 16px}
+  .website-shell .landing-metrics-inner>div{border-right:0}
+}
+@media(max-width:420px){
+  .website-shell .landing-hero-copy .hero-kicker{font-size:9px;letter-spacing:.09em}
+  .website-shell .landing-hero-copy h1{font-size:40px}
+  .website-shell .landing-actions{display:grid;grid-template-columns:1fr}
+  .website-shell .landing-actions .button{width:100%;justify-content:center}
+  .website-shell .hero-image-window{min-height:250px;height:68vw}
+}
