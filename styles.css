@@ -315,7 +315,7 @@ a{color:inherit}
 .nav-item.active{background:var(--accent-soft);color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
 .nav-item.active{background:var(--accent-soft);color:var(--accent)}
 .nav-item .count{margin-left:auto;font-size:11px;color:var(--text-faint);background:var(--surface-2);padding:1px 7px;border-radius:100px}
-.nav-item.active .count{color:var(--accent);background:rgba(52,195,166,.18)}
+.nav-item.active .count{color:var(--accent);background:rgba(0,137,123,.18)}
 .sidebar-foot{margin-top:auto;padding-top:12px;border-top:1px solid var(--border-soft)}
 .role-pill{
   display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:var(--radius-s);
