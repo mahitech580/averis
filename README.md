@@ -2,7 +2,7 @@
 
 **SIMULATED / LOCAL**
 
-AVERIS is a browser-local healthcare operations website designed to make a complex healthcare operating environment easy to understand. It connects people, journeys, work, schedules, capacity, workforce, communication, incidents, intelligence, reports, quality and audit into one connected experience. The home page explains the big picture first; the individual workspaces then let you explore each operational layer and its synthetic workflows without connecting to real healthcare infrastructure.
+AVERIS is a browser-local healthcare operations website that gives a clear view of how a complex healthcare operating environment fits together. The Home page explains the product at a glance, while the individual workspaces let you explore people, journeys, workflow, schedules, capacity, communication, incidents, intelligence, reports and governance in more detail. Everything is synthetic and runs locally in the browser.
 
 ## Live
 https://mahitech580.github.io/averis/
@@ -16,7 +16,7 @@ The Diagnostics and Pharmacy workspaces demonstrate operational workflows only. 
 The interface uses a cinematic healthcare-control-room presentation with realistic healthcare photography, responsive cards, larger readability-focused typography, dark mode, light mode, live operational signals, and local interactive workflows. Visual imagery is used as contextual presentation only; the application remains synthetic and non-clinical.
 
 ## Product structure
-- Today / Overview — the website home: explains what AVERIS is, how its operating layers connect, and where to explore next.
+- Home / Overview — the website starting point: clearly explains what AVERIS is, what the website covers, how the operational layers connect, and where to explore next.
 - People — search, filter, sort, profiles, journeys, work, appointments, diagnostic workflow, synthetic medication context, messages and activity.
 - Journeys — stage, progress, ownership and person counts.
 - Queue — create/edit, owner assignment, priority, state, complete/reopen and blocked movement.
@@ -75,7 +75,7 @@ Author: **Mahi**
 
 
 ## Overview
-AVERIS is organized as a clear progression: start with the Home / Overview page to understand the product, move into operational workspaces such as People, Journeys, Queue, Schedule, Capacity and Workforce, then move into Diagnostics, Pharmacy, Finance, Messages and Incidents. Insights, Assistant and Reports provide the intelligence and communication layer, while Quality, Audit and Settings cover assurance and governance. Every workspace uses synthetic data stored locally in the browser.
+Start on **Home** to understand the entire AVERIS website before opening detailed workspaces. The Home page explains the product, the operational model, the major capabilities, the synthetic-only boundary and the main areas available to explore. From there, move into **People, Journeys, Queue, Schedule, Capacity, Workforce, Diagnostics, Pharmacy, Finance, Messages, Incidents, Quality, Insights, Assistant, Reports, Audit and Settings**. Every workspace uses synthetic data stored locally in the browser.
 
 ## Positioning
 AVERIS demonstrates how a complex healthcare operation can be presented as one understandable operating environment. The website separates the high-level explanation from the detailed workspaces so visitors can understand the product before interacting with individual workflows.
