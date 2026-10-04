@@ -36,7 +36,7 @@ The interface uses a cinematic healthcare-control-room presentation with realist
 - Settings — theme, profile, density, notifications, export and deterministic reset.
 
 ## Visual system
-- Dark mode and true light mode with persistent browser preference.
+- Dark-only cinematic interface with persistent browser-local application state.
 - Responsive command-center layout for desktop, tablet and mobile.
 - Realistic healthcare imagery with readability overlays across major workspaces.
 - Local interaction patterns: drawers, modals, command search, forms, state transitions, exports and toasts.
