@@ -45,7 +45,7 @@ a{color:inherit}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:20px}
 ::-webkit-scrollbar-track{background:transparent}
 
-.ambient{position:fixed;inset:-12%;z-index:-1;overflow:hidden;pointer-events:none;background:
+.ambient{position:fixed;inset:-12%;z-index:0;overflow:hidden;pointer-events:none;background:
  radial-gradient(520px circle at var(--mx) var(--my),rgba(21,101,192,.11),transparent 60%),
  radial-gradient(780px circle at 10% 12%,rgba(0,137,123,.08),transparent 68%),
  radial-gradient(900px circle at 92% 84%,rgba(226,54,54,.055),transparent 72%)}
@@ -60,7 +60,7 @@ a{color:inherit}
 @keyframes fogC{from{transform:translate3d(-2%,3%,0) scale(1.02)}to{transform:translate3d(3%,-3%,0) scale(1.12)}}
 @keyframes particleDrift{to{background-position:84px 42px}}
 
-.app-shell{min-height:100vh;display:grid;grid-template-columns:var(--sidebar) 1fr}
+.app-shell{position:relative;z-index:1;min-height:100vh;display:grid;grid-template-columns:var(--sidebar) 1fr}
 .sidebar{position:sticky;top:0;height:100vh;padding:16px 12px;border-right:1px solid var(--border-soft);background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(18px);display:flex;flex-direction:column;z-index:30}
 .brand-block{display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:10px;background:transparent;color:var(--text);cursor:pointer;padding:7px 8px}
