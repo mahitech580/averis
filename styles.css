@@ -395,3 +395,42 @@ html[data-theme="light"] .eyebrow{color:#078f6a}
 html[data-theme="light"] .ring{background:conic-gradient(#11ae8c calc(var(--v)*1%),rgba(31,78,100,.10) 0)}
 html[data-theme="light"] .ring:after{background:#fff;border-color:rgba(24,76,100,.11)}
 .theme-button{font-size:16px}
+
+
+/* AVERIS READABILITY PASS — larger typography throughout the application */
+body{font-size:15px;line-height:1.55}
+.brand b{font-size:21px}.brand small{font-size:9px}
+.identity b{font-size:12px}.identity small{font-size:10px}
+.command-open b{font-size:11px}.command-open small{font-size:9px}.command-open>span{font-size:19px}
+.nav-label{font-size:9px}.nav-item{font-size:12px;padding:10px 10px;grid-template-columns:25px 1fr auto}.nav-icon{font-size:15px}
+.simulation-badge b{font-size:9px}.simulation-badge small{font-size:8px}.focus-button{font-size:11px}
+.breadcrumbs{font-size:11px}.local-chip{font-size:9px}.clock b{font-size:11px}.clock small{font-size:8px}
+.page-title{font-size:clamp(29px,3.3vw,46px)}.page-copy{font-size:13px;line-height:1.65}
+.eyebrow{font-size:9px}.button{font-size:10px;min-height:39px}.button.small{font-size:9px;min-height:32px}
+.hero-kicker{font-size:11px}.hero p{font-size:14px;line-height:1.7}
+.hero-stat b{font-size:28px}.hero-stat span{font-size:10px}
+.signal{min-height:135px;padding:19px}.signal-top span:first-child{font-size:10px}.signal-value{font-size:34px}.signal-detail{font-size:10px}
+.card-head h3{font-size:13px}.card-head p{font-size:9px}.micro{font-size:8px}
+.small-stat small{font-size:8px}.small-stat b{font-size:18px}
+.department-copy b{font-size:14px}.department-copy small{font-size:10px}
+.activity-row div b{font-size:9px}.activity-row div small{font-size:8px}.activity-row time{font-size:8px}
+.journey-stage b{font-size:9px}.journey-stage strong{font-size:23px}.journey-stage small{font-size:7px}
+.message b{font-size:9px}.message p{font-size:8px}.message small{font-size:7px}
+.table-wrap{font-size:11px}th{font-size:9px!important}td{font-size:11px!important}
+.status,.tag{font-size:8px}
+.detail small{font-size:7px}.detail b{font-size:9px}
+.drawer-head h2{font-size:23px}.drawer-section h3{font-size:10px}.drawer-section p{font-size:9px}
+.input,.select,.textarea{font-size:12px;min-height:40px}.field label{font-size:8px}
+.command-box input{font-size:12px}.command-result b{font-size:10px}.command-result small{font-size:8px}
+.auth-card h1{font-size:38px}.auth-card>p{font-size:12px}.auth-form label{font-size:12px}.auth-form .input{min-height:49px}
+.auth-submit{font-size:11px}.auth-footnote{font-size:10px}
+.toast b{font-size:9px}.toast p{font-size:8px}
+.footer-note{font-size:8px}
+
+/* Keep accessibility scaling coherent on narrow screens. */
+@media(max-width:680px){
+  body{font-size:14px}.page-title{font-size:31px}.page-copy{font-size:12px}
+  .nav-item{font-size:12px}.hero h1{font-size:42px}.hero p{font-size:13px}
+  .signal-value{font-size:30px}.card-head h3{font-size:12px}.table-wrap{font-size:10px}
+  td{font-size:10px!important}
+}
