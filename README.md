@@ -1,37 +1,22 @@
 # Averis — Care Command Center
 
-> **Better care starts with better coordination.**
+> Better care starts with better coordination.
 
-Averis is a polished healthcare operations command center built for a portfolio-quality product experience. The redesigned interface brings patient operations, scheduling, care coordination, clinical monitoring, staffing, capacity, pharmacy, laboratory, collaboration, tasks, analytics, reporting and an AI operations copilot into one responsive workspace.
+Averis is an advanced healthcare operations command center for patient flow, appointments, care coordination, clinical signals, provider capacity, beds, pharmacy, laboratory operations, team communication, tasks, analytics, reporting and operational decision support.
 
-The current GitHub Pages build is **100% client-side**. Its live layer is a **browser-side operational simulation** that updates timestamps, activity, capacity signals and clinical telemetry continuously. A production version would replace the simulation with authenticated backend APIs, database events and real-time infrastructure.
+The public GitHub Pages build is fully client-side. Its "LIVE" layer is a browser-side event simulation that continuously updates operational telemetry, activity, freshness and notifications. All patient, clinical, inventory and operational records are synthetic.
 
-> **Portfolio safety:** all patient, clinical, inventory and operational values are synthetic. Averis is not a clinical system and should not be used for real patient care.
-
----
-
-## 🚀 Live
-
-**Application:** https://mahitech580.github.io/averis/  
+**Live:** https://mahitech580.github.io/averis/  
 **Repository:** https://github.com/mahitech580/averis
 
-Open the site directly — there is no server setup or account creation required for the portfolio build.
+## Product areas
 
----
+### Command
+- Command Center
+- Analytics
+- AI Copilot
 
-## ✨ What is inside
-
-### Command Center
-- Live operational overview
-- Patient flow trend
-- Capacity and occupancy snapshot
-- Care queue visibility
-- Live activity stream
-- Network/system health indicator
-- Animated healthcare imagery
-- Real-time clock and freshness signals
-
-### Care Operations
+### Care operations
 - Patients
 - Appointments
 - Care Hub
@@ -39,101 +24,71 @@ Open the site directly — there is no server setup or account creation required
 - Providers
 - Bed Board
 
-### Services
+### Hospital services
 - Pharmacy
 - Laboratory
 - Messages
 - Tasks
 - Reports
 
-### Intelligence
-- Operational analytics
-- Provider workload signals
-- No-show and scheduling signals
-- Care-cycle metrics
-- Explainable AI Copilot
-
 ### System
 - Light/dark clinical theme
-- Live simulation toggle
-- Responsive navigation
-- Global command/search palette
-- Notifications
-- Browser persistence with localStorage
+- Real-time clock and freshness indicators
+- Live activity and notifications
+- Ctrl/Cmd + K command search
+- Responsive mobile navigation
+- Browser persistence
 - CSV export flows
+- Reduced-motion support
 
----
+## Design language
 
-## 🎨 Design direction
+The UI uses a clinical-first palette with high-contrast cinematic energy inspired by Marvel-style interface aesthetics:
 
-The visual system combines **clinical healthcare UI patterns** with a restrained cinematic color language inspired by the energy of Marvel-style interfaces:
-
-- Medical blue for primary navigation and actions
-- Healthcare teal for positive/active signals
-- Deep red for critical states
-- Gold for attention and priority states
-- Navy/slate text and surfaces for readability
-- Soft glass and atmospheric fog rather than heavy neon effects
-- Animated hover haze and subtle lift interactions
-- Responsive layouts for desktop, tablet and mobile
-
-The intent is **healthcare first** — not superhero theming.
-
----
-
-## 🌫️ Motion & atmosphere
-
-Averis includes a lightweight motion layer designed to feel alive without making the interface distracting:
-
-- Animated background fog
-- Slow ambient particle movement
-- Mouse-following atmosphere
-- Hero image drift
-- Soft card hover haze
-- Button/search hover glow
-- Live status pulses
-- Animated clinical telemetry
-- Periodic activity updates
-- Smooth view transitions
-
-The animation system respects `prefers-reduced-motion`.
-
----
-
-## 🖼️ Healthcare imagery
-
-The redesigned UI uses healthcare photography from **Pexels** for the hero, care and hospital-environment surfaces. The selected source pages are marked as free-use by Pexels:
-
-- Hospital care team image — Pexels photo 6129507 [Pexels source page](https://www.pexels.com/photo/doctors-and-nurses-in-a-hospital-6129507/)
-- Doctor/patient care image — Pexels photo 6129651 [Pexels source page](https://www.pexels.com/photo/doctor-talking-to-a-patient-6129651/)
-- Modern hospital interior — Pexels photo 29329917 [Pexels source page](https://www.pexels.com/photo/modern-hospital-interior-with-staircase-and-elevators-29329917/)
-
-The photographs are used as visual product surfaces rather than as patient records or clinical evidence.
-
----
-
-## 🛠️ Tech stack
-
-| Layer | Technology |
+| Role | Color |
 |---|---|
-| UI | HTML5 |
-| Styling | CSS3 |
-| Application | Vanilla JavaScript |
-| Charts | Inline SVG |
-| State | localStorage |
-| PWA | Web App Manifest |
-| Data | Synthetic browser-side data |
-| Deployment | GitHub Pages |
-| Backend | None in the current build |
+| Medical blue | #1565C0 |
+| Deep blue | #0D47A1 |
+| Healthcare teal | #00897B |
+| Signal red | #E23636 |
+| Priority gold | #FFC107 |
+| Positive green | #2E7D32 |
+| Clinical surface | #F4F8FC |
+| Medical navy | #172B4D |
 
-No framework or package manager is required.
+The product remains healthcare-focused rather than superhero-themed.
 
----
+## Motion and atmosphere
 
-## 🏗️ Project structure
+Averis includes:
+- Layered animated fog
+- Ambient particles
+- Pointer-responsive atmosphere
+- Hero image drift
+- Soft hover haze
+- Live pulse indicators
+- Animated clinical telemetry
+- Smooth navigation transitions
+- Reduced-motion handling
 
-```text
+Local SVG assets provide the brand mark and ambient visual system.
+
+## Healthcare imagery
+
+Selected healthcare photography is sourced from Pexels:
+
+- [Doctors and Nurses in a Hospital](https://www.pexels.com/photo/doctors-and-nurses-in-a-hospital-6129507/)
+- [Doctors Working Together](https://www.pexels.com/photo/doctors-working-together-6129207/)
+- [Doctor and Patient Talking in Office](https://www.pexels.com/photo/doctor-and-patient-talking-in-office-8413204/)
+
+## Repository structure
+
+\`\`\`text
 averis/
+├── assets/
+│   ├── averis-mark.svg
+│   ├── ambient-grid.svg
+│   └── care-pattern.svg
 ├── index.html
 ├── styles.css
 ├── app.js
@@ -141,75 +96,67 @@ averis/
 ├── schema.sql
 ├── generate_data.py
 └── README.md
-```
+\`\`\`
 
-### Main application files
+**index.html** — application shell, navigation, content hosts, overlays, PWA metadata and accessibility entry points.
 
-**index.html**  
-Application shell, navigation, content views, overlays and modal host.
+**styles.css** — clinical design system, responsive layouts, charts, tables, monitoring cards, atmospheric effects, hover states and light/dark themes.
 
-**styles.css**  
-Full clinical design system, responsive layouts, motion, fog atmosphere, image surfaces, tables, charts, cards and component states.
+**app.js** — state management, synthetic data, live simulation, navigation, search, patient profiles, schedules, care workflows, clinical monitor, providers, pharmacy, laboratory, beds, messages, tasks, analytics, reports and AI Copilot.
 
-**app.js**  
-Synthetic data generation, state management, live simulation, rendering, navigation, command search, patient details, messaging, tasks, analytics, reports and AI Copilot logic.
+**manifest.json** — PWA identity, scope, theme and install metadata.
 
-**schema.sql**  
-Reference relational model showing how the client-side concepts could be connected to PostgreSQL in a production architecture.
+**schema.sql** — reference PostgreSQL architecture covering organizations, locations, departments, users, providers, patients, encounters, appointments, care plans, tasks, beds, pharmacy, laboratory, conversations, notifications, system events, audit logging and integrations.
 
----
+**generate_data.py** — deterministic offline generator for larger synthetic datasets aligned with the domain model.
 
-## ⚡ Run locally
+## Synthetic data generator
 
-Because the current build is static:
+Requires only Python 3:
 
-```bash
+\`\`\`bash
+python generate_data.py --seed 804 --patients 250 --appointments 600 --out data.json
+\`\`\`
+
+The generator produces domains including patients, providers, appointments, encounters, care plans, care items, tasks, beds, medications, inventories, lab orders/results, conversations, messages, notifications and system events.
+
+## Local development
+
+\`\`\`bash
 python -m http.server 8000
-```
+\`\`\`
 
-Then open:
+Open `http://localhost:8000`.
 
-```text
-http://localhost:8000
-```
+No framework, package manager or build step is required.
 
-Opening `index.html` directly also works in modern browsers.
+## Real-time architecture
 
----
+The current browser build simulates the real-time experience. A production implementation can replace it with:
 
-## 🔴 Live data note
-
-The interface intentionally displays **LIVE** indicators and continuously changing operational values, but those values are simulated inside the browser.
-
-A genuinely real-time deployment would require:
-
-```text
-Frontend
-   ↓
+\`\`\`text
+UI
+ ↓
 Authenticated API
-   ↓
+ ↓
 Application services
-   ↓
-PostgreSQL / event store
-   ↓
-WebSocket / SSE event stream
-   ↓
-Live UI updates
-```
+ ↓
+PostgreSQL + event store
+ ↓
+WebSocket / Server-Sent Events
+ ↓
+Live subscriptions
+\`\`\`
 
-That architecture is the natural next step for turning the current portfolio build into a production-grade healthcare operations platform.
+The upgraded `schema.sql` is designed around this evolution.
 
----
+## Security boundary
 
-## 🔐 Security & healthcare scope
+This public portfolio implementation does not provide production authentication, PHI controls, HIPAA compliance, server-side authorization, encrypted clinical storage, real EHR integrations or backend real-time infrastructure.
 
-The current repository does not provide production authentication, HIPAA controls, audit logging, encrypted clinical storage, real patient integrations or server-side authorization.
+Do not use the public build with real patient information.
 
-The correct production path would add secure identity, role-based permissions, audit trails, encryption, consent workflows, validated integrations and a backend event model before real healthcare data is introduced.
-
----
-
-## 👤 Author
+## Author
 
 **Mahendra Sai Kondaveeti**
 
