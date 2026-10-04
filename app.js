@@ -178,7 +178,7 @@ return rows;
 }
 function toolbar(routeName){
 let extras='';
-if(routeName==='people')extras='<select class="select-control" data-select="person-state"><option value="">All states</option><option>active</option><option>attention</option><option>waiting</option><option>complete</option></select><select class="select-control" data-select="person-location"><option value="">All locations</option>'+locations.map(x=>'<option>'+x+'</option>').join('')+'</select><select class="select-control" data-person-sort><option value="name">Sort: Name</option><option value="attention">Sort: Attention</option><option value="updated">Sort: Recently updated</option><option value="location">Sort: Location</option></select>'; 
+if(routeName==='people')extras='<select class="select-control" data-select="person-state"><option value="">All states</option><option>active</option><option>attention</option><option>waiting</option><option>complete</option></select><select class="select-control" data-select="person-location"><option value="">All locations</option>'+locations.map(x=>'<option>'+x+'</option>').join('')+'</select><select class="select-control" data-person-sort><option value="name" '+((store.filters.peopleSort||'name')==='name'?'selected':'')+'>Sort: Name</option><option value="attention" '+(store.filters.peopleSort==='attention'?'selected':'')+'>Sort: Attention</option><option value="updated" '+(store.filters.peopleSort==='updated'?'selected':'')+'>Sort: Recently updated</option><option value="location" '+(store.filters.peopleSort==='location'?'selected':'')+'>Sort: Location</option></select>'; 
 if(routeName==='queue')extras='<select class="select-control" data-select="task-priority"><option value="">All priorities</option><option>high</option><option>medium</option><option>low</option></select><select class="select-control" data-select="task-state"><option value="">All states</option><option>open</option><option>in_progress</option><option>blocked</option><option>complete</option></select>';
 if(routeName==='incidents')extras='<select class="select-control" data-select="incident-severity"><option value="">All severity</option><option>critical</option><option>high</option><option>medium</option><option>low</option></select><select class="select-control" data-select="incident-state"><option value="">All states</option><option>open</option><option>contained</option><option>monitoring</option><option>resolved</option></select>';
 return'<div class="toolbar"><div class="toolbar-search"><span>⌕</span><input id="workspace-filter" value="'+esc(store.filters[routeName]||'')+'" placeholder="Search '+esc(ROUTES[routeName][0].toLowerCase())+'"></div>'+extras+'<span class="small-muted">'+filtered(routeName).length+' local records</span><button class="button primary small" data-action="create" data-type="'+typeFor(routeName)+'">Create</button></div>';
@@ -255,7 +255,7 @@ function submit(event,type,coll,rec){
 event.preventDefault();const values={};let bad=false;
 FIELDS[type].forEach(def=>{const [key,label,kind,req]=def;const el=event.currentTarget.elements[key];const raw=el.value.trim();if(req&&!raw){el.parentElement.classList.add('invalid');$('.field-error',el.parentElement).textContent=label+' is required.';bad=true}else{el.parentElement.classList.remove('invalid');values[key]=kind==='number'?Number(raw):raw}});
 if(bad)return;
-if(rec){Object.assign(rec,values,{updatedAt:iso(now())});audit('record_updated',type,rec.id);toast('Saved','Record updated locally.')}else{const n=Object.assign({id:uid(type.toUpperCase()),createdAt:iso(now()),updatedAt:iso(now())},values);state[coll].unshift(n);audit('record_created',type,n.id);toast('Created','Record added locally.')};
+if(rec){Object.assign(rec,values,{updatedAt:iso(now())});audit('record_updated',type,rec.id);toast('Saved','Record updated locally')}else{const n=Object.assign({id:uid(type.toUpperCase()),createdAt:iso(now()),updatedAt:iso(now())},values);if(type==='message'){n.from=state.settings.profileName||'Mahi';n.state='read'}state[coll].unshift(n);audit('record_created',type,n.id);toast('Created','Record added locally.')};
 if(type==='pharmacy'){const n=rec||state[coll][0];n.state=Number(n.quantity)<Number(n.minimum)?'low':'normal'}
 save('record change');closeModal('record-modal');render();
 }
@@ -346,7 +346,7 @@ $$('[data-toggle-theme]').forEach(b=>b.addEventListener('click',toggleTheme));
 $$('[data-assistant-run]').forEach(b=>b.addEventListener('click',runAssistant));
 $$('[data-prompt]').forEach(b=>b.addEventListener('click',()=>{$('#assistant-question').value=b.dataset.prompt;runAssistant()}));
 const input=$('#workspace-filter');if(input){input.addEventListener('input',()=>{store.filters[store.route]=input.value;render()})}
-$$('[data-select]').forEach(s=>s.addEventListener('change',()=>applySelect(s)));
+$('[data-select]').forEach(s=>s.addEventListener('change',()=>applySelect(s)));$('[data-person-sort]').forEach(s=>s.addEventListener('change',()=>{store.filters.peopleSort=s.value;render()}));
 $$('[data-close-modal]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.closeModal)));
 $$('[data-close-drawer]').forEach(b=>b.addEventListener('click',closeDrawer));
 $$('[data-mark-all]').forEach(b=>b.addEventListener('click',markNotificationsRead));
