@@ -495,7 +495,7 @@
   function updateNotifications(){$("#notificationCount").textContent=state.notifications.filter(function(n){return n.unread;}).length;$("#notificationPanel").innerHTML=state.notifications.map(function(n){return '<div class="notification '+(n.unread?"unread":"")+'"><b>'+ (n.type==="emergency"?"!":n.type==="lab"?"△":n.type==="pharmacy"?"◉":n.type==="care"?"♡":"●")+'</b><span><strong>'+esc(n.title)+'</strong><small>'+esc(n.body)+'</small></span><time>'+n.time+"</time></div>";}).join("");}
   function pushNotification(title,body,type){state.notifications.unshift({title:title,body:body,type:type,time:"now",unread:true});state.notifications=state.notifications.slice(0,8);storage.set("notifications",state.notifications);updateNotifications();}
 
-  function bindImages(){$$("img.section-photo,img.hero-photo,img.img").forEach(function(img){if(img.dataset.bound)return;img.dataset.bound="1";img.addEventListener("error",function(){img.classList.add("failed");},{once:true});});}
+  function bindImages(){$("img.section-photo,img.hero-photo,img.img,img.auth-photo").forEach(function(img){if(img.dataset.bound)return;img.dataset.bound="1";img.addEventListener("error",function(){img.classList.add("failed");},{once:true});});}
 
   function renderNav(){$("#sideNav").innerHTML=NAV.map(function(g){return '<div class="nav-group">'+g[0]+"</div>"+g[1].map(function(v){return '<button class="nav-link '+(state.view===v[0]?"active":"")+'" data-route="'+v[0]+'" type="button"><span class="nav-symbol">'+v[2]+"</span><span>"+v[1]+"</span>"+(v[0]==="queue"?'<em>27</em>':v[0]==="messages"?'<em>6</em>':"")+"</button>";}).join("");}).join("");}
   function navigate(v,silent){
