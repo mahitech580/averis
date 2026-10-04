@@ -18,7 +18,10 @@ The public GitHub Pages build is fully client-side. Its "LIVE" layer is a browse
 
 ### Care operations
 - Patients
+- Patient 360
+- Live OPD Queue
 - Appointments
+- Emergency & Triage
 - Care Hub
 - Clinical Monitor
 - Providers
@@ -27,6 +30,7 @@ The public GitHub Pages build is fully client-side. Its "LIVE" layer is a browse
 ### Hospital services
 - Pharmacy
 - Laboratory
+- Billing & Collections
 - Messages
 - Tasks
 - Reports
@@ -63,6 +67,7 @@ The product remains healthcare-focused rather than superhero-themed.
 Averis includes:
 - Layered animated fog
 - Ambient particles
+- Persistent healthcare backdrop with image-fallback layering
 - Pointer-responsive atmosphere
 - Hero image drift
 - Soft hover haze
