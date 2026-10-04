@@ -340,7 +340,7 @@
     var reports=[["Daily Operations","Appointments, patient flow, care load and alerts."],["Care Coordination","Open items and cycle-time signals."],["Capacity & Beds","Occupancy, available beds and cleaning turnaround."],["Provider Workload","Panel size and utilization."],["Laboratory TAT","Turnaround and critical-result queue."],["Medication Inventory","Stock position and reorder pressure."]];
     $("#view-reports").innerHTML=heading("REPORTING","Reports","Exportable operational views generated from synthetic workspace data.",'<button class="btn primary" data-action="export-all">Export current data</button>') +
       '<div class="report-grid">'+reports.map(function(r){return '<article class="card report-card">'+badge("CSV ready","info")+'<h3>'+r[0]+'</h3><p>'+r[1]+'</p><button class="btn sm" data-report="'+esc(r[0])+'">Generate</button></article>';}).join("")+'</div>';
-    $$("[data-report]").forEach(function(b){b.onclick=function(){toast(b.dataset.report+" generated");};});wire();
+    $("[data-report]").forEach(function(b){b.onclick=function(){var report=b.dataset.report;var rows=[];if(report==="Daily Operations")rows=[{metric:"Patients",value:state.patients.length},{metric:"Appointments",value:state.appointments.length},{metric:"Beds",value:state.beds.length}];else if(report==="Care Coordination")rows=state.care.map(function(x){return {id:x.id,stage:x.stage,priority:x.priority,patient:x.patient};});else if(report==="Capacity & Beds")rows=state.beds.map(function(x){return {id:x.id,ward:x.ward,status:x.status,patient:x.patient};});else if(report==="Provider Workload")rows=state.providers.map(function(x){return {id:x.id,name:x.name,specialty:x.specialty,load:x.load,today:x.today,capacity:x.capacity};});else if(report==="Laboratory TAT")rows=[{median_tat:"41 min",critical_results:3,completed_rate:"91%"}];else rows=state.inventory.map(function(x){return {item:x.name,category:x.category,stock:x.stock,reorder:x.reorder};});exportCsv("mahi-averis-"+report.toLowerCase().replace(/[^a-z0-9]+/g,"-")+".csv",rows);};});wire();
   }
 
   function renderSettings() {
@@ -389,7 +389,7 @@
   function bindImages(){$$("img").forEach(function(img){if(img.dataset.bound)return;img.dataset.bound="1";img.onerror=function(){img.classList.add("failed");};});}
   function wire(root){$$("[data-action]",root||document).forEach(function(b){b.onclick=function(){action(b.dataset.action);};});}
   function action(a){
-    var modalMap={"new-patient":"patient","new-appointment":"appointment","new-task":"task","new-care":"care","new-emergency":"emergency","new-invoice":"invoice","new-stock":"stock","new-lab":"lab","new-message":"message"};
+    var modalMap={"new-patient":"patient","new-appointment":"appointment","new-task":"task","new-care":"care","new-emergency":"emergency","new-invoice":"invoice","new-stock":"stock","new-lab":"lab","new-message":"message","invite-provider":"provider"};
     if(modalMap[a]){openForm(modalMap[a]);return;}
     if(a==="open-ai")return navigate("ai"); if(a==="open-emergency")return navigate("emergency"); if(a==="open-queue")return navigate("queue"); if(a==="back-patients")return navigate("patients");
     if(a==="refresh"){state.tick++;updateLive();toast("Mahi workspace synchronized");return;}
@@ -416,13 +416,14 @@
       stock:[["name","Medication","text",""],["category","Category","text","Medication"],["stock","Stock","number","30"],["reorder","Reorder level","number","20"]],
       lab:[["patient","Patient","select",patientNames],["test","Test","select",["CBC","HbA1c","Troponin I","Lipid profile"]],["priority","Priority","select",["Routine","High","Critical"]]],
       message:[["recipient","Recipient","select",state.messages.map(function(m){return m.name;})],["body","Message","textarea",""]],
+      provider:[["name","Provider name","text",""],["specialty","Specialty","select",departments],["location","Location","text","North Tower"]],
       profile:[["name","Profile name","text",currentProfile() ? currentProfile().name : "Mahi"]]
     }[type];
   }
 
   function openForm(type){
-    var titles={patient:"Register patient",appointment:"New appointment",task:"New task",care:"New care item",emergency:"Register emergency arrival",invoice:"New invoice",stock:"Stock entry",lab:"Laboratory order",message:"New message",profile:"Edit Mahi profile"};
-    var subs={patient:"Create a synthetic patient record.",appointment:"Add a synthetic appointment to the schedule.",task:"Add an operational work item.",care:"Create a care-coordination handoff.",emergency:"Register a synthetic ED arrival.",invoice:"Create a synthetic revenue record.",stock:"Add a synthetic pharmacy item.",lab:"Create a synthetic lab order.",message:"Prepare a local coordination message.",profile:"Change the local profile name."};
+    var titles={patient:"Register patient",appointment:"New appointment",task:"New task",care:"New care item",emergency:"Register emergency arrival",invoice:"New invoice",stock:"Stock entry",lab:"Laboratory order",message:"New message",provider:"Add provider",profile:"Edit Mahi profile"};
+    var subs={patient:"Create a synthetic patient record.",appointment:"Add a synthetic appointment to the schedule.",task:"Add an operational work item.",care:"Create a care-coordination handoff.",emergency:"Register a synthetic ED arrival.",invoice:"Create a synthetic revenue record.",stock:"Add a synthetic pharmacy item.",lab:"Create a synthetic lab order.",message:"Prepare a local coordination message.",provider:"Add a synthetic member to the care team.",profile:"Change the local profile name."};
     var fields=formFields(type);
     $("#modalRoot").innerHTML='<div class="modal-layer" id="modalLayer"><form id="modalForm" class="modal-card"><div class="modal-head"><div><div class="modal-title">'+titles[type]+'</div><div class="modal-sub">'+subs[type]+'</div></div><button type="button" class="round-btn" data-close>×</button></div><div class="modal-body"><div class="form-grid">'+fields.map(function(f){if(f[2]==="select")return '<div class="field"><label>'+f[1]+'<select name="'+f[0]+'">'+f[3].map(function(v){return '<option>'+esc(v)+"</option>";}).join("")+"</select></label></div>";if(f[2]==="textarea")return '<div class="field wide"><label>'+f[1]+'<textarea name="'+f[0]+'" placeholder="'+esc(f[3])+'"></textarea></label></div>';return '<div class="field"><label>'+f[1]+'<input required name="'+f[0]+'" type="'+f[2]+'" value="'+esc(f[3])+'"></label></div>';}).join("")+'</div></div><div class="modal-foot"><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary">Save change</button></div></form></div>';
     $$("[data-close]",$("#modalRoot")).forEach(function(b){b.onclick=closeModal;});
@@ -440,7 +441,8 @@
     if(type==="invoice"){state.invoices.unshift({id:"INV-"+between(3000,3999),patient:v.patient,amount:Number(v.amount),payer:v.payer,status:v.status});DB.set("invoices",state.invoices);toast("Invoice created");return navigate("billing");}
     if(type==="stock"){state.inventory.unshift({name:v.name,category:v.category,stock:Number(v.stock),reorder:Number(v.reorder),unit:"units"});DB.set("inventory",state.inventory);toast("Inventory entry added");return navigate("pharmacy");}
     if(type==="lab"){pushNotification("Lab order created","A synthetic "+v.test+" order was created.","lab");toast("Lab order created");return navigate("lab");}
-    if(type==="message"){toast("Message workspace opened");return navigate("messages");}
+    if(type==="message"){var thread=state.messages.filter(function(m){return m.name===v.recipient;})[0];if(thread){thread.items.push(["me",v.body||"Message sent",clock().slice(0,5)]);DB.set("messages",state.messages);}toast("Message sent to "+v.recipient);return navigate("messages");}
+    if(type==="provider"){state.providers.push({id:"PR-"+between(500,999),name:v.name,specialty:v.specialty,location:v.location,load:0,today:0,capacity:12,status:"Available"});DB.set("providers",state.providers);toast("Provider added to Mahi Health");return navigate("providers");}
   }
 
   function updateNotifications(){
