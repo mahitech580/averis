@@ -85,7 +85,7 @@ const image=(src)=>'<img src="'+src+'" alt="" loading="lazy">';
 return '<section class="rich-command-grid"><section class="card pad departments-card"><div class="card-head"><div><h3>Hospital operations map</h3><p>Real clinical environments presented as synthetic work lanes</p></div><span class="status good">LIVE</span></div><div class="department-grid">'+[
 ["Emergency","12 queue items","https://healthtechmagazine.net/sites/healthtechmagazine.net/files/styles/flexslider_full/public/2020-02/HT_Q120_Feat-Hennick-slide3-2.jpg?itok=GF9w27yz","bad","queue"],
 ["Diagnostics","8 workflow items","https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960","good","diagnostics"],
-["Pharmacy","3 low-stock items","https://gtth.ghurkitrust.org.pk/wp-content/uploads/2023/11/Untitled-1-2.webp","warn","pharmacy"],
+["Pharmacy","3 low-stock items","https://www.yahata.saiseikai.or.jp/storage/uploads/block/202501/20250115_200254.webp","warn","pharmacy"],
 ["Coordination","6 active handoffs","https://res.cloudinary.com/casden-edito/images/c_scale%2Cw_2048%2Ch_1442%2Cdpr_2/f_auto%2Cq_auto/v1699015961/prod/recrutement-FPH/recrutement-FPH.jpg?_i=AA","good","people"],
 ["Capacity","4 pressure lanes","https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960","warn","capacity"],
 ["Quality","96% signal trace","https://healthtechmagazine.net/sites/healthtechmagazine.net/files/styles/flexslider_full/public/2020-02/HT_Q120_Feat-Hennick-slide3-2.jpg?itok=GF9w27yz","good","quality"]
