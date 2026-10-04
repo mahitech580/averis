@@ -218,7 +218,7 @@ body{background:radial-gradient(circle at 70% 0%,rgba(38,118,183,.10),transparen
 table,.table-wrap{background-image:linear-gradient(90deg,rgba(3,10,18,.92),rgba(3,12,20,.78)),url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif");background-size:cover;background-position:center}
 .journey{background-image:linear-gradient(90deg,rgba(3,10,18,.94),rgba(3,15,24,.72)),url("https://www.hfmmagazine.com/sites/default/files/hfmmagazine/ext/resources/images/2018/magazine/jan_feb/0118_SpecialReport_Sidebar_NerveCenter_700x468.jpg");background-size:cover;background-position:center}
 .message{background-image:linear-gradient(90deg,rgba(3,11,18,.86),rgba(4,17,28,.72)),url("https://res.cloudinary.com/casden-edito/images/c_scale%2Cw_2048%2Ch_1442%2Cdpr_2/f_auto%2Cq_auto/v1699015961/prod/recrutement-FPH/recrutement-FPH.jpg?_i=AA");background-size:cover;background-position:center}
-.auth-card{background-image:linear-gradient(135deg,rgba(3,12,20,.96),rgba(4,18,28,.84)),url("https://barrettpharmacyacademy.com/cdn/shop/articles/hospital-pharmacy.png?v=1770602783&width=3840");background-size:cover;background-position:center}
+.auth-card{background-image:linear-gradient(135deg,rgba(3,12,20,.96),rgba(4,18,28,.84)),url("https://www.yahata.saiseikai.or.jp/storage/uploads/block/202501/20250115_200254.webp");background-size:cover;background-position:center}
 .sidebar .simulation-badge{background-image:linear-gradient(90deg,rgba(3,13,21,.94),rgba(4,16,25,.78)),url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif");background-size:cover;background-position:center}
 
 
@@ -600,7 +600,7 @@ body{line-height:1.6;letter-spacing:.005em}
 .layer-card:hover{transform:translateY(-4px);border-color:rgba(94,240,218,.24);background:rgba(9,19,32,.80)}
 .layer-icon{width:43px;height:43px;display:grid;place-items:center;border-radius:12px;background:rgba(94,240,218,.08);color:var(--teal);font-size:18px}
 .layer-card b{display:block;font-size:14px}.layer-card small{display:block;margin-top:5px;color:var(--muted);font-size:10px;line-height:1.45}.layer-card>strong{color:var(--teal);font-size:18px}
-.showcase-bg{background-image:url("https://barrettpharmacyacademy.com/cdn/shop/articles/hospital-pharmacy.png?v=1770602783&width=3840")}
+.showcase-bg{background-image:url("https://www.yahata.saiseikai.or.jp/storage/uploads/block/202501/20250115_200254.webp")}
 .landing-showcase{padding:112px 0}
 .showcase-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .showcase-card{height:370px;border-radius:20px}
