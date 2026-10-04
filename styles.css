@@ -889,7 +889,64 @@ body{min-width:320px;overflow-x:hidden}
 .website-shell .overview-split{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(40px,7vw,100px);align-items:end}
 .website-shell .overview-heading{min-width:0}
 .website-shell .overview-heading h1{margin:0;max-width:700px;font-size:clamp(52px,6.1vw,88px);line-height:.96;letter-spacing:-.065em}
-.website-shell .overview-heading h1 span{display:block}
+.website-shell .overview-heading h1 span{
+  position:relative;
+  display:inline-block;
+  isolation:isolate;
+  color:#eafaf2;
+  transition:color .35s ease,text-shadow .35s ease,transform .35s ease;
+}
+.website-shell .overview-heading h1 span::before,
+.website-shell .overview-heading h1 span::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  pointer-events:none;
+  left:8%;
+  right:8%;
+  top:20%;
+  bottom:8%;
+  border-radius:48% 52% 44% 56%;
+  background:
+    radial-gradient(circle at 22% 52%,rgba(18,92,48,.58),transparent 34%),
+    radial-gradient(circle at 72% 45%,rgba(11,67,35,.52),transparent 38%),
+    radial-gradient(circle at 50% 75%,rgba(31,108,58,.35),transparent 44%);
+  filter:blur(24px);
+  opacity:0;
+  transform:scale(.74);
+  transition:opacity .35s ease,transform .35s ease;
+}
+.website-shell .overview-heading h1 span::after{
+  left:18%;
+  right:18%;
+  top:8%;
+  bottom:18%;
+  filter:blur(38px);
+  transform:scale(.62);
+}
+.website-shell .overview-heading h1 span:hover{
+  color:#3c9b5f;
+  text-shadow:0 0 14px rgba(29,116,59,.45),0 0 34px rgba(18,88,43,.28);
+  transform:translateY(-1px);
+}
+.website-shell .overview-heading h1 span:hover::before{
+  opacity:.9;
+  transform:scale(1.08);
+  animation:averis-green-smoke 2.4s ease-in-out infinite;
+}
+.website-shell .overview-heading h1 span:hover::after{
+  opacity:.6;
+  transform:scale(1.18);
+  animation:averis-green-smoke 3.1s ease-in-out infinite reverse;
+}
+@keyframes averis-green-smoke{
+  0%,100%{opacity:.35;filter:blur(24px);transform:translate3d(-2%,0,0) scale(.96)}
+  50%{opacity:.85;filter:blur(31px);transform:translate3d(3%,-5%,0) scale(1.1)}
+}
+@media (prefers-reduced-motion:reduce){
+  .website-shell .overview-heading h1 span:hover::before,
+  .website-shell .overview-heading h1 span:hover::after{animation:none}
+}
 .website-shell .overview-matter{min-width:0;max-width:760px;padding-bottom:4px}
 .website-shell .overview-matter .landing-lead{max-width:760px;margin:0;color:#b5c4d5;font-size:17px;line-height:1.85}
 .website-shell .overview-matter .landing-actions{justify-content:flex-start;margin-top:28px}
