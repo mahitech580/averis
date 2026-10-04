@@ -19,6 +19,8 @@
     }
   };
 
+  const PROFILE = {name:"Mahi", role:"Healthcare Operations", initials:"M"};
+
   const IMG = {
     team: "https://images.pexels.com/photos/6129507/pexels-photo-6129507.jpeg?cs=srgb&dl=pexels-rdne-6129507.jpg&fm=jpg",
     care: "https://images.pexels.com/photos/6129651/pexels-photo-6129651.jpeg?cs=srgb&dl=pexels-rdne-6129651.jpg&fm=jpg",
@@ -82,6 +84,7 @@
   const dateShift = d => { const x=new Date(); x.setDate(x.getDate()+d); return x; };
   const iso = d => { const x=new Date(d); return x.toISOString().slice(0,10); };
   const prettyDate = d => new Date(d+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric"});
+  const liveStamp = d => new Date(d).toLocaleString(undefined,{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}).toUpperCase();
   const initials = n => n.split(" ").map(x=>x[0]).slice(0,2).join("").toUpperCase();
   const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
 
@@ -266,7 +269,7 @@
       <div class="hero command-hero reveal">
         <div class="hero-bg"></div>
         <div class="hero-content">
-          <div class="hero-kicker"><span class="pulse-dot"></span>LIVE • 04 OCT 2026 • 10:49</div>
+          <div class="hero-kicker"><span class="pulse-dot"></span><span id="overviewLiveTime">LIVE • ${liveStamp(new Date())}</span></div>
           <h2 class="hero-title">See the whole hospital.<br>Act on what matters.</h2>
           <p class="hero-copy">Averis connects patient movement, appointment demand, capacity, care coordination and service-line signals so operational teams can respond before a bottleneck becomes a delay.</p>
           <div class="hero-actions">
@@ -316,7 +319,8 @@
         <article class="card reveal"><div class="card-head"><div><div class="card-title">Recent activity</div><div class="card-meta">The event stream updates while you work</div></div><span class="status teal"><i class="dot"></i>${state.live?"Streaming":"Paused"}</span></div><div class="activity-list" id="liveActivity">${activityRows(7)}</div></article>
       </div>`;
     wireViewActions();
-    $$("[data-service]").forEach(b=>b.onclick=()=>toast(b.dataset.service+" module opened"));
+    const serviceMap={Emergency:"emergency",Laboratory:"lab",Pharmacy:"pharmacy",Appointments:"appointments","Care Hub":"care",Billing:"billing"};
+    $("[data-service]").forEach(b=>b.onclick=()=>navigate(serviceMap[b.dataset.service]||"overview"));
   }
   function renderEmergency(){
     const emergencyPatients=state.patients.slice(0,10);
@@ -590,7 +594,11 @@
     $("#liveTime").textContent=new Date().toLocaleTimeString([], {hour12:false});
     $("#footerStatus").textContent=latency<26?"All systems nominal":"Monitoring latency";
     if(state.view==="clinical"&&state.liveTick%2===0)renderClinical();
-    if(state.view==="overview"&&state.liveTick%3===0)renderOverview();
+    if(state.view==="overview"){
+      const liveNode=$("#overviewLiveTime");
+      if(liveNode) liveNode.textContent="LIVE • "+liveStamp(new Date());
+      if(state.liveTick%9===0&&$("#liveActivity")) $("#liveActivity").innerHTML=activityRows(7);
+    }
   }
 
   function init(){
@@ -601,7 +609,16 @@
     $("#notifButton").onclick=()=>$("#notificationsPopover").classList.toggle("open");
     $("#openSidebar").onclick=()=>$("#sidebar").classList.add("open");
     $("#closeSidebar").onclick=()=>$("#sidebar").classList.remove("open");
-    $("#profileButton").onclick=()=>navigate("settings");
+    const profile=$("#profileButton");
+    if(profile){
+      const nameNode=profile.querySelector("strong");
+      const roleNode=profile.querySelector("small");
+      const avatar=profile.querySelector(".avatar");
+      if(nameNode) nameNode.textContent=PROFILE.name;
+      if(roleNode) roleNode.textContent=PROFILE.role;
+      if(avatar) avatar.textContent=PROFILE.initials;
+      profile.onclick=()=>navigate("settings");
+    }
     $("#modalLayer").onclick=e=>{if(e.target.id==="modalLayer")closeModal()};
     const backdrop=$("#backdropPhoto");
     if(backdrop){
