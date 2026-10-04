@@ -327,3 +327,16 @@ html[data-theme="dark"] .sidebar{background:rgba(8,20,34,.78)}
 @media (prefers-reduced-motion:reduce){
   *,*:before,*:after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
 }
+/* Final component polish for the rebuilt modules. */
+.nav-link em{margin-left:auto;padding:2px 6px;border-radius:999px;background:var(--surface-solid);color:var(--muted-2);font-size:7.5px;font-style:normal;font-weight:800}
+.big-number{display:block;margin:7px 0;font-size:30px;line-height:1;font-weight:900;letter-spacing:-.05em;color:var(--ink-strong)}
+.simple-bars{height:190px;display:flex;align-items:flex-end;gap:10px;padding:14px 8px 4px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,transparent,var(--surface-soft))}
+.simple-bars span{flex:1;min-width:8px;border-radius:7px 7px 3px 3px;background:linear-gradient(180deg,var(--blue),var(--teal));box-shadow:0 8px 18px rgba(21,101,192,.12);transition:height .4s var(--ease)}
+.simple-bars span:nth-child(2n){background:linear-gradient(180deg,var(--teal),var(--blue))}
+.vital-line{height:58px;margin:9px 0;display:flex;align-items:center;gap:4px;padding:0 2px;overflow:hidden;background:linear-gradient(180deg,transparent 49%,var(--border) 50%,transparent 51%)}
+.vital-line span{display:block;height:3px;min-width:7px;border-radius:99px;background:linear-gradient(90deg,var(--red),var(--gold));box-shadow:0 0 8px var(--red-soft)}
+.setting-row>span{display:block;min-width:0;flex:1}.setting-row strong,.setting-row small{display:block}.setting-row strong{font-size:10px}.setting-row small{font-size:8.5px;color:var(--muted);margin-top:2px}
+.empty-state{padding:28px;text-align:center}.empty-state strong,.empty-state span{display:block}.empty-state strong{font-size:11px}.empty-state span{font-size:9px;color:var(--muted);margin-top:4px}
+.confidence{margin-top:7px;padding-top:7px;border-top:1px solid var(--border);font-size:7.5px;color:var(--muted)}
+.provider-metrics{margin-top:14px}
+.inset{margin-top:13px;padding:11px;background:var(--surface-soft);border:1px solid var(--border)}
