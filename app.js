@@ -610,6 +610,9 @@
     $("#notifButton").onclick=()=>$("#notificationsPopover").classList.toggle("open");
     $("#openSidebar").onclick=()=>$("#sidebar").classList.add("open");
     $("#closeSidebar").onclick=()=>$("#sidebar").classList.remove("open");
+    const topProfile=$("#topProfileButton");
+    if(topProfile) topProfile.onclick=()=>navigate("settings");
+
     const profile=$("#profileButton");
     if(profile){
       const nameNode=profile.querySelector("strong");
@@ -628,6 +631,25 @@
     }
     document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openCommand()}if(e.key==="Escape"){closeCommand();closeModal()}});
     document.addEventListener("mousemove",e=>{document.documentElement.style.setProperty("--mx",(e.clientX/window.innerWidth*100)+"%");document.documentElement.style.setProperty("--my",(e.clientY/window.innerHeight*100)+"%")});
+    const scrollBar=$(".scroll-progress span");
+    const glow=$("#cursorGlow");
+    let chromeFrame=0;
+    const paintChrome=()=>{
+      chromeFrame=0;
+      const doc=document.documentElement, max=doc.scrollHeight-doc.clientHeight, y=window.scrollY||0;
+      if(scrollBar) scrollBar.style.width=(max>0?Math.min(100,Math.max(0,(y/max)*100)):0)+"%";
+    };
+    const scheduleChrome=()=>{if(chromeFrame)return;chromeFrame=requestAnimationFrame(paintChrome)};
+    window.addEventListener("scroll",scheduleChrome,{passive:true});
+    window.addEventListener("resize",scheduleChrome,{passive:true});
+    scheduleChrome();
+    if(glow&&!window.matchMedia("(pointer: coarse)").matches){
+      glow.style.opacity="1";
+      window.addEventListener("pointermove",e=>{glow.style.left=e.clientX+"px";glow.style.top=e.clientY+"px"},{passive:true});
+      window.addEventListener("pointerleave",()=>glow.style.opacity="0");
+      window.addEventListener("pointerenter",()=>glow.style.opacity="1");
+    }
+
     setInterval(liveTick,1000);
     setInterval(()=>{if(state.live){state.notifications.unshift({title:"Live workspace update",body:"Averis received a new operational event.",type:"system",time:"now",unread:true});state.notifications=state.notifications.slice(0,6);store.set("notifications",state.notifications);renderNotifications()}},15000);
     setInterval(()=>{if(state.live&&state.view==="overview"&&$("#liveActivity"))$("#liveActivity").innerHTML=activityRows(6)},9000);
