@@ -1,69 +1,105 @@
 # Averis by Mahi — Care Operations OS
 
-> **See the hospital clearly. Move care with confidence.**
+> See the hospital clearly. Move care with confidence.
 
-Averis is Mahi's portfolio-grade healthcare operations workspace. It brings patient flow, appointments, emergency triage, Patient 360, care coordination, clinical monitoring, providers, beds, laboratory, pharmacy, billing, communication, tasks, analytics, reporting and AI decision support into one coherent operating surface.
+Averis is Mahi's healthcare operations portfolio product: a polished workspace for patient flow, appointments, emergency triage, Patient 360, care coordination, clinical monitoring, bed capacity, laboratory, pharmacy, billing, communication, tasks, analytics, reports and AI-assisted operational guidance.
 
-**Live:** https://mahitech580.github.io/averis/
-**Repository:** https://github.com/mahitech580/averis
+## Identity
 
-## Full rebuild
+**Product:** Averis
+**Brand:** Averis by Mahi
+**Workspace:** Mahi Health
+**Owner:** Mahi
 
-This release replaces the previous application rather than layering more patches onto it.
+## V11 rebuild
 
-The project rebuilds the application shell, visual system, client-side state, navigation, local profile flow, synthetic records, operational modules, forms, reports, reference schema, data generator, PWA metadata and local SVG assets around one identity:
+V11 is a complete application rebuild, not an incremental UI patch. The project replaces the application shell, styling system, state layer, routing, forms, synthetic dataset, PWA metadata, reference database model and visual assets.
 
-**AVERIS BY MAHI**
-
-The UX takes conceptual reference from the premium workspace approach used in Mahi's other portfolio work: strong entry experience, persistent atmosphere, glass navigation, compact information architecture, focused primary actions, smooth responsive behavior and clear ownership.
+The design direction follows the quality principles of Mahi's other polished portfolio work: strong access experience, premium surfaces, clean hierarchy, smooth interaction, responsive navigation, persistence and working actions.
 
 ## Modules
 
-| Area | Workspace |
+| Group | Modules |
 | --- | --- |
 | Command | Command Center · Analytics · AI Copilot |
 | Patient flow | Patients · Patient 360 · Live Queue · Appointments · Emergency |
 | Clinical operations | Care Hub · Clinical Monitor · Providers · Bed Board |
 | Hospital services | Laboratory · Pharmacy · Billing · Messages · Tasks · Reports |
-| System | Mahi Workspace · Theme · Live simulation · Local profile |
+| System | Mahi Workspace Settings |
 
-## Working interactions
+## Background imagery
 
-- local profile creation and sign-in
-- browser-local session persistence
-- patient search and Patient 360 selection
-- appointment creation
-- care-item and task creation
-- emergency arrival registration
-- invoice and inventory entry flows
-- laboratory order creation
-- local messaging
-- notifications and unread state
-- command search with Ctrl K / Cmd K
-- light and dark clinical themes
+Every major workspace view has an actual healthcare photograph layer with:
+
+- section-specific image assignment
+- a readable wash above the image
+- a local SVG/gradient fallback beneath it
+- error handling for failed remote image requests
+- dark-mode image treatment
+- no layout dependency on image success
+
+The images are atmospheric portfolio imagery. The application does not use real patient photography as application data.
+
+## Working product behavior
+
+- browser-local profile creation and sign-in
+- persistent session and profile storage
+- Patient search and Patient 360 selection
+- new patient / appointment / task / care / emergency / provider / invoice / stock / lab / message forms
+- live queue and bed-board interactions
+- actual message submission
 - CSV exports
-- responsive sidebar/navigation
-- live clock, latency and activity simulation
+- command search with Ctrl+K / Cmd+K
+- notifications and unread state
+- light/dark theme
+- targeted one-second live telemetry
+- responsive sidebar drawer
+- route-safe hash navigation
+- startup error boundary instead of a blank screen
 
-The LIVE layer is a browser-side simulation. It is intentionally not presented as a connection to a real hospital system.
+### Persistence model
 
-## Visual direction
+All browser data uses a single storage abstraction and one versioned namespace:
 
-Averis uses a clinical foundation rather than a generic admin-dashboard appearance:
+```text
+MAHI_AVERIS_V11_
+```
 
-- deep medical navy for high-focus areas
-- medical blue for primary actions and navigation
-- healthcare teal for positive flow
-- red for emergency signals
-- gold for priority and attention
-- layered glass surfaces over a persistent background system
-- healthcare photography as optional atmosphere
-- readable tables, queue rows, patient journeys and ward boards
-- animations that update operational details without hiding the application
+The app does not mix multiple storage prefixes for different auth paths.
 
-A local fallback scene remains underneath the remote photo layer, so the workspace does not depend on a successful image request.
+Refresh behavior:
 
-## Project structure
+1. Load stored profile and session
+2. Restore synthetic records
+3. Validate the hash route
+4. Activate the selected view
+5. Continue the workspace without requiring registration again
+
+## Safety boundary
+
+All patient, clinical, billing, pharmacy and operational records in the public GitHub Pages application are synthetic portfolio records.
+
+This build is not an EHR, medical device, hospital information system or clinical decision system.
+
+Do not enter real patient information.
+
+## Architecture
+
+```text
+Averis by Mahi UI
+       ↓
+Browser-local state
+       ↓
+Role-oriented operational modules
+       ↓
+Targeted live DOM updates
+       ↓
+CSV / report exports
+```
+
+The repository also contains a PostgreSQL reference schema showing how a future production system could move browser state behind authenticated APIs, audit logs and event-driven live subscriptions.
+
+## Repository
 
 ```text
 averis/
@@ -80,87 +116,32 @@ averis/
 └── README.md
 ```
 
-### index.html
+## Local run
 
-Owns the complete page shell: access experience, persistent scene, sidebar, topbar, module containers, profile controls and overlay roots.
-
-### styles.css
-
-Owns the new clinical visual system, responsive behavior, glass surfaces, hero composition, charts, tables, queues, bed board, forms, modals, notifications and themes.
-
-### app.js
-
-Owns local data, profile/session behavior, routing, rendered modules, forms, notifications, command search, exports and the browser-side live simulation.
-
-### schema.sql
-
-Reference PostgreSQL design for a future authenticated backend. The public GitHub Pages build never executes this schema.
-
-### generate_data.py
-
-Standard-library-only generator for larger synthetic Averis datasets.
-
-### manifest.json
-
-PWA identity and launch metadata for Averis by Mahi.
-
-## Run locally
-
-No package manager or build step is required.
+No build step is required.
 
 ```bash
 python -m http.server 8000
 ```
 
-Open:
+Open `http://localhost:8000`.
 
-```text
-http://localhost:8000
-```
-
-Generate a larger demo dataset:
+Generate a larger synthetic dataset:
 
 ```bash
 python generate_data.py --seed 804 --patients 250 --appointments 600 --out averis-data.json
 ```
 
-## Production architecture
+## Future production direction
 
-The public build is deliberately front-end only. A production Averis service would replace browser storage and simulated events with authenticated, auditable infrastructure:
-
-```text
-Averis by Mahi UI
-        ↓
-Authenticated API
-        ↓
-Healthcare domain services
-        ↓
-PostgreSQL
-   ↙            ↘
-Audit log     Event store
-        ↓
-WebSocket / Server-Sent Events
-        ↓
-Role-based live workspace
-```
-
-A real deployment would also require validated access controls, encryption, secrets management, auditability, observability, backup/recovery, integration boundaries and applicable healthcare compliance work.
-
-## Data boundary
-
-All patient, clinical, operational, billing and inventory records in this public portfolio application are synthetic.
-
-Do not enter real patient information.
+A production deployment would replace browser storage and simulated signals with authenticated APIs, role-based authorization, PostgreSQL, audit/event persistence, WebSocket or Server-Sent Events, monitoring, backup/recovery, secrets management and applicable healthcare compliance controls.
 
 ## Author
 
 **Mahi**
 
-**Averis by Mahi** is presented as a healthcare product design and engineering portfolio project.
+**Averis by Mahi** is presented as Mahi's healthcare product design and engineering portfolio project.
 
 ---
 
-<p align="center">
-  <strong>AVERIS BY MAHI</strong><br>
-  Care Operations OS
-</p>
+<p align="center"><strong>AVERIS BY MAHI</strong><br>Care Operations OS</p>
