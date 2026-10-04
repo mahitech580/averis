@@ -12,6 +12,8 @@
   <link rel="preload" as="image" href="https://images.pexels.com/photos/6129507/pexels-photo-6129507.jpeg?auto=compress&cs=tinysrgb&w=1800"><link rel="stylesheet" href="styles.css">
 </head>
 <body><a class="skip-link" href="#content">Skip to content</a>
+  <div class="scroll-progress" aria-hidden="true"><span></span></div>
+  <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
   <div class="site-backdrop" aria-hidden="true">
   <div class="backdrop-fallback"></div>
   <img id="backdropPhoto" src="https://images.pexels.com/photos/6129507/pexels-photo-6129507.jpeg?auto=compress&cs=tinysrgb&w=1800&q=82" alt="">
@@ -79,6 +81,7 @@
           <div class="live-chip"><span class="pulse-dot"></span><strong>LIVE</strong><span id="liveTime">--:--:--</span></div>
           <button class="icon-btn" id="refreshLive" title="Sync live data">↻</button>
           <button class="icon-btn" id="themeToggle" title="Toggle theme">◐</button>
+          <button class="topbar-profile" id="topProfileButton" aria-label="Open Mahi profile"><span class="top-profile-avatar">M</span><span><strong>Mahi</strong><small>Care Operations</small></span></button>
           <div class="notif-wrap">
             <button class="icon-btn notif-button" id="notifButton" title="Notifications">◔<span id="notifCount">4</span></button>
             <div class="popover notifications" id="notificationsPopover"></div>
