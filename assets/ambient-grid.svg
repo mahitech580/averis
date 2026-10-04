@@ -1,11 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
-  <g fill="none" stroke="#1565c0" stroke-opacity=".13" stroke-width="1">
-    <path d="M0 30h180M0 90h180M0 150h180M30 0v180M90 0v180M150 0v180"/>
-  </g>
-  <g fill="#008f7a" fill-opacity=".22">
-    <circle cx="30" cy="30" r="1.7"/><circle cx="90" cy="30" r="1.4"/><circle cx="150" cy="30" r="1.7"/>
-    <circle cx="30" cy="90" r="1.4"/><circle cx="150" cy="90" r="1.7"/><circle cx="30" cy="150" r="1.7"/>
-    <circle cx="90" cy="150" r="1.4"/><circle cx="150" cy="150" r="1.7"/>
-  </g>
-  <g fill="#d7383e" fill-opacity=".14"><circle cx="60" cy="60" r="1.2"/><circle cx="120" cy="120" r="1.2"/></g>
+<g fill="none" stroke="#1565c0" stroke-opacity=".13"><path d="M0 30h180M0 90h180M0 150h180M30 0v180M90 0v180M150 0v180"/></g>
+<g fill="#008d78" fill-opacity=".24"><circle cx="30" cy="30" r="1.7"/><circle cx="90" cy="30" r="1.4"/><circle cx="150" cy="30" r="1.7"/><circle cx="30" cy="90" r="1.4"/><circle cx="150" cy="90" r="1.7"/><circle cx="30" cy="150" r="1.7"/><circle cx="90" cy="150" r="1.4"/><circle cx="150" cy="150" r="1.7"/></g>
+<g fill="#d9363e" fill-opacity=".16"><circle cx="60" cy="60" r="1.2"/><circle cx="120" cy="120" r="1.2"/></g>
 </svg>
