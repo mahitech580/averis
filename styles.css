@@ -771,3 +771,36 @@ html,body{max-width:100%;overflow-x:hidden}
   .website-shell .landing-actions .button{width:100%;justify-content:center}
   .website-shell .hero-image-window{min-height:250px;height:68vw}
 }
+
+
+/* FINAL DEVICE-SAFE HEADER FLOW */
+@media(max-width:820px){
+  .website-shell .site-header{
+    height:auto;
+    min-height:74px;
+    flex-wrap:wrap;
+    align-items:center;
+    padding:10px 15px;
+    gap:8px 10px;
+  }
+  .website-shell .site-nav{
+    order:3;
+    position:static;
+    flex:0 0 100%;
+    width:100%;
+    min-width:0;
+    padding:6px 0 2px;
+    border-top:1px solid rgba(155,188,224,.12);
+    border-bottom:0;
+    background:transparent;
+    overflow-x:auto;
+  }
+  .website-shell .site-nav-link{flex:none}
+  .website-shell .top-actions{min-width:0}
+  .website-shell .workspace-main{padding-top:34px}
+}
+@media(max-width:560px){
+  .website-shell .site-header{padding:9px 12px}
+  .website-shell .site-nav-link{padding:9px 10px;font-size:10px}
+  .website-shell .workspace-main{padding-left:12px;padding-right:12px;padding-top:28px}
+}
