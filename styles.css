@@ -164,3 +164,59 @@ body{background:radial-gradient(circle at 70% 0%,rgba(38,118,183,.10),transparen
 .toast{border-color:rgba(85,188,220,.20);box-shadow:0 22px 55px rgba(0,0,0,.4)}
 @media(max-width:1180px){.hero{grid-template-columns:1fr}.hero-visual{min-height:320px}.workspace-grid{grid-template-columns:1fr}.department-grid{grid-template-columns:repeat(2,1fr)}.rich-command-grid{grid-template-columns:1fr}}
 @media(max-width:720px){.workspace-main{padding:16px 11px 35px}.signal-grid{grid-template-columns:repeat(2,1fr)}.department-grid{grid-template-columns:1fr}.hero{min-height:520px;padding:23px}.hero h1{font-size:43px}.hero-visual{min-height:225px}.hero-visual>img:not(.hero-photo img){width:94%;margin:25px auto 0}.hero-stats{grid-template-columns:1fr 1fr}.hero-stat{min-width:0}.assistant-photo-card{grid-template-columns:1fr}.assistant-photo{height:190px;min-height:190px}.page-visual-strip{grid-template-columns:1fr}.page-visual{height:120px}}
+
+
+/* AVERIS v10 — photographic section backgrounds, no rainbow rotation */
+.button:before,.icon-button:before,.profile-button:before,.command-open:before{
+  display:none!important;
+  animation:none!important;
+  background:none!important;
+  filter:none!important;
+}
+.button,.icon-button,.profile-button,.command-open{
+  box-shadow:none;
+}
+.button:hover,.icon-button:hover,.profile-button:hover,.command-open:hover{
+  box-shadow:0 12px 32px rgba(0,0,0,.28);
+}
+
+/* Every major surface carries a photographic healthcare environment under a readability veil. */
+.card,.signal,.person-card,.report,.small-stat,.network{
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  position:relative;
+  isolation:isolate;
+}
+.card:before,.signal:before,.person-card:before,.report:before,.small-stat:before,.network:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  border-radius:inherit;
+  background:
+    linear-gradient(135deg,rgba(3,10,18,.95),rgba(4,13,23,.80) 58%,rgba(5,18,28,.91)),
+    var(--surface-photo,url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif"));
+  background-size:cover;
+  background-position:center;
+  opacity:.68;
+  pointer-events:none;
+}
+.signal:before{opacity:.42}
+.person-card:before{background-image:linear-gradient(135deg,rgba(3,11,18,.94),rgba(4,17,27,.78)),url("https://www.hfmmagazine.com/sites/default/files/hfmmagazine/ext/resources/images/2018/magazine/jan_feb/0118_SpecialReport_Sidebar_NerveCenter_700x468.jpg")}
+.report:before{background-image:linear-gradient(135deg,rgba(3,11,18,.95),rgba(4,15,24,.78)),url("https://healthtechmagazine.net/sites/healthtechmagazine.net/files/styles/flexslider_full/public/2020-02/HT_Q120_Feat-Hennick-slide3-2.jpg?itok=GF9w27yz")}
+.small-stat:before{background-image:linear-gradient(135deg,rgba(3,11,18,.96),rgba(4,16,24,.72)),url("https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960")}
+.network:before{background-image:linear-gradient(135deg,rgba(2,9,17,.78),rgba(3,18,27,.46)),url("https://www.hfmmagazine.com/sites/default/files/hfmmagazine/ext/resources/images/2018/magazine/jan_feb/0118_SpecialReport_Sidebar_NerveCenter_700x468.jpg")}
+.workspace-grid>.card:first-child{--surface-photo:url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif")}
+.workspace-grid>.stack>.card:first-child{--surface-photo:url("https://www.hfmmagazine.com/sites/default/files/hfmmagazine/ext/resources/images/2018/magazine/jan_feb/0118_SpecialReport_Sidebar_NerveCenter_700x468.jpg")}
+.workspace-grid>.stack>.card:nth-child(2){--surface-photo:url("https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960")}
+.departments-card{--surface-photo:url("https://d2o532ht0hlr4u.cloudfront.net/_next/image?q=75&url=https%3A%2F%2Fdata.openasset.com%2F32707b49%2F2795990d012f22ab865c88cbe90876fa%2F100410_04_NYU_ED_N3_tif%2F100410_04_NYU_ED_N3_screenview.jpg&w=3840")}
+.resource-card{--surface-photo:url("https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960")}
+.activity-card{--surface-photo:url("https://res.cloudinary.com/casden-edito/images/c_scale%2Cw_2048%2Ch_1442%2Cdpr_2/f_auto%2Cq_auto/v1699015961/prod/recrutement-FPH/recrutement-FPH.jpg?_i=AA")}
+
+/* Rich visual context on non-Today workspaces. */
+table,.table-wrap{background-image:linear-gradient(90deg,rgba(3,10,18,.92),rgba(3,12,20,.78)),url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif");background-size:cover;background-position:center}
+.journey{background-image:linear-gradient(90deg,rgba(3,10,18,.94),rgba(3,15,24,.72)),url("https://www.hfmmagazine.com/sites/default/files/hfmmagazine/ext/resources/images/2018/magazine/jan_feb/0118_SpecialReport_Sidebar_NerveCenter_700x468.jpg");background-size:cover;background-position:center}
+.message{background-image:linear-gradient(90deg,rgba(3,11,18,.86),rgba(4,17,28,.72)),url("https://res.cloudinary.com/casden-edito/images/c_scale%2Cw_2048%2Ch_1442%2Cdpr_2/f_auto%2Cq_auto/v1699015961/prod/recrutement-FPH/recrutement-FPH.jpg?_i=AA");background-size:cover;background-position:center}
+.auth-card{background-image:linear-gradient(135deg,rgba(3,12,20,.96),rgba(4,18,28,.84)),url("https://barrettpharmacyacademy.com/cdn/shop/articles/hospital-pharmacy.png?v=1770602783&width=3840");background-size:cover;background-position:center}
+.sidebar .simulation-badge{background-image:linear-gradient(90deg,rgba(3,13,21,.94),rgba(4,16,25,.78)),url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif");background-size:cover;background-position:center}
