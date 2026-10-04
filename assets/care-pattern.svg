@@ -1,6 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="420" height="240" viewBox="0 0 420 240" fill="none">
-<defs><linearGradient id="a" x1="0" y1="0" x2="420" y2="240" gradientUnits="userSpaceOnUse"><stop stop-color="#1565C0"/><stop offset="1" stop-color="#00897B"/></linearGradient></defs>
-<path d="M0 195C55 142 92 188 146 127s85-61 126-14 82 35 148-67" stroke="url(#a)" stroke-opacity=".24" stroke-width="2"/>
-<path d="M0 216c61-52 93-11 149-61 61-54 95-76 138-31 51 54 89 18 133-36" stroke="#fff" stroke-opacity=".08" stroke-width="1"/>
-<circle cx="146" cy="127" r="4" fill="#00897B" fill-opacity=".35"/><circle cx="272" cy="113" r="4" fill="#1565C0" fill-opacity=".35"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 420">
+  <g fill="none" stroke="#9ed8ff" stroke-opacity=".20" stroke-width="2">
+    <path d="M70 312c42-95 96-152 158-152s109 54 151 137c34 67 77 91 151 45"/>
+    <path d="M40 346c66-88 122-124 177-124 79 0 100 75 175 96 53 15 90 1 143-40"/>
+    <circle cx="227" cy="160" r="48"/>
+    <circle cx="227" cy="160" r="16"/>
+    <path d="M227 112v96M179 160h96"/>
+  </g>
+  <g fill="#5fe0c4" fill-opacity=".25">
+    <circle cx="70" cy="312" r="4"/><circle cx="379" cy="297" r="4"/><circle cx="531" cy="342" r="4"/>
+  </g>
 </svg>
