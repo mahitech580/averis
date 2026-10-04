@@ -17,7 +17,7 @@
   var DB = {
     get: function (k, fallback) {
       try {
-        var raw = localStorage.getItem("MAHI_AVERIS_2026_" + k);
+        var raw = localStorage.getItem("MAHI_AVERIS_2026_V7_" + k);
         return raw === null ? fallback : JSON.parse(raw);
       } catch (e) { return fallback; }
     },
@@ -457,7 +457,8 @@
   function bindGlobalImageFallback(){var img=$("#scenePhoto");if(img){img.src=IMAGE.hero;img.onerror=function(){img.classList.add("failed");};}}
 
   function init(){
-    seedData();document.documentElement.dataset.theme=state.theme;$("#themeBtn").textContent=state.theme==="dark"?"☀":"◐";renderNav();
+    try {
+      seedData();document.documentElement.dataset.theme=state.theme;$("#themeBtn").textContent=state.theme==="dark"?"☀":"◐";renderNav();
     var profile=currentProfile(),session=DB.get("session",null);if(profile&&session&&session.email===profile.email)showApp(profile);else showAuth();
     $$(".auth-tab").forEach(function(b){b.onclick=function(){authMode(b.dataset.authMode);};});
     $$("[data-password]").forEach(function(b){b.onclick=function(){var i=$("#"+b.dataset.password);i.type=i.type==="password"?"text":"password";b.textContent=i.type==="password"?"Show":"Hide";};});
@@ -471,6 +472,14 @@
     bindGlobalImageFallback();updateNotifications();currentRender();updateLive();document.body.classList.add("app-ready");
     setInterval(function(){if(state.live){state.tick++;updateLive();if(state.view==="clinical"&&state.tick%6===0)renderClinical();}},1000);
     setInterval(function(){if(state.live)pushNotification("Live workspace event","Averis received a synthetic operational update.","system");},22000);
+    } catch (error) {
+      console.error("Averis startup error", error);
+      var target=$("#view-overview");
+      if(target){
+        target.innerHTML='<div style="max-width:760px;margin:40px auto;padding:24px;border:1px solid rgba(215,56,62,.22);border-radius:18px;background:var(--surface-solid);box-shadow:var(--shadow-md)"><div class="eyebrow">MAHI • AVERIS</div><h1 style="margin:8px 0">Workspace could not finish loading.</h1><p style="color:var(--muted)">The interface stayed visible so a startup error cannot produce a blank screen. Refresh once to retry the local workspace.</p><button class="btn primary" onclick="location.reload()">Reload Averis</button></div>';
+        target.classList.add("active");
+      }
+    }
   }
 
   init();
