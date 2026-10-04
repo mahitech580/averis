@@ -1,0 +1,16 @@
+{
+  "name": "AVERIS by Mahi",
+  "short_name": "AVERIS",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f7",
+  "theme_color": "#0b6b61",
+  "icons": [
+    {
+      "src": "./assets/averis-orbit.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

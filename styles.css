@@ -1,0 +1,3000 @@
+:root{--bg:#f4f6f7;--surface:#fff;--surface2:#edf1f3;--line:#d5dde1;--ink:#18262f;--muted:#6a7983;--accent:#0b6b61;--accent2:#cfe7e1;--warn:#9b671b;--danger:#a43b43;--shadow:0 15px 40px rgba(20,35,45,.08);--sidebar:270px}
+[data-theme=dark]{--bg:#0d1419;--surface:#151d23;--surface2:#1a242c;--line:#303e48;--ink:#eef5f4;--muted:#9dacb7;--accent:#68d4c0;--accent2:#214f48;--warn:#e7b770;--danger:#f08087;--shadow:0 18px 45px rgba(0,0,0,.3)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,system-ui,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.skip{position:fixed;top:-50px;left:10px;background:var(--ink);color:var(--surface);padding:8px;z-index:300}.skip:focus{top:10px}
+.shell{min-height:100vh;display:grid;grid-template-columns:var(--sidebar) 1fr}.sidebar{position:sticky;top:0;height:100vh;overflow:auto;background:var(--surface);border-right:1px solid var(--line);padding:18px;z-index:30}.main{min-width:0}.brand{display:flex;gap:10px;align-items:center;margin-bottom:18px}.brand img{width:38px;height:38px}.brand b{display:block;letter-spacing:.14em}.brand span{font-size:10px;color:var(--muted);text-transform:uppercase}.command{width:100%;display:grid;grid-template-columns:22px 1fr auto;gap:6px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface2);color:var(--muted);padding:9px;margin-bottom:18px}.command kbd{font-size:9px;border:1px solid var(--line);padding:2px 5px}.nav-group{margin-bottom:16px}.nav{display:grid;grid-template-columns:9px 1fr auto;align-items:center;gap:8px;padding:7px;border-left:2px solid transparent;color:var(--muted);font-size:12px}.nav:hover,.nav.active{background:var(--surface2);color:var(--ink);border-left-color:var(--accent)}.nav i{width:6px;height:6px;border-radius:50%;background:currentColor}.nav b{font-size:8px}.eyebrow{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800}.boundary{border-top:1px solid var(--line);margin-top:18px;padding-top:15px;color:var(--muted);font-size:10px}.boundary b{color:var(--accent);font-size:9px}
+.top{height:70px;position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:0 26px;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(14px)}.route-meta{display:flex;gap:9px;align-items:center}.top-actions{display:flex;align-items:center;gap:7px}.live{display:flex;gap:7px;align-items:center;color:var(--muted);font-size:10px;border:1px solid var(--line);background:var(--surface);padding:6px 8px}.live i{width:7px;height:7px;border-radius:50%;background:var(--accent)}.icon,.text,.primary,.secondary{border:1px solid var(--line);background:var(--surface);color:var(--ink)}.icon{width:36px;height:36px}.text{border:0;background:none;color:var(--muted);padding:7px}.notice{position:relative}.notice b{position:absolute;top:-4px;right:-4px;background:var(--accent);color:#fff;min-width:15px;height:15px;font-size:8px}.menu-button{display:none}
+.workspace{max-width:1480px;margin:auto;padding:28px}.intro{display:grid;grid-template-columns:1fr 320px;gap:25px}.intro h1{font-size:clamp(36px,4.5vw,62px);line-height:.98;letter-spacing:-.045em;margin:10px 0 14px}.intro p{max-width:760px;color:var(--muted)}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}.primary,.secondary{padding:9px 12px;font-weight:800}.primary{background:var(--ink);color:var(--surface);border-color:var(--ink)}.compact{padding:6px 9px;font-size:10px}.workspace figure{margin:0;min-height:220px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);display:grid;place-items:center;position:relative}.workspace figure img{width:82%;height:82%;object-fit:contain}.workspace figcaption{position:absolute;bottom:9px;left:10px;font-size:8px;color:var(--muted);letter-spacing:.12em}.ribbon{display:flex;gap:8px;align-items:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:9px 0;margin:18px 0;color:var(--muted);font-size:10px}.ribbon i{width:7px;height:7px;border-radius:50%;background:var(--accent)}.ribbon b{color:var(--ink)}.ribbon em{width:1px;height:13px;background:var(--line)}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:13px}.signal,.metric,.card,.note,.detail{background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}.signal{grid-column:span 6;padding:17px}.signal h2{font-size:25px;margin:7px 0}.signal p{font-size:11px;color:var(--muted)}.meter{height:7px;background:var(--surface2)}.meter i{display:block;width:50%;height:100%;background:var(--accent)}.metric{grid-column:span 1;min-height:118px;padding:13px;display:flex;flex-direction:column;justify-content:space-between}.metric small,.metric span{font-size:9px;text-transform:uppercase;color:var(--muted);letter-spacing:.1em}.metric strong{font-size:28px}.card{padding:16px;min-width:0}.wide{grid-column:span 6}.span7{grid-column:span 7}.span5{grid-column:span 5}.card header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.card h2,.note h2,.detail h2{margin:4px 0;font-size:17px}.table-wrap{overflow:auto;margin:10px -16px -16px}.table-wrap table{width:100%;border-collapse:collapse;min-width:560px}.table-wrap th,.table-wrap td{padding:9px;border-top:1px solid var(--line);font-size:10px;text-align:left;white-space:nowrap}.table-wrap th{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}.table-link{border:0;background:none;font-weight:800;color:var(--ink);padding:0;text-decoration:underline}.timeline{display:grid;gap:9px;margin-top:12px}.timeline-item{display:grid;grid-template-columns:8px 1fr auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:8px}.timeline-dot{width:7px;height:7px;background:var(--accent);border-radius:50%;margin-top:5px}.timeline-item strong{font-size:10px}.timeline-item p,.timeline-item time{font-size:8px;color:var(--muted);margin:2px 0}.bars{height:150px;display:flex;gap:5px;align-items:flex-end;margin-top:10px;border-bottom:1px solid var(--line)}.bars i{flex:1;background:var(--accent);min-height:5px;opacity:.75}.people{display:flex;gap:8px;overflow:auto;margin-top:10px}.person{min-width:135px;padding:10px;text-align:left;border:1px solid var(--line);background:var(--surface2)}.person b{display:block;font-size:10px}.person span{font-size:8px;color:var(--muted)}.resources{display:grid;gap:8px;margin-top:10px}.resource{display:grid;grid-template-columns:1fr auto;gap:6px;font-size:9px}.resource em{grid-column:1/-1;background:var(--surface2);height:5px}.resource em i{display:block;height:100%;background:var(--accent)}.note{padding:16px;box-shadow:none;border-style:dashed}.note p,.detail p{font-size:10px;color:var(--muted)}.context,.detail{grid-column:1/-1;padding:13px}.context{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.context p{font-size:9px;color:var(--muted)}.context-metrics{display:flex;gap:17px}.context-metrics b{font-size:15px}.context-metrics span{display:block;font-size:7px;color:var(--muted);text-transform:uppercase}.detail{box-shadow:none;display:grid;grid-template-columns:1fr auto;gap:13px;align-items:center}
+.overlay{position:fixed;inset:0;background:rgba(5,12,16,.5);z-index:100;display:grid;place-items:center;padding:15px}.overlay[hidden]{display:none}.panel{width:min(850px,100%);max-height:85vh;overflow:auto;background:var(--surface);border:1px solid var(--line);padding:18px}.panel header{display:flex;justify-content:space-between}.panel h2{margin:4px 0 15px}.search-input{width:100%;padding:12px;background:var(--surface);color:var(--ink);border:0;border-bottom:1px solid var(--line);outline:0}.search-result{display:grid;grid-template-columns:28px 1fr auto;gap:8px;padding:9px;border:1px solid transparent;background:none;color:var(--ink);width:100%;text-align:left}.search-result.selected,.search-result:hover{background:var(--surface2);border-color:var(--line)}.search-result small{color:var(--muted)}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.field{display:grid;gap:4px}.field label{font-size:8px;color:var(--muted);text-transform:uppercase;font-weight:800}.field input,.field select,.field textarea{padding:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink);outline:0}.field textarea{min-height:90px}.error{font-size:8px;color:var(--danger)}.drawer{position:fixed;top:0;right:0;width:min(500px,100vw);height:100vh;background:var(--surface);border-left:1px solid var(--line);z-index:90;transform:translateX(102%);transition:transform .2s ease;overflow:auto}.drawer.open{transform:translateX(0)}.drawer-body{padding:20px}.detail-list{display:grid;grid-template-columns:1fr auto;gap:7px;font-size:10px}.detail-list dt{color:var(--muted)}.detail-list dd{margin:0;font-weight:800;text-align:right}.drawer-section{border-top:1px solid var(--line);padding:14px 0}.toast{position:fixed;right:15px;bottom:15px;z-index:160;display:none;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);padding:10px 12px;font-size:10px}.toast.show{display:block}
+@media(max-width:1180px){.metric{grid-column:span 3}.signal{grid-column:1/-1}.wide,.span7,.span5{grid-column:span 12}.intro{grid-template-columns:1fr 250px}}
+@media(max-width:850px){.shell{display:block}.sidebar{position:fixed;left:0;top:0;width:min(310px,88vw);transform:translateX(-102%);transition:transform .2s ease;box-shadow:15px 0 50px rgba(0,0,0,.2)}.sidebar.open{transform:translateX(0)}.menu-button{display:grid}.top{padding:0 14px}.live span{display:none}.workspace{padding:22px 14px}.intro{grid-template-columns:1fr}.workspace figure{min-height:170px}.metric{grid-column:span 6}.context{display:block}.context-metrics{margin-top:10px}.detail{grid-template-columns:1fr}.detail>div:last-child{justify-content:flex-start}}
+@media(max-width:560px){.intro h1{font-size:37px}.top .eyebrow{display:none}.top-actions .text{display:none}.form-grid{grid-template-columns:1fr}.split{grid-template-columns:1fr}.drawer{width:100vw}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+.workspace-contract-0{min-width:0}
+.signal-active-0[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-0[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-0[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-0:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-1{overflow:hidden}
+.metric-active-1[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-1[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-1[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-1:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-2{position:relative}
+.card-active-2[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-2[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-2[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-2:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-3{font-size:10px}
+.note-active-3[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-3[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-3[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-3:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-4{padding:6px}
+.detail-active-4[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-4[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-4[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-4:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-5{padding:9px}
+.drawer-active-5[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-5[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-5[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-5:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-6{gap:8px}
+.panel-active-6[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-6[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-6[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-6:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-7{color:var(--muted)}
+.person-active-7[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-7[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-7[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-7:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-8{border-color:var(--line)}
+.resource-active-8[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-8[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-8[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-8:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-9{background:var(--surface2)}
+.context-active-9[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-9[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-9[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-9:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-10{min-width:0}
+.workspace-active-10[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-10[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-10[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-10:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-11{overflow:hidden}
+.signal-active-11[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-11[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-11[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-11:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-12{position:relative}
+.metric-active-12[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-12[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-12[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-12:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-13{font-size:10px}
+.card-active-13[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-13[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-13[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-13:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-14{padding:6px}
+.note-active-14[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-14[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-14[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-14:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-15{padding:9px}
+.detail-active-15[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-15[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-15[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-15:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-16{gap:8px}
+.drawer-active-16[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-16[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-16[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-16:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-17{color:var(--muted)}
+.panel-active-17[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-17[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-17[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-17:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-18{border-color:var(--line)}
+.person-active-18[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-18[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-18[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-18:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-19{background:var(--surface2)}
+.resource-active-19[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-19[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-19[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-19:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-20{min-width:0}
+.context-active-20[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-20[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-20[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-20:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-21{overflow:hidden}
+.workspace-active-21[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-21[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-21[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-21:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-22{position:relative}
+.signal-active-22[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-22[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-22[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-22:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-23{font-size:10px}
+.metric-active-23[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-23[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-23[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-23:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-24{padding:6px}
+.card-active-24[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-24[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-24[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-24:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-25{padding:9px}
+.note-active-25[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-25[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-25[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-25:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-26{gap:8px}
+.detail-active-26[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-26[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-26[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-26:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-27{color:var(--muted)}
+.drawer-active-27[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-27[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-27[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-27:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-28{border-color:var(--line)}
+.panel-active-28[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-28[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-28[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-28:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-29{background:var(--surface2)}
+.person-active-29[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-29[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-29[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-29:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-30{min-width:0}
+.resource-active-30[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-30[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-30[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-30:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-31{overflow:hidden}
+.context-active-31[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-31[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-31[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-31:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-32{position:relative}
+.workspace-active-32[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-32[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-32[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-32:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-33{font-size:10px}
+.signal-active-33[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-33[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-33[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-33:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-34{padding:6px}
+.metric-active-34[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-34[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-34[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-34:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-35{padding:9px}
+.card-active-35[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-35[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-35[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-35:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-36{gap:8px}
+.note-active-36[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-36[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-36[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-36:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-37{color:var(--muted)}
+.detail-active-37[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-37[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-37[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-37:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-38{border-color:var(--line)}
+.drawer-active-38[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-38[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-38[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-38:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-39{background:var(--surface2)}
+.panel-active-39[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-39[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-39[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-39:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-40{min-width:0}
+.person-active-40[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-40[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-40[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-40:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-41{overflow:hidden}
+.resource-active-41[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-41[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-41[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-41:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-42{position:relative}
+.context-active-42[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-42[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-42[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-42:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-43{font-size:10px}
+.workspace-active-43[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-43[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-43[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-43:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-44{padding:6px}
+.signal-active-44[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-44[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-44[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-44:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-45{padding:9px}
+.metric-active-45[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-45[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-45[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-45:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-46{gap:8px}
+.card-active-46[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-46[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-46[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-46:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-47{color:var(--muted)}
+.note-active-47[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-47[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-47[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-47:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-48{border-color:var(--line)}
+.detail-active-48[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-48[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-48[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-48:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-49{background:var(--surface2)}
+.drawer-active-49[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-49[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-49[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-49:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-50{min-width:0}
+.panel-active-50[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-50[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-50[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-50:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-51{overflow:hidden}
+.person-active-51[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-51[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-51[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-51:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-52{position:relative}
+.resource-active-52[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-52[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-52[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-52:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-53{font-size:10px}
+.context-active-53[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-53[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-53[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-53:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-54{padding:6px}
+.workspace-active-54[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-54[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-54[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-54:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-55{padding:9px}
+.signal-active-55[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-55[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-55[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-55:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-56{gap:8px}
+.metric-active-56[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-56[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-56[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-56:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-57{color:var(--muted)}
+.card-active-57[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-57[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-57[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-57:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-58{border-color:var(--line)}
+.note-active-58[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-58[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-58[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-58:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-59{background:var(--surface2)}
+.detail-active-59[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-59[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-59[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-59:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-60{min-width:0}
+.drawer-active-60[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-60[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-60[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-60:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-61{overflow:hidden}
+.panel-active-61[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-61[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-61[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-61:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-62{position:relative}
+.person-active-62[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-62[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-62[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-62:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-63{font-size:10px}
+.resource-active-63[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-63[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-63[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-63:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-64{padding:6px}
+.context-active-64[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-64[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-64[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-64:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-65{padding:9px}
+.workspace-active-65[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-65[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-65[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-65:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-66{gap:8px}
+.signal-active-66[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-66[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-66[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-66:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-67{color:var(--muted)}
+.metric-active-67[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-67[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-67[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-67:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-68{border-color:var(--line)}
+.card-active-68[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-68[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-68[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-68:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-69{background:var(--surface2)}
+.note-active-69[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-69[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-69[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-69:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-70{min-width:0}
+.detail-active-70[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-70[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-70[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-70:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-71{overflow:hidden}
+.drawer-active-71[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-71[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-71[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-71:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-72{position:relative}
+.panel-active-72[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-72[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-72[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-72:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-73{font-size:10px}
+.person-active-73[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-73[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-73[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-73:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-74{padding:6px}
+.resource-active-74[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-74[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-74[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-74:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-75{padding:9px}
+.context-active-75[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-75[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-75[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-75:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-76{gap:8px}
+.workspace-active-76[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-76[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-76[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-76:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-77{color:var(--muted)}
+.signal-active-77[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-77[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-77[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-77:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-78{border-color:var(--line)}
+.metric-active-78[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-78[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-78[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-78:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-79{background:var(--surface2)}
+.card-active-79[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-79[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-79[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-79:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-80{min-width:0}
+.note-active-80[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-80[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-80[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-80:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-81{overflow:hidden}
+.detail-active-81[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-81[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-81[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-81:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-82{position:relative}
+.drawer-active-82[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-82[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-82[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-82:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-83{font-size:10px}
+.panel-active-83[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-83[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-83[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-83:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-84{padding:6px}
+.person-active-84[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-84[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-84[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-84:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-85{padding:9px}
+.resource-active-85[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-85[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-85[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-85:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-86{gap:8px}
+.context-active-86[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-86[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-86[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-86:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-87{color:var(--muted)}
+.workspace-active-87[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-87[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-87[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-87:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-88{border-color:var(--line)}
+.signal-active-88[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-88[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-88[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-88:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-89{background:var(--surface2)}
+.metric-active-89[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-89[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-89[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-89:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-90{min-width:0}
+.card-active-90[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-90[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-90[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-90:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-91{overflow:hidden}
+.note-active-91[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-91[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-91[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-91:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-92{position:relative}
+.detail-active-92[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-92[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-92[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-92:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-93{font-size:10px}
+.drawer-active-93[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-93[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-93[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-93:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-94{padding:6px}
+.panel-active-94[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-94[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-94[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-94:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-95{padding:9px}
+.person-active-95[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-95[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-95[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-95:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-96{gap:8px}
+.resource-active-96[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-96[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-96[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-96:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-97{color:var(--muted)}
+.context-active-97[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-97[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-97[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-97:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-98{border-color:var(--line)}
+.workspace-active-98[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-98[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-98[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-98:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-99{background:var(--surface2)}
+.signal-active-99[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-99[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-99[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-99:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-100{min-width:0}
+.metric-active-100[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-100[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-100[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-100:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-101{overflow:hidden}
+.card-active-101[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-101[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-101[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-101:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-102{position:relative}
+.note-active-102[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-102[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-102[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-102:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-103{font-size:10px}
+.detail-active-103[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-103[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-103[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-103:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-104{padding:6px}
+.drawer-active-104[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-104[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-104[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-104:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-105{padding:9px}
+.panel-active-105[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-105[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-105[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-105:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-106{gap:8px}
+.person-active-106[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-106[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-106[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-106:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-107{color:var(--muted)}
+.resource-active-107[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-107[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-107[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-107:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-108{border-color:var(--line)}
+.context-active-108[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-108[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-108[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-108:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-109{background:var(--surface2)}
+.workspace-active-109[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-109[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-109[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-109:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-110{min-width:0}
+.signal-active-110[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-110[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-110[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-110:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-111{overflow:hidden}
+.metric-active-111[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-111[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-111[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-111:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-112{position:relative}
+.card-active-112[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-112[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-112[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-112:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-113{font-size:10px}
+.note-active-113[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-113[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-113[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-113:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-114{padding:6px}
+.detail-active-114[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-114[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-114[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-114:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-115{padding:9px}
+.drawer-active-115[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-115[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-115[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-115:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-116{gap:8px}
+.panel-active-116[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-116[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-116[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-116:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-117{color:var(--muted)}
+.person-active-117[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-117[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-117[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-117:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-118{border-color:var(--line)}
+.resource-active-118[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-118[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-118[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-118:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-119{background:var(--surface2)}
+.context-active-119[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-119[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-119[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-119:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-120{min-width:0}
+.workspace-active-120[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-120[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-120[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-120:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-121{overflow:hidden}
+.signal-active-121[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-121[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-121[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-121:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-122{position:relative}
+.metric-active-122[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-122[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-122[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-122:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-123{font-size:10px}
+.card-active-123[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-123[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-123[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-123:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-124{padding:6px}
+.note-active-124[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-124[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-124[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-124:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-125{padding:9px}
+.detail-active-125[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-125[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-125[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-125:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-126{gap:8px}
+.drawer-active-126[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-126[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-126[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-126:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-127{color:var(--muted)}
+.panel-active-127[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-127[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-127[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-127:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-128{border-color:var(--line)}
+.person-active-128[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-128[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-128[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-128:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-129{background:var(--surface2)}
+.resource-active-129[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-129[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-129[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-129:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-130{min-width:0}
+.context-active-130[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-130[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-130[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-130:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-131{overflow:hidden}
+.workspace-active-131[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-131[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-131[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-131:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-132{position:relative}
+.signal-active-132[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-132[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-132[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-132:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-133{font-size:10px}
+.metric-active-133[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-133[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-133[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-133:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-134{padding:6px}
+.card-active-134[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-134[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-134[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-134:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-135{padding:9px}
+.note-active-135[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-135[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-135[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-135:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-136{gap:8px}
+.detail-active-136[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-136[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-136[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-136:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-137{color:var(--muted)}
+.drawer-active-137[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-137[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-137[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-137:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-138{border-color:var(--line)}
+.panel-active-138[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-138[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-138[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-138:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-139{background:var(--surface2)}
+.person-active-139[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-139[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-139[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-139:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-140{min-width:0}
+.resource-active-140[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-140[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-140[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-140:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-141{overflow:hidden}
+.context-active-141[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-141[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-141[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-141:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-142{position:relative}
+.workspace-active-142[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-142[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-142[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-142:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-143{font-size:10px}
+.signal-active-143[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-143[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-143[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-143:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-144{padding:6px}
+.metric-active-144[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-144[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-144[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-144:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-145{padding:9px}
+.card-active-145[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-145[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-145[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-145:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-146{gap:8px}
+.note-active-146[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-146[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-146[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-146:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-147{color:var(--muted)}
+.detail-active-147[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-147[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-147[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-147:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-148{border-color:var(--line)}
+.drawer-active-148[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-148[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-148[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-148:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-149{background:var(--surface2)}
+.panel-active-149[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-149[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-149[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-149:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-150{min-width:0}
+.person-active-150[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-150[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-150[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-150:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-151{overflow:hidden}
+.resource-active-151[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-151[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-151[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-151:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-152{position:relative}
+.context-active-152[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-152[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-152[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-152:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-153{font-size:10px}
+.workspace-active-153[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-153[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-153[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-153:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-154{padding:6px}
+.signal-active-154[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-154[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-154[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-154:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-155{padding:9px}
+.metric-active-155[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-155[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-155[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-155:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-156{gap:8px}
+.card-active-156[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-156[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-156[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-156:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-157{color:var(--muted)}
+.note-active-157[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-157[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-157[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-157:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-158{border-color:var(--line)}
+.detail-active-158[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-158[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-158[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-158:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-159{background:var(--surface2)}
+.drawer-active-159[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-159[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-159[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-159:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-160{min-width:0}
+.panel-active-160[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-160[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-160[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-160:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-161{overflow:hidden}
+.person-active-161[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-161[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-161[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-161:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-162{position:relative}
+.resource-active-162[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-162[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-162[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-162:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-163{font-size:10px}
+.context-active-163[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-163[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-163[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-163:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-164{padding:6px}
+.workspace-active-164[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-164[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-164[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-164:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-165{padding:9px}
+.signal-active-165[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-165[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-165[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-165:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-166{gap:8px}
+.metric-active-166[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-166[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-166[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-166:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-167{color:var(--muted)}
+.card-active-167[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-167[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-167[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-167:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-168{border-color:var(--line)}
+.note-active-168[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-168[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-168[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-168:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-169{background:var(--surface2)}
+.detail-active-169[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-169[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-169[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-169:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-170{min-width:0}
+.drawer-active-170[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-170[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-170[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-170:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-171{overflow:hidden}
+.panel-active-171[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-171[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-171[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-171:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-172{position:relative}
+.person-active-172[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-172[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-172[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-172:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-173{font-size:10px}
+.resource-active-173[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-173[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-173[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-173:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-174{padding:6px}
+.context-active-174[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-174[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-174[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-174:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-175{padding:9px}
+.workspace-active-175[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-175[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-175[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-175:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-176{gap:8px}
+.signal-active-176[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-176[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-176[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-176:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-177{color:var(--muted)}
+.metric-active-177[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-177[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-177[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-177:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-178{border-color:var(--line)}
+.card-active-178[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-178[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-178[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-178:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-179{background:var(--surface2)}
+.note-active-179[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-179[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-179[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-179:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-180{min-width:0}
+.detail-active-180[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-180[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-180[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-180:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-181{overflow:hidden}
+.drawer-active-181[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-181[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-181[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-181:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-182{position:relative}
+.panel-active-182[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-182[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-182[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-182:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-183{font-size:10px}
+.person-active-183[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-183[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-183[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-183:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-184{padding:6px}
+.resource-active-184[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-184[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-184[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-184:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-185{padding:9px}
+.context-active-185[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-185[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-185[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-185:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-186{gap:8px}
+.workspace-active-186[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-186[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-186[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-186:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-187{color:var(--muted)}
+.signal-active-187[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-187[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-187[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-187:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-188{border-color:var(--line)}
+.metric-active-188[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-188[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-188[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-188:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-189{background:var(--surface2)}
+.card-active-189[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-189[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-189[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-189:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-190{min-width:0}
+.note-active-190[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-190[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-190[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-190:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-191{overflow:hidden}
+.detail-active-191[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-191[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-191[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-191:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-192{position:relative}
+.drawer-active-192[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-192[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-192[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-192:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-193{font-size:10px}
+.panel-active-193[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-193[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-193[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-193:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-194{padding:6px}
+.person-active-194[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-194[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-194[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-194:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-195{padding:9px}
+.resource-active-195[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-195[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-195[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-195:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-196{gap:8px}
+.context-active-196[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-196[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-196[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-196:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-197{color:var(--muted)}
+.workspace-active-197[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-197[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-197[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-197:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-198{border-color:var(--line)}
+.signal-active-198[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-198[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-198[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-198:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-199{background:var(--surface2)}
+.metric-active-199[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-199[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-199[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-199:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-200{min-width:0}
+.card-active-200[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-200[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-200[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-200:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-201{overflow:hidden}
+.note-active-201[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-201[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-201[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-201:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-202{position:relative}
+.detail-active-202[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-202[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-202[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-202:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-203{font-size:10px}
+.drawer-active-203[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-203[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-203[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-203:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-204{padding:6px}
+.panel-active-204[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-204[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-204[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-204:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-205{padding:9px}
+.person-active-205[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-205[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-205[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-205:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-206{gap:8px}
+.resource-active-206[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-206[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-206[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-206:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-207{color:var(--muted)}
+.context-active-207[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-207[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-207[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-207:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-208{border-color:var(--line)}
+.workspace-active-208[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-208[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-208[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-208:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-209{background:var(--surface2)}
+.signal-active-209[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-209[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-209[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-209:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-210{min-width:0}
+.metric-active-210[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-210[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-210[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-210:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-211{overflow:hidden}
+.card-active-211[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-211[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-211[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-211:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-212{position:relative}
+.note-active-212[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-212[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-212[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-212:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-213{font-size:10px}
+.detail-active-213[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-213[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-213[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-213:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-214{padding:6px}
+.drawer-active-214[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-214[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-214[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-214:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-215{padding:9px}
+.panel-active-215[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-215[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-215[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-215:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-216{gap:8px}
+.person-active-216[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-216[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-216[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-216:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-217{color:var(--muted)}
+.resource-active-217[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-217[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-217[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-217:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-218{border-color:var(--line)}
+.context-active-218[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-218[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-218[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-218:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-219{background:var(--surface2)}
+.workspace-active-219[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-219[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-219[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-219:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-220{min-width:0}
+.signal-active-220[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-220[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-220[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-220:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-221{overflow:hidden}
+.metric-active-221[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-221[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-221[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-221:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-222{position:relative}
+.card-active-222[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-222[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-222[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-222:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-223{font-size:10px}
+.note-active-223[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-223[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-223[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-223:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-224{padding:6px}
+.detail-active-224[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-224[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-224[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-224:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-225{padding:9px}
+.drawer-active-225[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-225[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-225[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-225:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-226{gap:8px}
+.panel-active-226[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-226[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-226[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-226:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-227{color:var(--muted)}
+.person-active-227[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-227[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-227[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-227:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-228{border-color:var(--line)}
+.resource-active-228[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-228[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-228[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-228:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-229{background:var(--surface2)}
+.context-active-229[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-229[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-229[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-229:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-230{min-width:0}
+.workspace-active-230[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-230[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-230[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-230:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-231{overflow:hidden}
+.signal-active-231[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-231[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-231[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-231:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-232{position:relative}
+.metric-active-232[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-232[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-232[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-232:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-233{font-size:10px}
+.card-active-233[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-233[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-233[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-233:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-234{padding:6px}
+.note-active-234[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-234[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-234[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-234:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-235{padding:9px}
+.detail-active-235[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-235[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-235[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-235:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-236{gap:8px}
+.drawer-active-236[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-236[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-236[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-236:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-237{color:var(--muted)}
+.panel-active-237[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-237[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-237[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-237:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-238{border-color:var(--line)}
+.person-active-238[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-238[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-238[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-238:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-239{background:var(--surface2)}
+.resource-active-239[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-239[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-239[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-239:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-240{min-width:0}
+.context-active-240[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-240[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-240[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-240:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-241{overflow:hidden}
+.workspace-active-241[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-241[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-241[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-241:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-242{position:relative}
+.signal-active-242[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-242[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-242[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-242:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-243{font-size:10px}
+.metric-active-243[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-243[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-243[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-243:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-244{padding:6px}
+.card-active-244[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-244[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-244[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-244:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-245{padding:9px}
+.note-active-245[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-245[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-245[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-245:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-246{gap:8px}
+.detail-active-246[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-246[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-246[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-246:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-247{color:var(--muted)}
+.drawer-active-247[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-247[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-247[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-247:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-248{border-color:var(--line)}
+.panel-active-248[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-248[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-248[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-248:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-249{background:var(--surface2)}
+.person-active-249[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-249[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-249[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-249:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-250{min-width:0}
+.resource-active-250[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-250[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-250[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-250:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-251{overflow:hidden}
+.context-active-251[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-251[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-251[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-251:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-252{position:relative}
+.workspace-active-252[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-252[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-252[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-252:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-253{font-size:10px}
+.signal-active-253[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-253[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-253[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-253:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-254{padding:6px}
+.metric-active-254[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-254[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-254[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-254:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-255{padding:9px}
+.card-active-255[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-255[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-255[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-255:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-256{gap:8px}
+.note-active-256[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-256[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-256[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-256:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-257{color:var(--muted)}
+.detail-active-257[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-257[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-257[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-257:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-258{border-color:var(--line)}
+.drawer-active-258[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-258[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-258[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-258:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-259{background:var(--surface2)}
+.panel-active-259[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-259[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-259[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-259:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-260{min-width:0}
+.person-active-260[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-260[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-260[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-260:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-261{overflow:hidden}
+.resource-active-261[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-261[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-261[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-261:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-262{position:relative}
+.context-active-262[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-262[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-262[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-262:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-263{font-size:10px}
+.workspace-active-263[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-263[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-263[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-263:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-264{padding:6px}
+.signal-active-264[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-264[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-264[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-264:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-265{padding:9px}
+.metric-active-265[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-265[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-265[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-265:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-266{gap:8px}
+.card-active-266[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-266[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-266[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-266:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-267{color:var(--muted)}
+.note-active-267[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-267[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-267[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-267:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-268{border-color:var(--line)}
+.detail-active-268[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-268[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-268[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-268:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-269{background:var(--surface2)}
+.drawer-active-269[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-269[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-269[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-269:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-270{min-width:0}
+.panel-active-270[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-270[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-270[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-270:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-271{overflow:hidden}
+.person-active-271[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-271[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-271[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-271:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-272{position:relative}
+.resource-active-272[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-272[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-272[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-272:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-273{font-size:10px}
+.context-active-273[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-273[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-273[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-273:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-274{padding:6px}
+.workspace-active-274[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-274[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-274[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-274:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-275{padding:9px}
+.signal-active-275[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-275[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-275[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-275:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-276{gap:8px}
+.metric-active-276[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-276[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-276[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-276:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-277{color:var(--muted)}
+.card-active-277[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-277[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-277[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-277:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-278{border-color:var(--line)}
+.note-active-278[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-278[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-278[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-278:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-279{background:var(--surface2)}
+.detail-active-279[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-279[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-279[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-279:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-280{min-width:0}
+.drawer-active-280[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-280[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-280[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-280:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-281{overflow:hidden}
+.panel-active-281[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-281[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-281[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-281:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-282{position:relative}
+.person-active-282[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-282[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-282[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-282:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-283{font-size:10px}
+.resource-active-283[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-283[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-283[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-283:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-284{padding:6px}
+.context-active-284[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-284[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-284[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-284:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-285{padding:9px}
+.workspace-active-285[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-285[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-285[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-285:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-286{gap:8px}
+.signal-active-286[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-286[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-286[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-286:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-287{color:var(--muted)}
+.metric-active-287[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-287[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-287[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-287:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-288{border-color:var(--line)}
+.card-active-288[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-288[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-288[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-288:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-289{background:var(--surface2)}
+.note-active-289[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-289[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-289[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-289:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-290{min-width:0}
+.detail-active-290[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-290[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-290[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-290:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-291{overflow:hidden}
+.drawer-active-291[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-291[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-291[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-291:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-292{position:relative}
+.panel-active-292[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-292[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-292[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-292:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-293{font-size:10px}
+.person-active-293[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-293[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-293[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-293:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-294{padding:6px}
+.resource-active-294[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-294[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-294[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-294:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-295{padding:9px}
+.context-active-295[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-295[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-295[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-295:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-296{gap:8px}
+.workspace-active-296[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-296[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-296[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-296:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-297{color:var(--muted)}
+.signal-active-297[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-297[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-297[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-297:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-298{border-color:var(--line)}
+.metric-active-298[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-298[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-298[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-298:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.metric-contract-299{background:var(--surface2)}
+.card-active-299[data-state="active"]{border-left:2px solid var(--accent)}
+.note-attention-299[data-state="attention"]{border-left:2px solid var(--warn)}
+.detail-blocked-299[data-state="blocked"]{border-left:2px solid var(--danger)}
+.drawer-focus-299:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.card-contract-300{min-width:0}
+.note-active-300[data-state="active"]{border-left:2px solid var(--accent)}
+.detail-attention-300[data-state="attention"]{border-left:2px solid var(--warn)}
+.drawer-blocked-300[data-state="blocked"]{border-left:2px solid var(--danger)}
+.panel-focus-300:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.note-contract-301{overflow:hidden}
+.detail-active-301[data-state="active"]{border-left:2px solid var(--accent)}
+.drawer-attention-301[data-state="attention"]{border-left:2px solid var(--warn)}
+.panel-blocked-301[data-state="blocked"]{border-left:2px solid var(--danger)}
+.person-focus-301:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.detail-contract-302{position:relative}
+.drawer-active-302[data-state="active"]{border-left:2px solid var(--accent)}
+.panel-attention-302[data-state="attention"]{border-left:2px solid var(--warn)}
+.person-blocked-302[data-state="blocked"]{border-left:2px solid var(--danger)}
+.resource-focus-302:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.drawer-contract-303{font-size:10px}
+.panel-active-303[data-state="active"]{border-left:2px solid var(--accent)}
+.person-attention-303[data-state="attention"]{border-left:2px solid var(--warn)}
+.resource-blocked-303[data-state="blocked"]{border-left:2px solid var(--danger)}
+.context-focus-303:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.panel-contract-304{padding:6px}
+.person-active-304[data-state="active"]{border-left:2px solid var(--accent)}
+.resource-attention-304[data-state="attention"]{border-left:2px solid var(--warn)}
+.context-blocked-304[data-state="blocked"]{border-left:2px solid var(--danger)}
+.workspace-focus-304:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.person-contract-305{padding:9px}
+.resource-active-305[data-state="active"]{border-left:2px solid var(--accent)}
+.context-attention-305[data-state="attention"]{border-left:2px solid var(--warn)}
+.workspace-blocked-305[data-state="blocked"]{border-left:2px solid var(--danger)}
+.signal-focus-305:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.resource-contract-306{gap:8px}
+.context-active-306[data-state="active"]{border-left:2px solid var(--accent)}
+.workspace-attention-306[data-state="attention"]{border-left:2px solid var(--warn)}
+.signal-blocked-306[data-state="blocked"]{border-left:2px solid var(--danger)}
+.metric-focus-306:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.context-contract-307{color:var(--muted)}
+.workspace-active-307[data-state="active"]{border-left:2px solid var(--accent)}
+.signal-attention-307[data-state="attention"]{border-left:2px solid var(--warn)}
+.metric-blocked-307[data-state="blocked"]{border-left:2px solid var(--danger)}
+.card-focus-307:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.workspace-contract-308{border-color:var(--line)}
+.signal-active-308[data-state="active"]{border-left:2px solid var(--accent)}
+.metric-attention-308[data-state="attention"]{border-left:2px solid var(--warn)}
+.card-blocked-308[data-state="blocked"]{border-left:2px solid var(--danger)}
+.note-focus-308:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.signal-contract-309{background:var(--surface2)}
+.metric-active-309[data-state="active"]{border-left:2px solid var(--accent)}
+.card-attention-309[data-state="attention"]{border-left:2px solid var(--warn)}
+.note-blocked-309[data-state="blocked"]{border-left:2px solid var(--danger)}
+.detail-focus-309:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+.layout-contract-1562{min-height:12px}
+.layout-contract-1563{min-height:13px}
+.layout-contract-1564{min-height:14px}
+.layout-contract-1565{min-height:15px}
+.layout-contract-1566{min-height:16px}
+.layout-contract-1567{min-height:17px}
+.layout-contract-1568{min-height:18px}
+.layout-contract-1569{min-height:19px}
+.layout-contract-1570{min-height:20px}
+.layout-contract-1571{min-height:21px}
+.layout-contract-1572{min-height:22px}
+.layout-contract-1573{min-height:23px}
+.layout-contract-1574{min-height:24px}
+.layout-contract-1575{min-height:25px}
+.layout-contract-1576{min-height:26px}
+.layout-contract-1577{min-height:27px}
+.layout-contract-1578{min-height:28px}
+.layout-contract-1579{min-height:29px}
+.layout-contract-1580{min-height:30px}
+.layout-contract-1581{min-height:31px}
+.layout-contract-1582{min-height:32px}
+.layout-contract-1583{min-height:33px}
+.layout-contract-1584{min-height:34px}
+.layout-contract-1585{min-height:35px}
+.layout-contract-1586{min-height:36px}
+.layout-contract-1587{min-height:37px}
+.layout-contract-1588{min-height:38px}
+.layout-contract-1589{min-height:39px}
+.layout-contract-1590{min-height:40px}
+.layout-contract-1591{min-height:41px}
+.layout-contract-1592{min-height:42px}
+.layout-contract-1593{min-height:43px}
+.layout-contract-1594{min-height:44px}
+.layout-contract-1595{min-height:45px}
+.layout-contract-1596{min-height:46px}
+.layout-contract-1597{min-height:47px}
+.layout-contract-1598{min-height:48px}
+.layout-contract-1599{min-height:49px}
+.layout-contract-1600{min-height:10px}
+.layout-contract-1601{min-height:11px}
+.layout-contract-1602{min-height:12px}
+.layout-contract-1603{min-height:13px}
+.layout-contract-1604{min-height:14px}
+.layout-contract-1605{min-height:15px}
+.layout-contract-1606{min-height:16px}
+.layout-contract-1607{min-height:17px}
+.layout-contract-1608{min-height:18px}
+.layout-contract-1609{min-height:19px}
+.layout-contract-1610{min-height:20px}
+.layout-contract-1611{min-height:21px}
+.layout-contract-1612{min-height:22px}
+.layout-contract-1613{min-height:23px}
+.layout-contract-1614{min-height:24px}
+.layout-contract-1615{min-height:25px}
+.layout-contract-1616{min-height:26px}
+.layout-contract-1617{min-height:27px}
+.layout-contract-1618{min-height:28px}
+.layout-contract-1619{min-height:29px}
+.layout-contract-1620{min-height:30px}
+.layout-contract-1621{min-height:31px}
+.layout-contract-1622{min-height:32px}
+.layout-contract-1623{min-height:33px}
+.layout-contract-1624{min-height:34px}
+.layout-contract-1625{min-height:35px}
+.layout-contract-1626{min-height:36px}
+.layout-contract-1627{min-height:37px}
+.layout-contract-1628{min-height:38px}
+.layout-contract-1629{min-height:39px}
+.layout-contract-1630{min-height:40px}
+.layout-contract-1631{min-height:41px}
+.layout-contract-1632{min-height:42px}
+.layout-contract-1633{min-height:43px}
+.layout-contract-1634{min-height:44px}
+.layout-contract-1635{min-height:45px}
+.layout-contract-1636{min-height:46px}
+.layout-contract-1637{min-height:47px}
+.layout-contract-1638{min-height:48px}
+.layout-contract-1639{min-height:49px}
+.layout-contract-1640{min-height:10px}
+.layout-contract-1641{min-height:11px}
+.layout-contract-1642{min-height:12px}
+.layout-contract-1643{min-height:13px}
+.layout-contract-1644{min-height:14px}
+.layout-contract-1645{min-height:15px}
+.layout-contract-1646{min-height:16px}
+.layout-contract-1647{min-height:17px}
+.layout-contract-1648{min-height:18px}
+.layout-contract-1649{min-height:19px}
+.layout-contract-1650{min-height:20px}
+.layout-contract-1651{min-height:21px}
+.layout-contract-1652{min-height:22px}
+.layout-contract-1653{min-height:23px}
+.layout-contract-1654{min-height:24px}
+.layout-contract-1655{min-height:25px}
+.layout-contract-1656{min-height:26px}
+.layout-contract-1657{min-height:27px}
+.layout-contract-1658{min-height:28px}
+.layout-contract-1659{min-height:29px}
+.layout-contract-1660{min-height:30px}
+.layout-contract-1661{min-height:31px}
+.layout-contract-1662{min-height:32px}
+.layout-contract-1663{min-height:33px}
+.layout-contract-1664{min-height:34px}
+.layout-contract-1665{min-height:35px}
+.layout-contract-1666{min-height:36px}
+.layout-contract-1667{min-height:37px}
+.layout-contract-1668{min-height:38px}
+.layout-contract-1669{min-height:39px}
+.layout-contract-1670{min-height:40px}
+.layout-contract-1671{min-height:41px}
+.layout-contract-1672{min-height:42px}
+.layout-contract-1673{min-height:43px}
+.layout-contract-1674{min-height:44px}
+.layout-contract-1675{min-height:45px}
+.layout-contract-1676{min-height:46px}
+.layout-contract-1677{min-height:47px}
+.layout-contract-1678{min-height:48px}
+.layout-contract-1679{min-height:49px}
+.layout-contract-1680{min-height:10px}
+.layout-contract-1681{min-height:11px}
+.layout-contract-1682{min-height:12px}
+.layout-contract-1683{min-height:13px}
+.layout-contract-1684{min-height:14px}
+.layout-contract-1685{min-height:15px}
+.layout-contract-1686{min-height:16px}
+.layout-contract-1687{min-height:17px}
+.layout-contract-1688{min-height:18px}
+.layout-contract-1689{min-height:19px}
+.layout-contract-1690{min-height:20px}
+.layout-contract-1691{min-height:21px}
+.layout-contract-1692{min-height:22px}
+.layout-contract-1693{min-height:23px}
+.layout-contract-1694{min-height:24px}
+.layout-contract-1695{min-height:25px}
+.layout-contract-1696{min-height:26px}
+.layout-contract-1697{min-height:27px}
+.layout-contract-1698{min-height:28px}
+.layout-contract-1699{min-height:29px}
+.layout-contract-1700{min-height:30px}
+.layout-contract-1701{min-height:31px}
+.layout-contract-1702{min-height:32px}
+.layout-contract-1703{min-height:33px}
+.layout-contract-1704{min-height:34px}
+.layout-contract-1705{min-height:35px}
+.layout-contract-1706{min-height:36px}
+.layout-contract-1707{min-height:37px}
+.layout-contract-1708{min-height:38px}
+.layout-contract-1709{min-height:39px}
+.layout-contract-1710{min-height:40px}
+.layout-contract-1711{min-height:41px}
+.layout-contract-1712{min-height:42px}
+.layout-contract-1713{min-height:43px}
+.layout-contract-1714{min-height:44px}
+.layout-contract-1715{min-height:45px}
+.layout-contract-1716{min-height:46px}
+.layout-contract-1717{min-height:47px}
+.layout-contract-1718{min-height:48px}
+.layout-contract-1719{min-height:49px}
+.layout-contract-1720{min-height:10px}
+.layout-contract-1721{min-height:11px}
+.layout-contract-1722{min-height:12px}
+.layout-contract-1723{min-height:13px}
+.layout-contract-1724{min-height:14px}
+.layout-contract-1725{min-height:15px}
+.layout-contract-1726{min-height:16px}
+.layout-contract-1727{min-height:17px}
+.layout-contract-1728{min-height:18px}
+.layout-contract-1729{min-height:19px}
+.layout-contract-1730{min-height:20px}
+.layout-contract-1731{min-height:21px}
+.layout-contract-1732{min-height:22px}
+.layout-contract-1733{min-height:23px}
+.layout-contract-1734{min-height:24px}
+.layout-contract-1735{min-height:25px}
+.layout-contract-1736{min-height:26px}
+.layout-contract-1737{min-height:27px}
+.layout-contract-1738{min-height:28px}
+.layout-contract-1739{min-height:29px}
+.layout-contract-1740{min-height:30px}
+.layout-contract-1741{min-height:31px}
+.layout-contract-1742{min-height:32px}
+.layout-contract-1743{min-height:33px}
+.layout-contract-1744{min-height:34px}
+.layout-contract-1745{min-height:35px}
+.layout-contract-1746{min-height:36px}
+.layout-contract-1747{min-height:37px}
+.layout-contract-1748{min-height:38px}
+.layout-contract-1749{min-height:39px}
+.layout-contract-1750{min-height:40px}
+.layout-contract-1751{min-height:41px}
+.layout-contract-1752{min-height:42px}
+.layout-contract-1753{min-height:43px}
+.layout-contract-1754{min-height:44px}
+.layout-contract-1755{min-height:45px}
+.layout-contract-1756{min-height:46px}
+.layout-contract-1757{min-height:47px}
+.layout-contract-1758{min-height:48px}
+.layout-contract-1759{min-height:49px}
+.layout-contract-1760{min-height:10px}
+.layout-contract-1761{min-height:11px}
+.layout-contract-1762{min-height:12px}
+.layout-contract-1763{min-height:13px}
+.layout-contract-1764{min-height:14px}
+.layout-contract-1765{min-height:15px}
+.layout-contract-1766{min-height:16px}
+.layout-contract-1767{min-height:17px}
+.layout-contract-1768{min-height:18px}
+.layout-contract-1769{min-height:19px}
+.layout-contract-1770{min-height:20px}
+.layout-contract-1771{min-height:21px}
+.layout-contract-1772{min-height:22px}
+.layout-contract-1773{min-height:23px}
+.layout-contract-1774{min-height:24px}
+.layout-contract-1775{min-height:25px}
+.layout-contract-1776{min-height:26px}
+.layout-contract-1777{min-height:27px}
+.layout-contract-1778{min-height:28px}
+.layout-contract-1779{min-height:29px}
+.layout-contract-1780{min-height:30px}
+.layout-contract-1781{min-height:31px}
+.layout-contract-1782{min-height:32px}
+.layout-contract-1783{min-height:33px}
+.layout-contract-1784{min-height:34px}
+.layout-contract-1785{min-height:35px}
+.layout-contract-1786{min-height:36px}
+.layout-contract-1787{min-height:37px}
+.layout-contract-1788{min-height:38px}
+.layout-contract-1789{min-height:39px}
+.layout-contract-1790{min-height:40px}
+.layout-contract-1791{min-height:41px}
+.layout-contract-1792{min-height:42px}
+.layout-contract-1793{min-height:43px}
+.layout-contract-1794{min-height:44px}
+.layout-contract-1795{min-height:45px}
+.layout-contract-1796{min-height:46px}
+.layout-contract-1797{min-height:47px}
+.layout-contract-1798{min-height:48px}
+.layout-contract-1799{min-height:49px}
+.layout-contract-1800{min-height:10px}
+.layout-contract-1801{min-height:11px}
+.layout-contract-1802{min-height:12px}
+.layout-contract-1803{min-height:13px}
+.layout-contract-1804{min-height:14px}
+.layout-contract-1805{min-height:15px}
+.layout-contract-1806{min-height:16px}
+.layout-contract-1807{min-height:17px}
+.layout-contract-1808{min-height:18px}
+.layout-contract-1809{min-height:19px}
+.layout-contract-1810{min-height:20px}
+.layout-contract-1811{min-height:21px}
+.layout-contract-1812{min-height:22px}
+.layout-contract-1813{min-height:23px}
+.layout-contract-1814{min-height:24px}
+.layout-contract-1815{min-height:25px}
+.layout-contract-1816{min-height:26px}
+.layout-contract-1817{min-height:27px}
+.layout-contract-1818{min-height:28px}
+.layout-contract-1819{min-height:29px}
+.layout-contract-1820{min-height:30px}
+.layout-contract-1821{min-height:31px}
+.layout-contract-1822{min-height:32px}
+.layout-contract-1823{min-height:33px}
+.layout-contract-1824{min-height:34px}
+.layout-contract-1825{min-height:35px}
+.layout-contract-1826{min-height:36px}
+.layout-contract-1827{min-height:37px}
+.layout-contract-1828{min-height:38px}
+.layout-contract-1829{min-height:39px}
+.layout-contract-1830{min-height:40px}
+.layout-contract-1831{min-height:41px}
+.layout-contract-1832{min-height:42px}
+.layout-contract-1833{min-height:43px}
+.layout-contract-1834{min-height:44px}
+.layout-contract-1835{min-height:45px}
+.layout-contract-1836{min-height:46px}
+.layout-contract-1837{min-height:47px}
+.layout-contract-1838{min-height:48px}
+.layout-contract-1839{min-height:49px}
+.layout-contract-1840{min-height:10px}
+.layout-contract-1841{min-height:11px}
+.layout-contract-1842{min-height:12px}
+.layout-contract-1843{min-height:13px}
+.layout-contract-1844{min-height:14px}
+.layout-contract-1845{min-height:15px}
+.layout-contract-1846{min-height:16px}
+.layout-contract-1847{min-height:17px}
+.layout-contract-1848{min-height:18px}
+.layout-contract-1849{min-height:19px}
+.layout-contract-1850{min-height:20px}
+.layout-contract-1851{min-height:21px}
+.layout-contract-1852{min-height:22px}
+.layout-contract-1853{min-height:23px}
+.layout-contract-1854{min-height:24px}
+.layout-contract-1855{min-height:25px}
+.layout-contract-1856{min-height:26px}
+.layout-contract-1857{min-height:27px}
+.layout-contract-1858{min-height:28px}
+.layout-contract-1859{min-height:29px}
+.layout-contract-1860{min-height:30px}
+.layout-contract-1861{min-height:31px}
+.layout-contract-1862{min-height:32px}
+.layout-contract-1863{min-height:33px}
+.layout-contract-1864{min-height:34px}
+.layout-contract-1865{min-height:35px}
+.layout-contract-1866{min-height:36px}
+.layout-contract-1867{min-height:37px}
+.layout-contract-1868{min-height:38px}
+.layout-contract-1869{min-height:39px}
+.layout-contract-1870{min-height:40px}
+.layout-contract-1871{min-height:41px}
+.layout-contract-1872{min-height:42px}
+.layout-contract-1873{min-height:43px}
+.layout-contract-1874{min-height:44px}
+.layout-contract-1875{min-height:45px}
+.layout-contract-1876{min-height:46px}
+.layout-contract-1877{min-height:47px}
+.layout-contract-1878{min-height:48px}
+.layout-contract-1879{min-height:49px}
+.layout-contract-1880{min-height:10px}
+.layout-contract-1881{min-height:11px}
+.layout-contract-1882{min-height:12px}
+.layout-contract-1883{min-height:13px}
+.layout-contract-1884{min-height:14px}
+.layout-contract-1885{min-height:15px}
+.layout-contract-1886{min-height:16px}
+.layout-contract-1887{min-height:17px}
+.layout-contract-1888{min-height:18px}
+.layout-contract-1889{min-height:19px}
+.layout-contract-1890{min-height:20px}
+.layout-contract-1891{min-height:21px}
+.layout-contract-1892{min-height:22px}
+.layout-contract-1893{min-height:23px}
+.layout-contract-1894{min-height:24px}
+.layout-contract-1895{min-height:25px}
+.layout-contract-1896{min-height:26px}
+.layout-contract-1897{min-height:27px}
+.layout-contract-1898{min-height:28px}
+.layout-contract-1899{min-height:29px}
+.layout-contract-1900{min-height:30px}
+.layout-contract-1901{min-height:31px}
+.layout-contract-1902{min-height:32px}
+.layout-contract-1903{min-height:33px}
+.layout-contract-1904{min-height:34px}
+.layout-contract-1905{min-height:35px}
+.layout-contract-1906{min-height:36px}
+.layout-contract-1907{min-height:37px}
+.layout-contract-1908{min-height:38px}
+.layout-contract-1909{min-height:39px}
+.layout-contract-1910{min-height:40px}
+.layout-contract-1911{min-height:41px}
+.layout-contract-1912{min-height:42px}
+.layout-contract-1913{min-height:43px}
+.layout-contract-1914{min-height:44px}
+.layout-contract-1915{min-height:45px}
+.layout-contract-1916{min-height:46px}
+.layout-contract-1917{min-height:47px}
+.layout-contract-1918{min-height:48px}
+.layout-contract-1919{min-height:49px}
+.layout-contract-1920{min-height:10px}
+.layout-contract-1921{min-height:11px}
+.layout-contract-1922{min-height:12px}
+.layout-contract-1923{min-height:13px}
+.layout-contract-1924{min-height:14px}
+.layout-contract-1925{min-height:15px}
+.layout-contract-1926{min-height:16px}
+.layout-contract-1927{min-height:17px}
+.layout-contract-1928{min-height:18px}
+.layout-contract-1929{min-height:19px}
+.layout-contract-1930{min-height:20px}
+.layout-contract-1931{min-height:21px}
+.layout-contract-1932{min-height:22px}
+.layout-contract-1933{min-height:23px}
+.layout-contract-1934{min-height:24px}
+.layout-contract-1935{min-height:25px}
+.layout-contract-1936{min-height:26px}
+.layout-contract-1937{min-height:27px}
+.layout-contract-1938{min-height:28px}
+.layout-contract-1939{min-height:29px}
+.layout-contract-1940{min-height:30px}
+.layout-contract-1941{min-height:31px}
+.layout-contract-1942{min-height:32px}
+.layout-contract-1943{min-height:33px}
+.layout-contract-1944{min-height:34px}
+.layout-contract-1945{min-height:35px}
+.layout-contract-1946{min-height:36px}
+.layout-contract-1947{min-height:37px}
+.layout-contract-1948{min-height:38px}
+.layout-contract-1949{min-height:39px}
+.layout-contract-1950{min-height:40px}
+.layout-contract-1951{min-height:41px}
+.layout-contract-1952{min-height:42px}
+.layout-contract-1953{min-height:43px}
+.layout-contract-1954{min-height:44px}
+.layout-contract-1955{min-height:45px}
+.layout-contract-1956{min-height:46px}
+.layout-contract-1957{min-height:47px}
+.layout-contract-1958{min-height:48px}
+.layout-contract-1959{min-height:49px}
+.layout-contract-1960{min-height:10px}
+.layout-contract-1961{min-height:11px}
+.layout-contract-1962{min-height:12px}
+.layout-contract-1963{min-height:13px}
+.layout-contract-1964{min-height:14px}
+.layout-contract-1965{min-height:15px}
+.layout-contract-1966{min-height:16px}
+.layout-contract-1967{min-height:17px}
+.layout-contract-1968{min-height:18px}
+.layout-contract-1969{min-height:19px}
+.layout-contract-1970{min-height:20px}
+.layout-contract-1971{min-height:21px}
+.layout-contract-1972{min-height:22px}
+.layout-contract-1973{min-height:23px}
+.layout-contract-1974{min-height:24px}
+.layout-contract-1975{min-height:25px}
+.layout-contract-1976{min-height:26px}
+.layout-contract-1977{min-height:27px}
+.layout-contract-1978{min-height:28px}
+.layout-contract-1979{min-height:29px}
+.layout-contract-1980{min-height:30px}
+.layout-contract-1981{min-height:31px}
+.layout-contract-1982{min-height:32px}
+.layout-contract-1983{min-height:33px}
+.layout-contract-1984{min-height:34px}
+.layout-contract-1985{min-height:35px}
+.layout-contract-1986{min-height:36px}
+.layout-contract-1987{min-height:37px}
+.layout-contract-1988{min-height:38px}
+.layout-contract-1989{min-height:39px}
+.layout-contract-1990{min-height:40px}
+.layout-contract-1991{min-height:41px}
+.layout-contract-1992{min-height:42px}
+.layout-contract-1993{min-height:43px}
+.layout-contract-1994{min-height:44px}
+.layout-contract-1995{min-height:45px}
+.layout-contract-1996{min-height:46px}
+.layout-contract-1997{min-height:47px}
+.layout-contract-1998{min-height:48px}
+.layout-contract-1999{min-height:49px}
+.layout-contract-2000{min-height:10px}
+.layout-contract-2001{min-height:11px}
+.layout-contract-2002{min-height:12px}
+.layout-contract-2003{min-height:13px}
+.layout-contract-2004{min-height:14px}
+.layout-contract-2005{min-height:15px}
+.layout-contract-2006{min-height:16px}
+.layout-contract-2007{min-height:17px}
+.layout-contract-2008{min-height:18px}
+.layout-contract-2009{min-height:19px}
+.layout-contract-2010{min-height:20px}
+.layout-contract-2011{min-height:21px}
+.layout-contract-2012{min-height:22px}
+.layout-contract-2013{min-height:23px}
+.layout-contract-2014{min-height:24px}
+.layout-contract-2015{min-height:25px}
+.layout-contract-2016{min-height:26px}
+.layout-contract-2017{min-height:27px}
+.layout-contract-2018{min-height:28px}
+.layout-contract-2019{min-height:29px}
+.layout-contract-2020{min-height:30px}
+.layout-contract-2021{min-height:31px}
+.layout-contract-2022{min-height:32px}
+.layout-contract-2023{min-height:33px}
+.layout-contract-2024{min-height:34px}
+.layout-contract-2025{min-height:35px}
+.layout-contract-2026{min-height:36px}
+.layout-contract-2027{min-height:37px}
+.layout-contract-2028{min-height:38px}
+.layout-contract-2029{min-height:39px}
+.layout-contract-2030{min-height:40px}
+.layout-contract-2031{min-height:41px}
+.layout-contract-2032{min-height:42px}
+.layout-contract-2033{min-height:43px}
+.layout-contract-2034{min-height:44px}
+.layout-contract-2035{min-height:45px}
+.layout-contract-2036{min-height:46px}
+.layout-contract-2037{min-height:47px}
+.layout-contract-2038{min-height:48px}
+.layout-contract-2039{min-height:49px}
+.layout-contract-2040{min-height:10px}
+.layout-contract-2041{min-height:11px}
+.layout-contract-2042{min-height:12px}
+.layout-contract-2043{min-height:13px}
+.layout-contract-2044{min-height:14px}
+.layout-contract-2045{min-height:15px}
+.layout-contract-2046{min-height:16px}
+.layout-contract-2047{min-height:17px}
+.layout-contract-2048{min-height:18px}
+.layout-contract-2049{min-height:19px}
+.layout-contract-2050{min-height:20px}
+.layout-contract-2051{min-height:21px}
+.layout-contract-2052{min-height:22px}
+.layout-contract-2053{min-height:23px}
+.layout-contract-2054{min-height:24px}
+.layout-contract-2055{min-height:25px}
+.layout-contract-2056{min-height:26px}
+.layout-contract-2057{min-height:27px}
+.layout-contract-2058{min-height:28px}
+.layout-contract-2059{min-height:29px}
+.layout-contract-2060{min-height:30px}
+.layout-contract-2061{min-height:31px}
+.layout-contract-2062{min-height:32px}
+.layout-contract-2063{min-height:33px}
+.layout-contract-2064{min-height:34px}
+.layout-contract-2065{min-height:35px}
+.layout-contract-2066{min-height:36px}
+.layout-contract-2067{min-height:37px}
+.layout-contract-2068{min-height:38px}
+.layout-contract-2069{min-height:39px}
+.layout-contract-2070{min-height:40px}
+.layout-contract-2071{min-height:41px}
+.layout-contract-2072{min-height:42px}
+.layout-contract-2073{min-height:43px}
+.layout-contract-2074{min-height:44px}
+.layout-contract-2075{min-height:45px}
+.layout-contract-2076{min-height:46px}
+.layout-contract-2077{min-height:47px}
+.layout-contract-2078{min-height:48px}
+.layout-contract-2079{min-height:49px}
+.layout-contract-2080{min-height:10px}
+.layout-contract-2081{min-height:11px}
+.layout-contract-2082{min-height:12px}
+.layout-contract-2083{min-height:13px}
+.layout-contract-2084{min-height:14px}
+.layout-contract-2085{min-height:15px}
+.layout-contract-2086{min-height:16px}
+.layout-contract-2087{min-height:17px}
+.layout-contract-2088{min-height:18px}
+.layout-contract-2089{min-height:19px}
+.layout-contract-2090{min-height:20px}
+.layout-contract-2091{min-height:21px}
+.layout-contract-2092{min-height:22px}
+.layout-contract-2093{min-height:23px}
+.layout-contract-2094{min-height:24px}
+.layout-contract-2095{min-height:25px}
+.layout-contract-2096{min-height:26px}
+.layout-contract-2097{min-height:27px}
+.layout-contract-2098{min-height:28px}
+.layout-contract-2099{min-height:29px}
+.layout-contract-2100{min-height:30px}
+.layout-contract-2101{min-height:31px}
+.layout-contract-2102{min-height:32px}
+.layout-contract-2103{min-height:33px}
+.layout-contract-2104{min-height:34px}
+.layout-contract-2105{min-height:35px}
+.layout-contract-2106{min-height:36px}
+.layout-contract-2107{min-height:37px}
+.layout-contract-2108{min-height:38px}
+.layout-contract-2109{min-height:39px}
+.layout-contract-2110{min-height:40px}
+.layout-contract-2111{min-height:41px}
+.layout-contract-2112{min-height:42px}
+.layout-contract-2113{min-height:43px}
+.layout-contract-2114{min-height:44px}
+.layout-contract-2115{min-height:45px}
+.layout-contract-2116{min-height:46px}
+.layout-contract-2117{min-height:47px}
+.layout-contract-2118{min-height:48px}
+.layout-contract-2119{min-height:49px}
+.layout-contract-2120{min-height:10px}
+.layout-contract-2121{min-height:11px}
+.layout-contract-2122{min-height:12px}
+.layout-contract-2123{min-height:13px}
+.layout-contract-2124{min-height:14px}
+.layout-contract-2125{min-height:15px}
+.layout-contract-2126{min-height:16px}
+.layout-contract-2127{min-height:17px}
+.layout-contract-2128{min-height:18px}
+.layout-contract-2129{min-height:19px}
+.layout-contract-2130{min-height:20px}
+.layout-contract-2131{min-height:21px}
+.layout-contract-2132{min-height:22px}
+.layout-contract-2133{min-height:23px}
+.layout-contract-2134{min-height:24px}
+.layout-contract-2135{min-height:25px}
+.layout-contract-2136{min-height:26px}
+.layout-contract-2137{min-height:27px}
+.layout-contract-2138{min-height:28px}
+.layout-contract-2139{min-height:29px}
+.layout-contract-2140{min-height:30px}
+.layout-contract-2141{min-height:31px}
+.layout-contract-2142{min-height:32px}
+.layout-contract-2143{min-height:33px}
+.layout-contract-2144{min-height:34px}
+.layout-contract-2145{min-height:35px}
+.layout-contract-2146{min-height:36px}
+.layout-contract-2147{min-height:37px}
+.layout-contract-2148{min-height:38px}
+.layout-contract-2149{min-height:39px}
+.layout-contract-2150{min-height:40px}
+.layout-contract-2151{min-height:41px}
+.layout-contract-2152{min-height:42px}
+.layout-contract-2153{min-height:43px}
+.layout-contract-2154{min-height:44px}
+.layout-contract-2155{min-height:45px}
+.layout-contract-2156{min-height:46px}
+.layout-contract-2157{min-height:47px}
+.layout-contract-2158{min-height:48px}
+.layout-contract-2159{min-height:49px}
+.layout-contract-2160{min-height:10px}
+.layout-contract-2161{min-height:11px}
+.layout-contract-2162{min-height:12px}
+.layout-contract-2163{min-height:13px}
+.layout-contract-2164{min-height:14px}
+.layout-contract-2165{min-height:15px}
+.layout-contract-2166{min-height:16px}
+.layout-contract-2167{min-height:17px}
+.layout-contract-2168{min-height:18px}
+.layout-contract-2169{min-height:19px}
+.layout-contract-2170{min-height:20px}
+.layout-contract-2171{min-height:21px}
+.layout-contract-2172{min-height:22px}
+.layout-contract-2173{min-height:23px}
+.layout-contract-2174{min-height:24px}
+.layout-contract-2175{min-height:25px}
+.layout-contract-2176{min-height:26px}
+.layout-contract-2177{min-height:27px}
+.layout-contract-2178{min-height:28px}
+.layout-contract-2179{min-height:29px}
+.layout-contract-2180{min-height:30px}
+.layout-contract-2181{min-height:31px}
+.layout-contract-2182{min-height:32px}
+.layout-contract-2183{min-height:33px}
+.layout-contract-2184{min-height:34px}
+.layout-contract-2185{min-height:35px}
+.layout-contract-2186{min-height:36px}
+.layout-contract-2187{min-height:37px}
+.layout-contract-2188{min-height:38px}
+.layout-contract-2189{min-height:39px}
+.layout-contract-2190{min-height:40px}
+.layout-contract-2191{min-height:41px}
+.layout-contract-2192{min-height:42px}
+.layout-contract-2193{min-height:43px}
+.layout-contract-2194{min-height:44px}
+.layout-contract-2195{min-height:45px}
+.layout-contract-2196{min-height:46px}
+.layout-contract-2197{min-height:47px}
+.layout-contract-2198{min-height:48px}
+.layout-contract-2199{min-height:49px}
+.layout-contract-2200{min-height:10px}
+.layout-contract-2201{min-height:11px}
+.layout-contract-2202{min-height:12px}
+.layout-contract-2203{min-height:13px}
+.layout-contract-2204{min-height:14px}
+.layout-contract-2205{min-height:15px}
+.layout-contract-2206{min-height:16px}
+.layout-contract-2207{min-height:17px}
+.layout-contract-2208{min-height:18px}
+.layout-contract-2209{min-height:19px}
+.layout-contract-2210{min-height:20px}
+.layout-contract-2211{min-height:21px}
+.layout-contract-2212{min-height:22px}
+.layout-contract-2213{min-height:23px}
+.layout-contract-2214{min-height:24px}
+.layout-contract-2215{min-height:25px}
+.layout-contract-2216{min-height:26px}
+.layout-contract-2217{min-height:27px}
+.layout-contract-2218{min-height:28px}
+.layout-contract-2219{min-height:29px}
+.layout-contract-2220{min-height:30px}
+.layout-contract-2221{min-height:31px}
+.layout-contract-2222{min-height:32px}
+.layout-contract-2223{min-height:33px}
+.layout-contract-2224{min-height:34px}
+.layout-contract-2225{min-height:35px}
+.layout-contract-2226{min-height:36px}
+.layout-contract-2227{min-height:37px}
+.layout-contract-2228{min-height:38px}
+.layout-contract-2229{min-height:39px}
+.layout-contract-2230{min-height:40px}
+.layout-contract-2231{min-height:41px}
+.layout-contract-2232{min-height:42px}
+.layout-contract-2233{min-height:43px}
+.layout-contract-2234{min-height:44px}
+.layout-contract-2235{min-height:45px}
+.layout-contract-2236{min-height:46px}
+.layout-contract-2237{min-height:47px}
+.layout-contract-2238{min-height:48px}
+.layout-contract-2239{min-height:49px}
+.layout-contract-2240{min-height:10px}
+.layout-contract-2241{min-height:11px}
+.layout-contract-2242{min-height:12px}
+.layout-contract-2243{min-height:13px}
+.layout-contract-2244{min-height:14px}
+.layout-contract-2245{min-height:15px}
+.layout-contract-2246{min-height:16px}
+.layout-contract-2247{min-height:17px}
+.layout-contract-2248{min-height:18px}
+.layout-contract-2249{min-height:19px}
+.layout-contract-2250{min-height:20px}
+.layout-contract-2251{min-height:21px}
+.layout-contract-2252{min-height:22px}
+.layout-contract-2253{min-height:23px}
+.layout-contract-2254{min-height:24px}
+.layout-contract-2255{min-height:25px}
+.layout-contract-2256{min-height:26px}
+.layout-contract-2257{min-height:27px}
+.layout-contract-2258{min-height:28px}
+.layout-contract-2259{min-height:29px}
+.layout-contract-2260{min-height:30px}
+.layout-contract-2261{min-height:31px}
+.layout-contract-2262{min-height:32px}
+.layout-contract-2263{min-height:33px}
+.layout-contract-2264{min-height:34px}
+.layout-contract-2265{min-height:35px}
+.layout-contract-2266{min-height:36px}
+.layout-contract-2267{min-height:37px}
+.layout-contract-2268{min-height:38px}
+.layout-contract-2269{min-height:39px}
+.layout-contract-2270{min-height:40px}
+.layout-contract-2271{min-height:41px}
+.layout-contract-2272{min-height:42px}
+.layout-contract-2273{min-height:43px}
+.layout-contract-2274{min-height:44px}
+.layout-contract-2275{min-height:45px}
+.layout-contract-2276{min-height:46px}
+.layout-contract-2277{min-height:47px}
+.layout-contract-2278{min-height:48px}
+.layout-contract-2279{min-height:49px}
+.layout-contract-2280{min-height:10px}
+.layout-contract-2281{min-height:11px}
+.layout-contract-2282{min-height:12px}
+.layout-contract-2283{min-height:13px}
+.layout-contract-2284{min-height:14px}
+.layout-contract-2285{min-height:15px}
+.layout-contract-2286{min-height:16px}
+.layout-contract-2287{min-height:17px}
+.layout-contract-2288{min-height:18px}
+.layout-contract-2289{min-height:19px}
+.layout-contract-2290{min-height:20px}
+.layout-contract-2291{min-height:21px}
+.layout-contract-2292{min-height:22px}
+.layout-contract-2293{min-height:23px}
+.layout-contract-2294{min-height:24px}
+.layout-contract-2295{min-height:25px}
+.layout-contract-2296{min-height:26px}
+.layout-contract-2297{min-height:27px}
+.layout-contract-2298{min-height:28px}
+.layout-contract-2299{min-height:29px}
+.layout-contract-2300{min-height:30px}
+.layout-contract-2301{min-height:31px}
+.layout-contract-2302{min-height:32px}
+.layout-contract-2303{min-height:33px}
+.layout-contract-2304{min-height:34px}
+.layout-contract-2305{min-height:35px}
+.layout-contract-2306{min-height:36px}
+.layout-contract-2307{min-height:37px}
+.layout-contract-2308{min-height:38px}
+.layout-contract-2309{min-height:39px}
+.layout-contract-2310{min-height:40px}
+.layout-contract-2311{min-height:41px}
+.layout-contract-2312{min-height:42px}
+.layout-contract-2313{min-height:43px}
+.layout-contract-2314{min-height:44px}
+.layout-contract-2315{min-height:45px}
+.layout-contract-2316{min-height:46px}
+.layout-contract-2317{min-height:47px}
+.layout-contract-2318{min-height:48px}
+.layout-contract-2319{min-height:49px}
+.layout-contract-2320{min-height:10px}
+.layout-contract-2321{min-height:11px}
+.layout-contract-2322{min-height:12px}
+.layout-contract-2323{min-height:13px}
+.layout-contract-2324{min-height:14px}
+.layout-contract-2325{min-height:15px}
+.layout-contract-2326{min-height:16px}
+.layout-contract-2327{min-height:17px}
+.layout-contract-2328{min-height:18px}
+.layout-contract-2329{min-height:19px}
+.layout-contract-2330{min-height:20px}
+.layout-contract-2331{min-height:21px}
+.layout-contract-2332{min-height:22px}
+.layout-contract-2333{min-height:23px}
+.layout-contract-2334{min-height:24px}
+.layout-contract-2335{min-height:25px}
+.layout-contract-2336{min-height:26px}
+.layout-contract-2337{min-height:27px}
+.layout-contract-2338{min-height:28px}
+.layout-contract-2339{min-height:29px}
+.layout-contract-2340{min-height:30px}
+.layout-contract-2341{min-height:31px}
+.layout-contract-2342{min-height:32px}
+.layout-contract-2343{min-height:33px}
+.layout-contract-2344{min-height:34px}
+.layout-contract-2345{min-height:35px}
+.layout-contract-2346{min-height:36px}
+.layout-contract-2347{min-height:37px}
+.layout-contract-2348{min-height:38px}
+.layout-contract-2349{min-height:39px}
+.layout-contract-2350{min-height:40px}
+.layout-contract-2351{min-height:41px}
+.layout-contract-2352{min-height:42px}
+.layout-contract-2353{min-height:43px}
+.layout-contract-2354{min-height:44px}
+.layout-contract-2355{min-height:45px}
+.layout-contract-2356{min-height:46px}
+.layout-contract-2357{min-height:47px}
+.layout-contract-2358{min-height:48px}
+.layout-contract-2359{min-height:49px}
+.layout-contract-2360{min-height:10px}
+.layout-contract-2361{min-height:11px}
+.layout-contract-2362{min-height:12px}
+.layout-contract-2363{min-height:13px}
+.layout-contract-2364{min-height:14px}
+.layout-contract-2365{min-height:15px}
+.layout-contract-2366{min-height:16px}
+.layout-contract-2367{min-height:17px}
+.layout-contract-2368{min-height:18px}
+.layout-contract-2369{min-height:19px}
+.layout-contract-2370{min-height:20px}
+.layout-contract-2371{min-height:21px}
+.layout-contract-2372{min-height:22px}
+.layout-contract-2373{min-height:23px}
+.layout-contract-2374{min-height:24px}
+.layout-contract-2375{min-height:25px}
+.layout-contract-2376{min-height:26px}
+.layout-contract-2377{min-height:27px}
+.layout-contract-2378{min-height:28px}
+.layout-contract-2379{min-height:29px}
+.layout-contract-2380{min-height:30px}
+.layout-contract-2381{min-height:31px}
+.layout-contract-2382{min-height:32px}
+.layout-contract-2383{min-height:33px}
+.layout-contract-2384{min-height:34px}
+.layout-contract-2385{min-height:35px}
+.layout-contract-2386{min-height:36px}
+.layout-contract-2387{min-height:37px}
+.layout-contract-2388{min-height:38px}
+.layout-contract-2389{min-height:39px}
+.layout-contract-2390{min-height:40px}
+.layout-contract-2391{min-height:41px}
+.layout-contract-2392{min-height:42px}
+.layout-contract-2393{min-height:43px}
+.layout-contract-2394{min-height:44px}
+.layout-contract-2395{min-height:45px}
+.layout-contract-2396{min-height:46px}
+.layout-contract-2397{min-height:47px}
+.layout-contract-2398{min-height:48px}
+.layout-contract-2399{min-height:49px}
+.layout-contract-2400{min-height:10px}
+.layout-contract-2401{min-height:11px}
+.layout-contract-2402{min-height:12px}
+.layout-contract-2403{min-height:13px}
+.layout-contract-2404{min-height:14px}
+.layout-contract-2405{min-height:15px}
+.layout-contract-2406{min-height:16px}
+.layout-contract-2407{min-height:17px}
+.layout-contract-2408{min-height:18px}
+.layout-contract-2409{min-height:19px}
+.layout-contract-2410{min-height:20px}
+.layout-contract-2411{min-height:21px}
+.layout-contract-2412{min-height:22px}
+.layout-contract-2413{min-height:23px}
+.layout-contract-2414{min-height:24px}
+.layout-contract-2415{min-height:25px}
+.layout-contract-2416{min-height:26px}
+.layout-contract-2417{min-height:27px}
+.layout-contract-2418{min-height:28px}
+.layout-contract-2419{min-height:29px}
+.layout-contract-2420{min-height:30px}
+.layout-contract-2421{min-height:31px}
+.layout-contract-2422{min-height:32px}
+.layout-contract-2423{min-height:33px}
+.layout-contract-2424{min-height:34px}
+.layout-contract-2425{min-height:35px}
+.layout-contract-2426{min-height:36px}
+.layout-contract-2427{min-height:37px}
+.layout-contract-2428{min-height:38px}
+.layout-contract-2429{min-height:39px}
+.layout-contract-2430{min-height:40px}
+.layout-contract-2431{min-height:41px}
+.layout-contract-2432{min-height:42px}
+.layout-contract-2433{min-height:43px}
+.layout-contract-2434{min-height:44px}
+.layout-contract-2435{min-height:45px}
+.layout-contract-2436{min-height:46px}
+.layout-contract-2437{min-height:47px}
+.layout-contract-2438{min-height:48px}
+.layout-contract-2439{min-height:49px}
+.layout-contract-2440{min-height:10px}
+.layout-contract-2441{min-height:11px}
+.layout-contract-2442{min-height:12px}
+.layout-contract-2443{min-height:13px}
+.layout-contract-2444{min-height:14px}
+.layout-contract-2445{min-height:15px}
+.layout-contract-2446{min-height:16px}
+.layout-contract-2447{min-height:17px}
+.layout-contract-2448{min-height:18px}
+.layout-contract-2449{min-height:19px}
+.layout-contract-2450{min-height:20px}
+.layout-contract-2451{min-height:21px}
+.layout-contract-2452{min-height:22px}
+.layout-contract-2453{min-height:23px}
+.layout-contract-2454{min-height:24px}
+.layout-contract-2455{min-height:25px}
+.layout-contract-2456{min-height:26px}
+.layout-contract-2457{min-height:27px}
+.layout-contract-2458{min-height:28px}
+.layout-contract-2459{min-height:29px}
+.layout-contract-2460{min-height:30px}
+.layout-contract-2461{min-height:31px}
+.layout-contract-2462{min-height:32px}
+.layout-contract-2463{min-height:33px}
+.layout-contract-2464{min-height:34px}
+.layout-contract-2465{min-height:35px}
+.layout-contract-2466{min-height:36px}
+.layout-contract-2467{min-height:37px}
+.layout-contract-2468{min-height:38px}
+.layout-contract-2469{min-height:39px}
+.layout-contract-2470{min-height:40px}
+.layout-contract-2471{min-height:41px}
+.layout-contract-2472{min-height:42px}
+.layout-contract-2473{min-height:43px}
+.layout-contract-2474{min-height:44px}
+.layout-contract-2475{min-height:45px}
+.layout-contract-2476{min-height:46px}
+.layout-contract-2477{min-height:47px}
+.layout-contract-2478{min-height:48px}
+.layout-contract-2479{min-height:49px}
+.layout-contract-2480{min-height:10px}
+.layout-contract-2481{min-height:11px}
+.layout-contract-2482{min-height:12px}
+.layout-contract-2483{min-height:13px}
+.layout-contract-2484{min-height:14px}
+.layout-contract-2485{min-height:15px}
+.layout-contract-2486{min-height:16px}
+.layout-contract-2487{min-height:17px}
+.layout-contract-2488{min-height:18px}
+.layout-contract-2489{min-height:19px}
+.layout-contract-2490{min-height:20px}
+.layout-contract-2491{min-height:21px}
+.layout-contract-2492{min-height:22px}
+.layout-contract-2493{min-height:23px}
+.layout-contract-2494{min-height:24px}
+.layout-contract-2495{min-height:25px}
+.layout-contract-2496{min-height:26px}
+.layout-contract-2497{min-height:27px}
+.layout-contract-2498{min-height:28px}
+.layout-contract-2499{min-height:29px}
+.layout-contract-2500{min-height:30px}
+.layout-contract-2501{min-height:31px}
+.layout-contract-2502{min-height:32px}
+.layout-contract-2503{min-height:33px}
+.layout-contract-2504{min-height:34px}
+.layout-contract-2505{min-height:35px}
+.layout-contract-2506{min-height:36px}
+.layout-contract-2507{min-height:37px}
+.layout-contract-2508{min-height:38px}
+.layout-contract-2509{min-height:39px}
+.layout-contract-2510{min-height:40px}
+.layout-contract-2511{min-height:41px}
+.layout-contract-2512{min-height:42px}
+.layout-contract-2513{min-height:43px}
+.layout-contract-2514{min-height:44px}
+.layout-contract-2515{min-height:45px}
+.layout-contract-2516{min-height:46px}
+.layout-contract-2517{min-height:47px}
+.layout-contract-2518{min-height:48px}
+.layout-contract-2519{min-height:49px}
+.layout-contract-2520{min-height:10px}
+.layout-contract-2521{min-height:11px}
+.layout-contract-2522{min-height:12px}
+.layout-contract-2523{min-height:13px}
+.layout-contract-2524{min-height:14px}
+.layout-contract-2525{min-height:15px}
+.layout-contract-2526{min-height:16px}
+.layout-contract-2527{min-height:17px}
+.layout-contract-2528{min-height:18px}
+.layout-contract-2529{min-height:19px}
+.layout-contract-2530{min-height:20px}
+.layout-contract-2531{min-height:21px}
+.layout-contract-2532{min-height:22px}
+.layout-contract-2533{min-height:23px}
+.layout-contract-2534{min-height:24px}
+.layout-contract-2535{min-height:25px}
+.layout-contract-2536{min-height:26px}
+.layout-contract-2537{min-height:27px}
+.layout-contract-2538{min-height:28px}
+.layout-contract-2539{min-height:29px}
+.layout-contract-2540{min-height:30px}
+.layout-contract-2541{min-height:31px}
+.layout-contract-2542{min-height:32px}
+.layout-contract-2543{min-height:33px}
+.layout-contract-2544{min-height:34px}
+.layout-contract-2545{min-height:35px}
+.layout-contract-2546{min-height:36px}
+.layout-contract-2547{min-height:37px}
+.layout-contract-2548{min-height:38px}
+.layout-contract-2549{min-height:39px}
+.layout-contract-2550{min-height:40px}
+.layout-contract-2551{min-height:41px}
+.layout-contract-2552{min-height:42px}
+.layout-contract-2553{min-height:43px}
+.layout-contract-2554{min-height:44px}
+.layout-contract-2555{min-height:45px}
+.layout-contract-2556{min-height:46px}
+.layout-contract-2557{min-height:47px}
+.layout-contract-2558{min-height:48px}
+.layout-contract-2559{min-height:49px}
+.layout-contract-2560{min-height:10px}
+.layout-contract-2561{min-height:11px}
+.layout-contract-2562{min-height:12px}
+.layout-contract-2563{min-height:13px}
+.layout-contract-2564{min-height:14px}
+.layout-contract-2565{min-height:15px}
+.layout-contract-2566{min-height:16px}
+.layout-contract-2567{min-height:17px}
+.layout-contract-2568{min-height:18px}
+.layout-contract-2569{min-height:19px}
+.layout-contract-2570{min-height:20px}
+.layout-contract-2571{min-height:21px}
+.layout-contract-2572{min-height:22px}
+.layout-contract-2573{min-height:23px}
+.layout-contract-2574{min-height:24px}
+.layout-contract-2575{min-height:25px}
+.layout-contract-2576{min-height:26px}
+.layout-contract-2577{min-height:27px}
+.layout-contract-2578{min-height:28px}
+.layout-contract-2579{min-height:29px}
+.layout-contract-2580{min-height:30px}
+.layout-contract-2581{min-height:31px}
+.layout-contract-2582{min-height:32px}
+.layout-contract-2583{min-height:33px}
+.layout-contract-2584{min-height:34px}
+.layout-contract-2585{min-height:35px}
+.layout-contract-2586{min-height:36px}
+.layout-contract-2587{min-height:37px}
+.layout-contract-2588{min-height:38px}
+.layout-contract-2589{min-height:39px}
+.layout-contract-2590{min-height:40px}
+.layout-contract-2591{min-height:41px}
+.layout-contract-2592{min-height:42px}
+.layout-contract-2593{min-height:43px}
+.layout-contract-2594{min-height:44px}
+.layout-contract-2595{min-height:45px}
+.layout-contract-2596{min-height:46px}
+.layout-contract-2597{min-height:47px}
+.layout-contract-2598{min-height:48px}
+.layout-contract-2599{min-height:49px}
+.layout-contract-2600{min-height:10px}
+.layout-contract-2601{min-height:11px}
+.layout-contract-2602{min-height:12px}
+.layout-contract-2603{min-height:13px}
+.layout-contract-2604{min-height:14px}
+.layout-contract-2605{min-height:15px}
+.layout-contract-2606{min-height:16px}
+.layout-contract-2607{min-height:17px}
+.layout-contract-2608{min-height:18px}
+.layout-contract-2609{min-height:19px}
+.layout-contract-2610{min-height:20px}
+.layout-contract-2611{min-height:21px}
+.layout-contract-2612{min-height:22px}
+.layout-contract-2613{min-height:23px}
+.layout-contract-2614{min-height:24px}
+.layout-contract-2615{min-height:25px}
+.layout-contract-2616{min-height:26px}
+.layout-contract-2617{min-height:27px}
+.layout-contract-2618{min-height:28px}
+.layout-contract-2619{min-height:29px}
+.layout-contract-2620{min-height:30px}
+.layout-contract-2621{min-height:31px}
+.layout-contract-2622{min-height:32px}
+.layout-contract-2623{min-height:33px}
+.layout-contract-2624{min-height:34px}
+.layout-contract-2625{min-height:35px}
+.layout-contract-2626{min-height:36px}
+.layout-contract-2627{min-height:37px}
+.layout-contract-2628{min-height:38px}
+.layout-contract-2629{min-height:39px}
+.layout-contract-2630{min-height:40px}
+.layout-contract-2631{min-height:41px}
+.layout-contract-2632{min-height:42px}
+.layout-contract-2633{min-height:43px}
+.layout-contract-2634{min-height:44px}
+.layout-contract-2635{min-height:45px}
+.layout-contract-2636{min-height:46px}
+.layout-contract-2637{min-height:47px}
+.layout-contract-2638{min-height:48px}
+.layout-contract-2639{min-height:49px}
+.layout-contract-2640{min-height:10px}
+.layout-contract-2641{min-height:11px}
+.layout-contract-2642{min-height:12px}
+.layout-contract-2643{min-height:13px}
+.layout-contract-2644{min-height:14px}
+.layout-contract-2645{min-height:15px}
+.layout-contract-2646{min-height:16px}
+.layout-contract-2647{min-height:17px}
+.layout-contract-2648{min-height:18px}
+.layout-contract-2649{min-height:19px}
+.layout-contract-2650{min-height:20px}
+.layout-contract-2651{min-height:21px}
+.layout-contract-2652{min-height:22px}
+.layout-contract-2653{min-height:23px}
+.layout-contract-2654{min-height:24px}
+.layout-contract-2655{min-height:25px}
+.layout-contract-2656{min-height:26px}
+.layout-contract-2657{min-height:27px}
+.layout-contract-2658{min-height:28px}
+.layout-contract-2659{min-height:29px}
+.layout-contract-2660{min-height:30px}
+.layout-contract-2661{min-height:31px}
+.layout-contract-2662{min-height:32px}
+.layout-contract-2663{min-height:33px}
+.layout-contract-2664{min-height:34px}
+.layout-contract-2665{min-height:35px}
+.layout-contract-2666{min-height:36px}
+.layout-contract-2667{min-height:37px}
+.layout-contract-2668{min-height:38px}
+.layout-contract-2669{min-height:39px}
+.layout-contract-2670{min-height:40px}
+.layout-contract-2671{min-height:41px}
+.layout-contract-2672{min-height:42px}
+.layout-contract-2673{min-height:43px}
+.layout-contract-2674{min-height:44px}
+.layout-contract-2675{min-height:45px}
+.layout-contract-2676{min-height:46px}
+.layout-contract-2677{min-height:47px}
+.layout-contract-2678{min-height:48px}
+.layout-contract-2679{min-height:49px}
+.layout-contract-2680{min-height:10px}
+.layout-contract-2681{min-height:11px}
+.layout-contract-2682{min-height:12px}
+.layout-contract-2683{min-height:13px}
+.layout-contract-2684{min-height:14px}
+.layout-contract-2685{min-height:15px}
+.layout-contract-2686{min-height:16px}
+.layout-contract-2687{min-height:17px}
+.layout-contract-2688{min-height:18px}
+.layout-contract-2689{min-height:19px}
+.layout-contract-2690{min-height:20px}
+.layout-contract-2691{min-height:21px}
+.layout-contract-2692{min-height:22px}
+.layout-contract-2693{min-height:23px}
+.layout-contract-2694{min-height:24px}
+.layout-contract-2695{min-height:25px}
+.layout-contract-2696{min-height:26px}
+.layout-contract-2697{min-height:27px}
+.layout-contract-2698{min-height:28px}
+.layout-contract-2699{min-height:29px}
+.layout-contract-2700{min-height:30px}
+.layout-contract-2701{min-height:31px}
+.layout-contract-2702{min-height:32px}
+.layout-contract-2703{min-height:33px}
+.layout-contract-2704{min-height:34px}
+.layout-contract-2705{min-height:35px}
+.layout-contract-2706{min-height:36px}
+.layout-contract-2707{min-height:37px}
+.layout-contract-2708{min-height:38px}
+.layout-contract-2709{min-height:39px}
+.layout-contract-2710{min-height:40px}
+.layout-contract-2711{min-height:41px}
+.layout-contract-2712{min-height:42px}
+.layout-contract-2713{min-height:43px}
+.layout-contract-2714{min-height:44px}
+.layout-contract-2715{min-height:45px}
+.layout-contract-2716{min-height:46px}
+.layout-contract-2717{min-height:47px}
+.layout-contract-2718{min-height:48px}
+.layout-contract-2719{min-height:49px}
+.layout-contract-2720{min-height:10px}
+.layout-contract-2721{min-height:11px}
+.layout-contract-2722{min-height:12px}
+.layout-contract-2723{min-height:13px}
+.layout-contract-2724{min-height:14px}
+.layout-contract-2725{min-height:15px}
+.layout-contract-2726{min-height:16px}
+.layout-contract-2727{min-height:17px}
+.layout-contract-2728{min-height:18px}
+.layout-contract-2729{min-height:19px}
+.layout-contract-2730{min-height:20px}
+.layout-contract-2731{min-height:21px}
+.layout-contract-2732{min-height:22px}
+.layout-contract-2733{min-height:23px}
+.layout-contract-2734{min-height:24px}
+.layout-contract-2735{min-height:25px}
+.layout-contract-2736{min-height:26px}
+.layout-contract-2737{min-height:27px}
+.layout-contract-2738{min-height:28px}
+.layout-contract-2739{min-height:29px}
+.layout-contract-2740{min-height:30px}
+.layout-contract-2741{min-height:31px}
+.layout-contract-2742{min-height:32px}
+.layout-contract-2743{min-height:33px}
+.layout-contract-2744{min-height:34px}
+.layout-contract-2745{min-height:35px}
+.layout-contract-2746{min-height:36px}
+.layout-contract-2747{min-height:37px}
+.layout-contract-2748{min-height:38px}
+.layout-contract-2749{min-height:39px}
+.layout-contract-2750{min-height:40px}
+.layout-contract-2751{min-height:41px}
+.layout-contract-2752{min-height:42px}
+.layout-contract-2753{min-height:43px}
+.layout-contract-2754{min-height:44px}
+.layout-contract-2755{min-height:45px}
+.layout-contract-2756{min-height:46px}
+.layout-contract-2757{min-height:47px}
+.layout-contract-2758{min-height:48px}
+.layout-contract-2759{min-height:49px}
+.layout-contract-2760{min-height:10px}
+.layout-contract-2761{min-height:11px}
+.layout-contract-2762{min-height:12px}
+.layout-contract-2763{min-height:13px}
+.layout-contract-2764{min-height:14px}
+.layout-contract-2765{min-height:15px}
+.layout-contract-2766{min-height:16px}
+.layout-contract-2767{min-height:17px}
+.layout-contract-2768{min-height:18px}
+.layout-contract-2769{min-height:19px}
+.layout-contract-2770{min-height:20px}
+.layout-contract-2771{min-height:21px}
+.layout-contract-2772{min-height:22px}
+.layout-contract-2773{min-height:23px}
+.layout-contract-2774{min-height:24px}
+.layout-contract-2775{min-height:25px}
+.layout-contract-2776{min-height:26px}
+.layout-contract-2777{min-height:27px}
+.layout-contract-2778{min-height:28px}
+.layout-contract-2779{min-height:29px}
+.layout-contract-2780{min-height:30px}
+.layout-contract-2781{min-height:31px}
+.layout-contract-2782{min-height:32px}
+.layout-contract-2783{min-height:33px}
+.layout-contract-2784{min-height:34px}
+.layout-contract-2785{min-height:35px}
+.layout-contract-2786{min-height:36px}
+.layout-contract-2787{min-height:37px}
+.layout-contract-2788{min-height:38px}
+.layout-contract-2789{min-height:39px}
+.layout-contract-2790{min-height:40px}
+.layout-contract-2791{min-height:41px}
+.layout-contract-2792{min-height:42px}
+.layout-contract-2793{min-height:43px}
+.layout-contract-2794{min-height:44px}
+.layout-contract-2795{min-height:45px}
+.layout-contract-2796{min-height:46px}
+.layout-contract-2797{min-height:47px}
+.layout-contract-2798{min-height:48px}
+.layout-contract-2799{min-height:49px}
+.layout-contract-2800{min-height:10px}
+.layout-contract-2801{min-height:11px}
+.layout-contract-2802{min-height:12px}
+.layout-contract-2803{min-height:13px}
+.layout-contract-2804{min-height:14px}
+.layout-contract-2805{min-height:15px}
+.layout-contract-2806{min-height:16px}
+.layout-contract-2807{min-height:17px}
+.layout-contract-2808{min-height:18px}
+.layout-contract-2809{min-height:19px}
+.layout-contract-2810{min-height:20px}
+.layout-contract-2811{min-height:21px}
+.layout-contract-2812{min-height:22px}
+.layout-contract-2813{min-height:23px}
+.layout-contract-2814{min-height:24px}
+.layout-contract-2815{min-height:25px}
+.layout-contract-2816{min-height:26px}
+.layout-contract-2817{min-height:27px}
+.layout-contract-2818{min-height:28px}
+.layout-contract-2819{min-height:29px}
+.layout-contract-2820{min-height:30px}
+.layout-contract-2821{min-height:31px}
+.layout-contract-2822{min-height:32px}
+.layout-contract-2823{min-height:33px}
+.layout-contract-2824{min-height:34px}
+.layout-contract-2825{min-height:35px}
+.layout-contract-2826{min-height:36px}
+.layout-contract-2827{min-height:37px}
+.layout-contract-2828{min-height:38px}
+.layout-contract-2829{min-height:39px}
+.layout-contract-2830{min-height:40px}
+.layout-contract-2831{min-height:41px}
+.layout-contract-2832{min-height:42px}
+.layout-contract-2833{min-height:43px}
+.layout-contract-2834{min-height:44px}
+.layout-contract-2835{min-height:45px}
+.layout-contract-2836{min-height:46px}
+.layout-contract-2837{min-height:47px}
+.layout-contract-2838{min-height:48px}
+.layout-contract-2839{min-height:49px}
+.layout-contract-2840{min-height:10px}
+.layout-contract-2841{min-height:11px}
+.layout-contract-2842{min-height:12px}
+.layout-contract-2843{min-height:13px}
+.layout-contract-2844{min-height:14px}
+.layout-contract-2845{min-height:15px}
+.layout-contract-2846{min-height:16px}
+.layout-contract-2847{min-height:17px}
+.layout-contract-2848{min-height:18px}
+.layout-contract-2849{min-height:19px}
+.layout-contract-2850{min-height:20px}
+.layout-contract-2851{min-height:21px}
+.layout-contract-2852{min-height:22px}
+.layout-contract-2853{min-height:23px}
+.layout-contract-2854{min-height:24px}
+.layout-contract-2855{min-height:25px}
+.layout-contract-2856{min-height:26px}
+.layout-contract-2857{min-height:27px}
+.layout-contract-2858{min-height:28px}
+.layout-contract-2859{min-height:29px}
+.layout-contract-2860{min-height:30px}
+.layout-contract-2861{min-height:31px}
+.layout-contract-2862{min-height:32px}
+.layout-contract-2863{min-height:33px}
+.layout-contract-2864{min-height:34px}
+.layout-contract-2865{min-height:35px}
+.layout-contract-2866{min-height:36px}
+.layout-contract-2867{min-height:37px}
+.layout-contract-2868{min-height:38px}
+.layout-contract-2869{min-height:39px}
+.layout-contract-2870{min-height:40px}
+.layout-contract-2871{min-height:41px}
+.layout-contract-2872{min-height:42px}
+.layout-contract-2873{min-height:43px}
+.layout-contract-2874{min-height:44px}
+.layout-contract-2875{min-height:45px}
+.layout-contract-2876{min-height:46px}
+.layout-contract-2877{min-height:47px}
+.layout-contract-2878{min-height:48px}
+.layout-contract-2879{min-height:49px}
+.layout-contract-2880{min-height:10px}
+.layout-contract-2881{min-height:11px}
+.layout-contract-2882{min-height:12px}
+.layout-contract-2883{min-height:13px}
+.layout-contract-2884{min-height:14px}
+.layout-contract-2885{min-height:15px}
+.layout-contract-2886{min-height:16px}
+.layout-contract-2887{min-height:17px}
+.layout-contract-2888{min-height:18px}
+.layout-contract-2889{min-height:19px}
+.layout-contract-2890{min-height:20px}
+.layout-contract-2891{min-height:21px}
+.layout-contract-2892{min-height:22px}
+.layout-contract-2893{min-height:23px}
+.layout-contract-2894{min-height:24px}
+.layout-contract-2895{min-height:25px}
+.layout-contract-2896{min-height:26px}
+.layout-contract-2897{min-height:27px}
+.layout-contract-2898{min-height:28px}
+.layout-contract-2899{min-height:29px}
+.layout-contract-2900{min-height:30px}
+.layout-contract-2901{min-height:31px}
+.layout-contract-2902{min-height:32px}
+.layout-contract-2903{min-height:33px}
+.layout-contract-2904{min-height:34px}
+.layout-contract-2905{min-height:35px}
+.layout-contract-2906{min-height:36px}
+.layout-contract-2907{min-height:37px}
+.layout-contract-2908{min-height:38px}
+.layout-contract-2909{min-height:39px}
+.layout-contract-2910{min-height:40px}
+.layout-contract-2911{min-height:41px}
+.layout-contract-2912{min-height:42px}
+.layout-contract-2913{min-height:43px}
+.layout-contract-2914{min-height:44px}
+.layout-contract-2915{min-height:45px}
+.layout-contract-2916{min-height:46px}
+.layout-contract-2917{min-height:47px}
+.layout-contract-2918{min-height:48px}
+.layout-contract-2919{min-height:49px}
+.layout-contract-2920{min-height:10px}
+.layout-contract-2921{min-height:11px}
+.layout-contract-2922{min-height:12px}
+.layout-contract-2923{min-height:13px}
+.layout-contract-2924{min-height:14px}
+.layout-contract-2925{min-height:15px}
+.layout-contract-2926{min-height:16px}
+.layout-contract-2927{min-height:17px}
+.layout-contract-2928{min-height:18px}
+.layout-contract-2929{min-height:19px}
+.layout-contract-2930{min-height:20px}
+.layout-contract-2931{min-height:21px}
+.layout-contract-2932{min-height:22px}
+.layout-contract-2933{min-height:23px}
+.layout-contract-2934{min-height:24px}
+.layout-contract-2935{min-height:25px}
+.layout-contract-2936{min-height:26px}
+.layout-contract-2937{min-height:27px}
+.layout-contract-2938{min-height:28px}
+.layout-contract-2939{min-height:29px}
+.layout-contract-2940{min-height:30px}
+.layout-contract-2941{min-height:31px}
+.layout-contract-2942{min-height:32px}
+.layout-contract-2943{min-height:33px}
+.layout-contract-2944{min-height:34px}
+.layout-contract-2945{min-height:35px}
+.layout-contract-2946{min-height:36px}
+.layout-contract-2947{min-height:37px}
+.layout-contract-2948{min-height:38px}
+.layout-contract-2949{min-height:39px}
+.layout-contract-2950{min-height:40px}
+.layout-contract-2951{min-height:41px}
+.layout-contract-2952{min-height:42px}
+.layout-contract-2953{min-height:43px}
+.layout-contract-2954{min-height:44px}
+.layout-contract-2955{min-height:45px}
+.layout-contract-2956{min-height:46px}
+.layout-contract-2957{min-height:47px}
+.layout-contract-2958{min-height:48px}
+.layout-contract-2959{min-height:49px}
+.layout-contract-2960{min-height:10px}
+.layout-contract-2961{min-height:11px}
+.layout-contract-2962{min-height:12px}
+.layout-contract-2963{min-height:13px}
+.layout-contract-2964{min-height:14px}
+.layout-contract-2965{min-height:15px}
+.layout-contract-2966{min-height:16px}
+.layout-contract-2967{min-height:17px}
+.layout-contract-2968{min-height:18px}
+.layout-contract-2969{min-height:19px}
+.layout-contract-2970{min-height:20px}
+.layout-contract-2971{min-height:21px}
+.layout-contract-2972{min-height:22px}
+.layout-contract-2973{min-height:23px}
+.layout-contract-2974{min-height:24px}
+.layout-contract-2975{min-height:25px}
+.layout-contract-2976{min-height:26px}
+.layout-contract-2977{min-height:27px}
+.layout-contract-2978{min-height:28px}
+.layout-contract-2979{min-height:29px}
+.layout-contract-2980{min-height:30px}
+.layout-contract-2981{min-height:31px}
+.layout-contract-2982{min-height:32px}
+.layout-contract-2983{min-height:33px}
+.layout-contract-2984{min-height:34px}
+.layout-contract-2985{min-height:35px}
+.layout-contract-2986{min-height:36px}
+.layout-contract-2987{min-height:37px}
+.layout-contract-2988{min-height:38px}
+.layout-contract-2989{min-height:39px}
+.layout-contract-2990{min-height:40px}
+.layout-contract-2991{min-height:41px}
+.layout-contract-2992{min-height:42px}
+.layout-contract-2993{min-height:43px}
+.layout-contract-2994{min-height:44px}
+.layout-contract-2995{min-height:45px}
+.layout-contract-2996{min-height:46px}
+.layout-contract-2997{min-height:47px}
+.layout-contract-2998{min-height:48px}
+.layout-contract-2999{min-height:49px}
