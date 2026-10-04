@@ -228,8 +228,6 @@ if(a.startsWith("move-appointment:")){const ap=state.appointments.find(x=>x.id==
 
 function bind(){
 document.addEventListener("click",e=>{
-const clickedButton=e.target.closest("button");
-if(!clickedButton && !e.target.closest("input,textarea,select,[contenteditable=\"true\"]")){e.preventDefault();e.stopImmediatePropagation();return}
 const routeBtn=e.target.closest("[data-route]");if(routeBtn){navigate(routeBtn.dataset.route);return}
 const close=e.target.closest("[data-close]");if(close){closeOverlay(close.dataset.close);return}
 if(e.target.closest("#command-trigger")){openCommand();return}if(e.target.closest("#menu-button")){document.getElementById("sidebar").classList.add("open");document.getElementById("mobile-scrim").classList.add("show");return}if(e.target.closest("#sidebar-close")||e.target.id==="mobile-scrim"){document.getElementById("sidebar")?.classList.remove("open");document.getElementById("mobile-scrim")?.classList.remove("show");return}if(e.target.closest("#drawer-close")){closeDrawer();return}if(e.target.closest("#quick-add")){quickAdd();return}if(e.target.closest("#focus-button")){toggleFocus();return}if(e.target.closest("#notification-button")){navigate("messages");return}if(e.target.closest("#profile-button")){showDrawer("Profile",state.profile.name,'<div class="person-main">'+av(state.profile.name)+'<div class="person-id"><b style="font-size:13px">'+esc(state.profile.name)+'</b><small>'+esc(state.profile.role)+'</small></div></div><div class="drawer-section"><p>Local account: '+esc(state.account.email)+'</p></div>'+btn("go-settings","Open settings","primary") + '<button class="button danger" data-action="logout" type="button">Sign out</button>');return}
