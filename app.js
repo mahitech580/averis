@@ -214,7 +214,7 @@
   function renderFlow(){
     const lanes={Emergency:[],Urgent:[],Standard:[],Virtual:[]};
     data.appointments.forEach((a,i)=>lanes[i%4===0?"Emergency":i%4===1?"Urgent":i%4===2?"Standard":"Virtual"].push(a));
-    const card=(a)=>'<button class="flow-card" data-appointment="'+a.id+'"><div><span class="chip '+(a.status==="Waiting"?"warn":"")+"\">"+esc(a.status)+"</span><small>"+esc(a.time)+" • "+esc(a.mode)+"</small></div><b>'+esc(a.patient)+'</b><span>'+esc(a.service)+'</span><strong>Open →</strong></button>';
+    const card=(a)=>`<button class="flow-card" data-appointment="${a.id}"><div><span class="chip ${a.status==="Waiting"?"warn":""}">${esc(a.status)}</span><small>${esc(a.time)} • ${esc(a.mode)}</small></div><b>${esc(a.patient)}</b><span>${esc(a.service)}</span><strong>Open →</strong></button>`;
     return frame("FRONT DOOR","Flow & triage","Move arrivals through the right lane with a live queue, acuity and next-action view.",btn("Add arrival","new-arrival","primary"),
       '<div class="flow-summary"><div>'+metric("Waiting","7","12%","up")+'</div><div>'+metric("Median wait","14m","2m","up")+'</div><div>'+metric("Urgent","2","Needs room","warn")+'</div><div>'+metric("Virtual","3","Across 2 services","up")+'</div></div><div class="kanban">'+Object.entries(lanes).map(([lane,items])=>'<section class="lane"><header><div><span class="lane-dot '+lane.toLowerCase()+'"></span><b>'+lane+'</b></div><span>'+items.length+'</span></header>'+items.map(card).join("")+'</section>').join("")+'</div>'
     );
