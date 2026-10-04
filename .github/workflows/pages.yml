@@ -22,6 +22,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Validate JavaScript
+        run: node --check app.js
+      - name: Validate Python
+        run: python -m py_compile generate_data.py
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact
