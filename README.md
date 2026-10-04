@@ -2,7 +2,7 @@
 
 **SIMULATED / LOCAL**
 
-AVERIS is an advanced browser-only portfolio simulation for healthcare coordination and operational intelligence. The product model is operational: people, journeys, work, scheduling, capacity, workforce, diagnostics workflow, inventory, administration, communication, incidents, quality, insights, reporting and audit.
+AVERIS is a local-first healthcare operations workspace designed around operational coordination and intelligence. It brings people, journeys, work, scheduling, capacity, workforce, diagnostics workflow, inventory, administration, communication, incidents, quality, insights, reporting and audit into one browser-based control environment.
 
 ## Live
 https://mahitech580.github.io/averis/
@@ -10,7 +10,10 @@ https://mahitech580.github.io/averis/
 ## Safety boundary
 All visible records are synthetic. AVERIS does not connect to real patients, healthcare systems, laboratories, pharmacies, payment processors or external AI providers. It does not diagnose, recommend treatment, make clinical decisions, or send messages outside the browser.
 
-The Diagnostics and Pharmacy workspaces demonstrate operational workflows only. The People drawer can show synthetic medication/pharmacy context, explicitly marked as non-clinical portfolio data.
+The Diagnostics and Pharmacy workspaces demonstrate operational workflows only. The People drawer can show synthetic medication/pharmacy context, explicitly marked as non-clinical operational data.
+
+## Product experience
+The interface uses a cinematic healthcare-control-room presentation with realistic healthcare photography, responsive cards, larger readability-focused typography, dark mode, light mode, live operational signals, and local interactive workflows. Visual imagery is used as contextual presentation only; the application remains synthetic and non-clinical.
 
 ## Product structure
 - Today — editorial decision surface: What matters right now?
@@ -31,6 +34,13 @@ The Diagnostics and Pharmacy workspaces demonstrate operational workflows only. 
 - Reports — preview, run, ready/exported state and local JSON export.
 - Audit — local history.
 - Settings — theme, profile, density, notifications, export and deterministic reset.
+
+## Visual system
+- Dark mode and true light mode with persistent browser preference.
+- Responsive command-center layout for desktop, tablet and mobile.
+- Realistic healthcare imagery with readability overlays across major workspaces.
+- Local interaction patterns: drawers, modals, command search, forms, state transitions, exports and toasts.
+- No rotating rainbow button effect; controls use restrained operational emphasis.
 
 ## Architecture
 The application is framework-free and deployed as static files to GitHub Pages.
@@ -62,3 +72,7 @@ The Pages workflow validates JavaScript with `node --check app.js` and Python wi
 ## Repository
 GitHub: https://github.com/mahitech580/averis  
 Author: **Mahi**
+
+
+## Positioning
+AVERIS demonstrates how complex healthcare operations can be organized into a clear, auditable decision workspace without accessing real healthcare infrastructure. The emphasis is on coordination, workflow visibility, resource awareness, communication, reporting and operational clarity.
