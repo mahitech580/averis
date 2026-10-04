@@ -340,3 +340,17 @@ html[data-theme="dark"] .sidebar{background:rgba(8,20,34,.78)}
 .confidence{margin-top:7px;padding-top:7px;border-top:1px solid var(--border);font-size:7.5px;color:var(--muted)}
 .provider-metrics{margin-top:14px}
 .inset{margin-top:13px;padding:11px;background:var(--surface-soft);border:1px solid var(--border)}
+
+/* Section photography layer — every Averis module gets a distinct healthcare atmosphere.
+   The local scene remains underneath so a remote image can fail without breaking the UI. */
+.view{position:relative;isolation:isolate;min-height:calc(100vh - var(--topbar) - 30px);overflow:hidden}
+.view::before{content:"";position:absolute;inset:0;z-index:-2;background-repeat:no-repeat;background-size:cover;background-position:center 26%;opacity:.095;filter:saturate(.72) contrast(.95);pointer-events:none;transform:scale(1.015)}
+.view::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 91%,transparent) 30%,color-mix(in srgb,var(--bg) 94%,transparent) 100%);pointer-events:none}
+.view>*{position:relative;z-index:1}
+#view-overview::before,#view-analytics::before,#view-reports::before{background-image:url("https://images.pexels.com/photos/6129507/pexels-photo-6129507.jpeg?auto=compress&cs=tinysrgb&w=1800&q=78")}
+#view-patients::before,#view-appointments::before,#view-providers::before,#view-messages::before{background-image:url("https://images.pexels.com/photos/6129207/pexels-photo-6129207.jpeg?auto=compress&cs=tinysrgb&w=1600&q=78")}
+#view-patient360::before,#view-care::before,#view-ai::before,#view-settings::before{background-image:url("https://images.pexels.com/photos/8413204/pexels-photo-8413204.jpeg?auto=compress&cs=tinysrgb&w=1600&q=78")}
+#view-queue::before,#view-clinical::before{background-image:url("https://images.pexels.com/photos/6129651/pexels-photo-6129651.jpeg?auto=compress&cs=tinysrgb&w=1600&q=78")}
+#view-emergency::before,#view-beds::before,#view-lab::before,#view-pharmacy::before{background-image:url("https://images.pexels.com/photos/29329917/pexels-photo-29329917.jpeg?auto=compress&cs=tinysrgb&w=1600&q=78")}
+#view-billing::before,#view-tasks::before{background-image:url("https://images.pexels.com/photos/6129507/pexels-photo-6129507.jpeg?auto=compress&cs=tinysrgb&w=1600&q=78");background-position:center 58%}
+html[data-theme="dark"] .view::before{opacity:.065;filter:brightness(.55) saturate(.78)}
