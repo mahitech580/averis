@@ -16,7 +16,7 @@ The Diagnostics and Pharmacy workspaces demonstrate operational workflows only. 
 The interface uses a cinematic healthcare-control-room presentation with realistic healthcare photography, responsive cards, larger readability-focused typography, dark mode, light mode, live operational signals, and local interactive workflows. Visual imagery is used as contextual presentation only; the application remains synthetic and non-clinical.
 
 ## Product structure
-- Home / Overview — the website starting point: clearly explains what AVERIS is, what the website covers, how the operational layers connect, and where to explore next.
+- Home / Website Overview — the clear starting page for the entire website. It explains what AVERIS is, what each workspace does, how the operational layers connect, and where to go next.
 - People — search, filter, sort, profiles, journeys, work, appointments, diagnostic workflow, synthetic medication context, messages and activity.
 - Journeys — stage, progress, ownership and person counts.
 - Queue — create/edit, owner assignment, priority, state, complete/reopen and blocked movement.
@@ -74,8 +74,8 @@ GitHub: https://github.com/mahitech580/averis
 Author: **Mahi**
 
 
-## Overview
-Start on **Home** to understand the entire AVERIS website before opening detailed workspaces. The Home page explains the product, the operational model, the major capabilities, the synthetic-only boundary and the main areas available to explore. From there, move into **People, Journeys, Queue, Schedule, Capacity, Workforce, Diagnostics, Pharmacy, Finance, Messages, Incidents, Quality, Insights, Assistant, Reports, Audit and Settings**. Every workspace uses synthetic data stored locally in the browser.
+## Website overview
+Start on **Home** for the clearest explanation of the entire AVERIS website. The page introduces what AVERIS is, what each workspace does, how the operating layers connect, the synthetic-only boundary, and where to explore next. From there, move into **People, Journeys, Queue, Schedule, Capacity, Workforce, Diagnostics, Pharmacy, Finance, Messages, Incidents, Quality, Insights, Assistant, Reports, Audit and Settings**. Every workspace uses synthetic data stored locally in the browser.
 
 ## Positioning
-AVERIS demonstrates how a complex healthcare operation can be presented as one understandable operating environment. The website separates the high-level explanation from the detailed workspaces so visitors can understand the product before interacting with individual workflows.
+AVERIS demonstrates how a complex healthcare operation can be presented as one understandable operating environment. The website begins with a dedicated overview, then separates the detailed workspaces into clear areas for coordination, execution, capacity, communication, intelligence and governance.
