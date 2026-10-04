@@ -29,13 +29,16 @@
     {section:"COMMAND", items:[
       ["overview","Command Center","⌂"],["analytics","Analytics","◫"],["ai","AI Copilot","✦"]
     ]},
-    {section:"CARE OPERATIONS", items:[
-      ["patients","Patients","♙"],["appointments","Appointments","◷"],["care","Care Hub","♡"],
-      ["clinical","Clinical Monitor","♥"],["providers","Providers","✚"],["beds","Bed Board","▦"]
+    {section:"PATIENT FLOW", items:[
+      ["patients","Patients","♙"],["patient360","Patient 360","◎"],["queue","Live Queue","≡"],
+      ["appointments","Appointments","◷"],["emergency","Emergency","⚕"]
+    ]},
+    {section:"CLINICAL OPERATIONS", items:[
+      ["care","Care Hub","♡"],["clinical","Clinical Monitor","♥"],["providers","Providers","✚"],["beds","Bed Board","▦"]
     ]},
     {section:"SERVICES", items:[
-      ["pharmacy","Pharmacy","◉"],["lab","Laboratory","△"],["messages","Messages","◌"],
-      ["tasks","Tasks","✓"],["reports","Reports","▤"]
+      ["lab","Laboratory","△"],["pharmacy","Pharmacy","◉"],["billing","Billing","₹"],
+      ["messages","Messages","◌"],["tasks","Tasks","✓"],["reports","Reports","▤"]
     ]},
     {section:"SYSTEM", items:[["settings","Settings","⚙"]]}
   ];
@@ -243,12 +246,112 @@
     const openTasks=state.tasks.filter(t=>t.status!=="Completed").length;
     const openCare=state.care.filter(c=>c.stage!=="Resolved").length;
     const occupied=state.beds.filter(b=>b.state==="Occupied").length;
-    const rate=Math.round((noShows/state.appointments.length)*100);
-    $("#view-overview").innerHTML =
-      `<div class="hero reveal"><div class="hero-bg"></div><div class="hero-content"><div class="hero-kicker"><span class="pulse-dot"></span>LIVE CARE OPERATIONS</div><h1 class="hero-title">Good morning, Alex.<br>Care teams are moving.</h1><p class="hero-copy">One operating picture for patient flow, schedules, care coordination and hospital capacity. The command center refreshes continuously while you work.</p><div class="hero-actions"><button class="btn primary" data-action="new-appointment">+ Schedule appointment</button><button class="btn" data-action="open-ai">✦ Ask AI Copilot</button></div></div><div class="hero-stats"><div class="hero-stat"><span>Patients today</span><strong>${todays.length}</strong></div><div class="hero-stat"><span>Bed occupancy</span><strong>${Math.round(occupied/state.beds.length*100)}%</strong></div><div class="hero-stat"><span>Live status</span><strong style="color:var(--green)">99.8%</strong></div></div></div>`
-      + `<div class="kpi-grid">${kpi("Active patients",active,"+2.4% week over week","blue","♙")}${kpi("Appointments today",todays.length,"6 awaiting check-in","teal","◷")}${kpi("Open care items",openCare,"3 high priority","red","♡")}${kpi("Bed occupancy",occupied+"/"+state.beds.length,"within operating range","gold","▦")}</div>`
-      + `<div class="grid-2"><article class="card reveal"><div class="card-head"><div><div class="card-title">Patient flow</div><div class="card-meta">Last 14 operating days</div></div><span class="status info"><i class="dot"></i>Streaming</span></div><div class="chart-wrap">${lineChart([42,48,51,46,61,57,65,68,63,72,76,70,79,82],["21","22","23","24","25","26","27","28","29","30","01","02","03","04"])}</div></article><article class="card reveal"><div class="card-head"><div><div class="card-title">Operational pulse</div><div class="card-meta">Current network state</div></div><span class="status ok"><i class="dot"></i>Nominal</span></div><div class="metric-list"><div class="metric-row"><span>Care completion</span><div class="meter"><span style="width:88%"></span></div><strong>88%</strong></div><div class="metric-row"><span>Schedule fill</span><div class="meter"><span style="width:74%"></span></div><strong>74%</strong></div><div class="metric-row"><span>Lab turnaround</span><div class="meter"><span style="width:92%"></span></div><strong>92%</strong></div><div class="metric-row"><span>Referral closure</span><div class="meter"><span style="width:67%"></span></div><strong>67%</strong></div></div><div class="mini-grid" style="margin-top:14px"><div class="mini-stat"><span>No-show rate</span><strong>${rate}%</strong><em>target &lt; 10%</em></div><div class="mini-stat"><span>Open tasks</span><strong>${openTasks}</strong><em>${openTasks>18?"needs attention":"on track"}</em></div></div></article></div>`
-      + `<div class="grid-2" style="margin-top:14px"><article class="card reveal"><div class="card-head"><div><div class="card-title">Live activity</div><div class="card-meta">Events arrive as operations change</div></div><button class="btn sm" data-action="refresh">Refresh</button></div><div class="activity-list" id="liveActivity">${activityRows(6)}</div></article><article class="image-card reveal"><div class="image-bg" style="background-image:url('${IMG.hospital}')"></div><div class="image-content"><span class="status info" style="margin-bottom:8px;background:rgba(21,101,192,.25);border-color:rgba(255,255,255,.16);color:#fff"><i class="dot"></i>Hospital network</span><h3>Calm operations. Faster decisions.</h3><p>Modern care teams need a single, trusted operational view.</p></div></article></div>`;
+    const available=state.beds.filter(b=>b.state==="Available").length;
+    const rate=Math.round((noShows/Math.max(state.appointments.length,1))*100);
+
+    const queuePatients=state.patients.slice(0,7);
+    const alerts=[
+      ["ED triage","2 critical patients waiting for bed allocation","2 min ago","danger"],
+      ["Laboratory","Troponin result requires acknowledgement","7 min ago","danger"],
+      ["Care Hub","3 urgent follow-ups are unassigned","12 min ago","warn"],
+      ["Pharmacy","Insulin Glargine below reorder threshold","18 min ago","warn"]
+    ];
+
+    $("#view-overview").innerHTML=`
+      <div class="page-head reveal">
+        <div><div class="eyebrow"><span class="pulse-dot"></span>HOSPITAL COMMAND CENTER</div><h1 class="page-title">Averis Care Operations</h1><p class="page-sub">One live operating picture across patient flow, care delivery and hospital capacity.</p></div>
+        <div class="actions"><span class="status ok"><i class="dot"></i>Network nominal</span><button class="btn" data-action="refresh">↻ Sync now</button><button class="btn primary" data-action="new-appointment">+ New appointment</button></div>
+      </div>
+
+      <div class="hero command-hero reveal">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+          <div class="hero-kicker"><span class="pulse-dot"></span>LIVE • 04 OCT 2026 • 10:49</div>
+          <h2 class="hero-title">See the whole hospital.<br>Act on what matters.</h2>
+          <p class="hero-copy">Averis connects patient movement, appointment demand, capacity, care coordination and service-line signals so operational teams can respond before a bottleneck becomes a delay.</p>
+          <div class="hero-actions">
+            <button class="btn primary" data-action="open-ai">✦ Ask AI Copilot</button>
+            <button class="btn" data-action="open-emergency">Open emergency</button>
+            <button class="btn" data-action="open-queue">View OPD queue</button>
+          </div>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><span>OPD today</span><strong>${todays.length+184}</strong></div>
+          <div class="hero-stat"><span>Bed occupancy</span><strong>${Math.round(occupied/state.beds.length*100)}%</strong></div>
+          <div class="hero-stat"><span>Available beds</span><strong>${available}</strong></div>
+        </div>
+      </div>
+
+      <div class="alert-strip reveal"><div class="alert-strip-main"><span class="alert-pulse"></span><strong>Operational attention</strong><span>2 emergency alerts • 3 urgent care items • 1 pharmacy reorder</span></div><button class="btn sm" data-action="open-emergency">Review alerts</button></div>
+
+      <div class="kpi-grid">
+        ${kpi("Patients in network",active,"+4.2% vs last week","blue","♙")}
+        ${kpi("Appointments today",todays.length+184,"92% confirmed","teal","◷")}
+        ${kpi("Live OPD queue","27","avg. wait 14 min","gold","≡")}
+        ${kpi("Critical alerts","2","requires action now","red","!")}
+      </div>
+
+      <div class="grid-2">
+        <article class="card reveal"><div class="card-head"><div><div class="card-title">Patient arrivals & flow</div><div class="card-meta">Rolling 12 hours • admissions, OPD and discharges</div></div><span class="status info"><i class="dot"></i>Real-time view</span></div>${lineChart([31,45,39,52,64,61,72,81,77,86,91,88],["06","07","08","09","10","11","12","13","14","15","16","17"])}</article>
+        <article class="card reveal"><div class="card-head"><div><div class="card-title">Capacity snapshot</div><div class="card-meta">Current hospital utilization</div></div><span class="status ok"><i class="dot"></i>Within plan</span></div>
+          <div class="capacity-orbit"><div class="orbit-ring"><span>${Math.round(occupied/state.beds.length*100)}%</span><small>occupied</small></div><div class="capacity-list"><div><span>Available</span><strong>${available}</strong></div><div><span>Cleaning</span><strong>${state.beds.filter(b=>b.state==="Cleaning").length}</strong></div><div><span>Isolation</span><strong>${state.beds.filter(b=>b.state==="Isolation").length}</strong></div></div></div>
+        </article>
+      </div>
+
+      <div class="grid-2" style="margin-top:14px">
+        <article class="card reveal"><div class="card-head"><div><div class="card-title">Live OPD queue</div><div class="card-meta">Patients waiting by current care stage</div></div><button class="btn sm" data-action="open-queue">Open queue</button></div>
+          <div class="queue-list">${queuePatients.map((p,i)=>`<div class="queue-row"><span class="queue-rank">${String(i+1).padStart(2,"0")}</span><div class="person"><span class="avatar" style="background:linear-gradient(145deg,var(--blue-2),var(--teal))">${initials(p.name)}</span><span class="person-text"><strong>${esc(p.name)}</strong><small>${p.id} • ${p.department}</small></span></div><span class="queue-stage">${["Waiting","Vitals","Doctor","Review","Waiting","Doctor","Vitals"][i]}</span><strong class="queue-time">${7+i*4} min</strong></div>`).join("")}</div>
+        </article>
+        <article class="card reveal"><div class="card-head"><div><div class="card-title">Critical alerts</div><div class="card-meta">Priority events that need acknowledgement</div></div><span class="status danger"><i class="dot"></i>2 critical</span></div>
+          <div class="alert-list">${alerts.map(a=>`<div class="alert-row"><div class="alert-severity ${a[3]}">${a[3]==="danger"?"!":"•"}</div><div><strong>${a[0]}</strong><p>${a[1]}</p></div><time>${a[2]}</time></div>`).join("")}</div>
+        </article>
+      </div>
+
+      <div class="service-strip reveal">
+        ${[["Emergency","Triage","96%","danger"],["Laboratory","Turnaround","41 min","ok"],["Pharmacy","Stock health","92%","ok"],["Appointments","Confirmation","93%","teal"],["Care Hub","SLA","88%","ok"],["Billing","Collections","76%","warn"]].map(x=>`<button class="service-node" data-service="${x[0]}"><span class="service-node-top"><span>${x[0]}</span>${badge(x[2],x[3])}</span><strong>${x[1]}</strong><small>live operational signal</small></button>`).join("")}
+      </div>
+
+      <div class="grid-2" style="margin-top:14px">
+        <article class="image-card reveal"><div class="image-bg" style="background-image:url('${IMG.team}')"></div><div class="image-content"><div class="eyebrow" style="color:#fff">CARE TEAMS</div><h3>Coordinate every handoff.</h3><p>Patients move through departments. Averis keeps the operational context connected.</p></div></article>
+        <article class="card reveal"><div class="card-head"><div><div class="card-title">Recent activity</div><div class="card-meta">The event stream updates while you work</div></div><span class="status teal"><i class="dot"></i>${state.live?"Streaming":"Paused"}</span></div><div class="activity-list" id="liveActivity">${activityRows(7)}</div></article>
+      </div>`;
+    wireViewActions();
+    $$("[data-service]").forEach(b=>b.onclick=()=>toast(b.dataset.service+" module opened"));
+  }
+  function renderEmergency(){
+    const emergencyPatients=state.patients.slice(0,10);
+    $("#view-emergency").innerHTML=header("EMERGENCY & TRIAGE","Emergency Command","Live triage board for ED intake, acuity, wait time and bed readiness.",'<button class="btn primary" data-action="new-emergency">+ Register arrival</button>')
+      +`<div class="kpi-grid">${kpi("Arrivals today","58","+9% vs yesterday","red","⚕")}${kpi("High acuity","7","2 critical","red","!")}${kpi("Avg. wait","14 min","−3 min","teal","◷")}${kpi("Ready beds","11","4 ICU • 7 general","green","▦")}</div>`
+      +`<div class="grid-2"><article class="card reveal"><div class="card-head"><div><div class="card-title">Triage queue</div><div class="card-meta">Highest acuity patients first</div></div><span class="status danger"><i class="dot"></i>Live</span></div><div class="table-wrap"><table><thead><tr><th>Patient</th><th>Acuity</th><th>Wait</th><th>Destination</th><th>State</th></tr></thead><tbody>${emergencyPatients.map((p,i)=>`<tr><td><div class="person"><span class="avatar">${initials(p.name)}</span><span class="person-text"><strong>${esc(p.name)}</strong><small>${p.id}</small></span></div></td><td>${badge(i<2?"Critical":i<5?"High":"Moderate",i<2?"danger":i<5?"warn":"info")}</td><td>${8+i*3} min</td><td>${i<3?"ICU":i<6?"Cardiology":"General Ward"}</td><td>${badge(i%3===0?"Waiting":"Under review",i%3===0?"danger":"teal")}</td></tr>`).join("")}</tbody></table></div></article>`
+      +`<article class="card reveal"><div class="card-head"><div class="card-title">Emergency flow</div><span class="card-meta">Current shift</span></div>${bars([18,14,11,8,5],["00","04","08","12","16"])}<div class="mini-grid" style="margin-top:12px"><div class="mini-stat"><span>Ambulances inbound</span><strong>3</strong><em>next 18 min</em></div><div class="mini-stat"><span>Team readiness</span><strong style="color:var(--green)">94%</strong><em>green</em></div></div></article></div>`;
+    wireViewActions();
+  }
+
+  function renderQueue(){
+    const queue=state.patients.slice(0,16);
+    $("#view-queue").innerHTML=header("PATIENT FLOW","Live OPD Queue","Track waiting patients from registration through consultation.",'<button class="btn primary" data-action="refresh">↻ Refresh queue</button>')
+      +`<div class="grid-4" style="margin-bottom:14px">${[["Waiting","27","avg 14 min","gold"],["Vitals","11","avg 6 min","teal"],["Doctor","19","avg 11 min","blue"],["Completed","86","today","green"]].map(x=>`<article class="card"><div class="mini-stat"><span>${x[0]}</span><strong style="color:var(--${x[3]})">${x[1]}</strong><em>${x[2]}</em></div></article>`).join("")}</div>`
+      +`<div class="card reveal"><div class="card-head"><div><div class="card-title">Live queue</div><div class="card-meta">Sort by wait, acuity or provider</div></div><div class="filters"><button class="filter active">All</button><button class="filter">Waiting</button><button class="filter">Doctor</button><button class="filter">Vitals</button></div></div><div class="queue-list queue-large">${queue.map((p,i)=>`<div class="queue-row"><span class="queue-rank">${String(i+1).padStart(2,"0")}</span><div class="person"><span class="avatar" style="background:linear-gradient(145deg,var(--blue-2),var(--teal))">${initials(p.name)}</span><span class="person-text"><strong>${esc(p.name)}</strong><small>${p.id} • ${p.condition} • ${p.provider}</small></span></div><span class="queue-stage">${["Waiting","Vitals","Doctor","Review"][i%4]}</span><strong class="queue-time">${7+i*2} min</strong><button class="btn sm" data-patient="${p.id}">Open</button></div>`).join("")}</div></div>`;
+    $$("[data-patient]").forEach(b=>b.onclick=()=>openPatient(b.dataset.patient));wireViewActions();
+  }
+
+  function renderPatient360(){
+    const p=state.patients[0];
+    $("#view-patient360").innerHTML=header("PATIENT 360","Patient 360","A connected view of identity, visits, care plan, results and coordination.",'<button class="btn primary" data-action="new-task">+ Care task</button>')
+      +`<div class="patient360-top reveal"><div class="patient360-avatar">${initials(p.name)}</div><div><div class="eyebrow">ACTIVE CARE PROFILE</div><h2>${esc(p.name)}</h2><p>${p.id} • ${p.age}y • ${p.condition}</p></div><div class="patient360-tags">${badge(p.status,"ok")}${badge(p.risk+" risk",p.risk==="High"?"danger":"warn")}</div></div>`
+      +`<div class="grid-3"><article class="card reveal"><div class="card-head"><div class="card-title">Care overview</div>${badge("Active","ok")}</div><div class="mini-grid"><div class="mini-stat"><span>Attendance</span><strong>${p.attendance}%</strong><em>historical</em></div><div class="mini-stat"><span>Next visit</span><strong>${prettyDate(p.nextVisit)}</strong><em>scheduled</em></div></div><div class="section-sub" style="margin-top:12px">Primary provider</div><strong style="display:block;margin-top:3px;font-size:11px">${esc(p.provider)}</strong></article>
+      <article class="card reveal"><div class="card-head"><div class="card-title">Latest results</div>${badge("2 new","info")}</div><div class="activity-list"><div class="activity"><div class="activity-icon">△</div><div class="activity-body"><strong>CBC panel</strong><span>Within expected range</span></div><time class="activity-time">8 min</time></div><div class="activity"><div class="activity-icon">△</div><div class="activity-body"><strong>HbA1c</strong><span>Review with provider</span></div><time class="activity-time">14 min</time></div></div></article>
+      <article class="card reveal"><div class="card-head"><div class="card-title">Current medications</div>${badge("Verified","ok")}</div><div class="metric-list"><div class="setting-row" style="padding:7px 0"><div class="setting-copy"><strong>Metformin 500 mg</strong><span>Twice daily</span></div>${badge("Active","teal")}</div><div class="setting-row" style="padding:7px 0"><div class="setting-copy"><strong>Amlodipine 10 mg</strong><span>Once daily</span></div>${badge("Active","teal")}</div></div></article></div>`
+      +`<div class="grid-2" style="margin-top:14px"><article class="card reveal"><div class="card-head"><div class="card-title">Patient journey</div><span class="card-meta">Last 30 days</span></div><div class="journey">${["Registration","Consultation","Lab tests","Care plan","Follow-up"].map((x,i)=>`<div class="journey-step ${i<4?"done":""}"><span class="journey-dot">${i<4?"✓":""}</span><div><strong>${x}</strong><small>${i<4?"Completed":"Next step"}</small></div></div>`).join("")}</div></article><article class="image-card reveal"><div class="image-bg" style="background-image:url('${IMG.care}')"></div><div class="image-content"><div class="eyebrow" style="color:#fff">CONNECTED CARE</div><h3>Context follows the patient.</h3><p>One operational view across every touchpoint.</p></div></article></div>`;
+    wireViewActions();
+  }
+
+  function renderBilling(){
+    const invoices=[["INV-1042","Maya Patel","₹24,800","Insurance","Pending"],["INV-1041","Arjun Rao","₹12,400","Self pay","Paid"],["INV-1040","Noah Williams","₹48,600","Insurance","Review"],["INV-1039","Olivia Chen","₹8,900","Self pay","Paid"],["INV-1038","Sophia Bennett","₹31,200","Insurance","Pending"]];
+    $("#view-billing").innerHTML=header("REVENUE CYCLE","Billing & Collections","Operational view of charges, claims, payments and collection risk.",'<button class="btn primary" data-action="new-invoice">+ New invoice</button>')
+      +`<div class="kpi-grid">${kpi("Collections MTD","₹42.8L","+8.2%","green","₹")}${kpi("Outstanding","₹8.6L","12 high-risk accounts","red","!")}${kpi("Claims in review","34","median age 2.8d","gold","▤")}${kpi("Collection rate","91.4%","+2.1 pts","blue","↗")}</div>`
+      +`<div class="grid-2"><article class="card reveal"><div class="card-head"><div class="card-title">Collection trend</div><span class="card-meta">Last 7 days</span></div>${bars([42,56,48,63,71,66,78],["M","T","W","T","F","S","S"])}</article><article class="card reveal"><div class="card-head"><div class="card-title">Revenue mix</div>${badge("Current month","info")}</div><div class="metric-list"><div class="metric-row"><span>Insurance</span><div class="meter"><span style="width:62%"></span></div><strong>62%</strong></div><div class="metric-row"><span>Self pay</span><div class="meter"><span style="width:23%"></span></div><strong>23%</strong></div><div class="metric-row"><span>Corporate</span><div class="meter"><span style="width:15%"></span></div><strong>15%</strong></div></div></article></div>`
+      +`<div class="card reveal" style="margin-top:14px"><div class="card-head"><div class="card-title">Recent invoices</div><button class="btn sm" data-action="export-report">Export</button></div><div class="table-wrap"><table><thead><tr><th>Invoice</th><th>Patient</th><th>Amount</th><th>Payer</th><th>Status</th></tr></thead><tbody>${invoices.map(x=>`<tr><td><strong>${x[0]}</strong></td><td>${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td><td>${badge(x[4],x[4]==="Paid"?"ok":x[4]==="Review"?"warn":"info")}</td></tr>`).join("")}</tbody></table></div></div>`;
     wireViewActions();
   }
 
@@ -406,7 +509,7 @@
   }
 
   function renderCurrent(){
-    const fns={overview:renderOverview,patients:renderPatients,appointments:renderAppointments,care:renderCare,clinical:renderClinical,providers:renderProviders,pharmacy:renderPharmacy,lab:renderLab,beds:renderBeds,messages:renderMessages,tasks:renderTasks,analytics:renderAnalytics,ai:renderAI,reports:renderReports,settings:renderSettings};
+    const fns={overview:renderOverview,patients:renderPatients,patient360:renderPatient360,queue:renderQueue,appointments:renderAppointments,emergency:renderEmergency,care:renderCare,clinical:renderClinical,providers:renderProviders,beds:renderBeds,pharmacy:renderPharmacy,lab:renderLab,billing:renderBilling,messages:renderMessages,tasks:renderTasks,analytics:renderAnalytics,ai:renderAI,reports:renderReports,settings:renderSettings};
     (fns[state.view]||renderOverview)();
     setupReveal();
   }
@@ -429,6 +532,8 @@
       "new-task":["Task composer ready","primary"]
     };
     if(action==="open-ai"){navigate("ai");return}
+    if(action==="open-emergency"){navigate("emergency");return}
+    if(action==="open-queue"){navigate("queue");return}
     if(action==="refresh"||action==="bed-refresh"){state.liveTick++;renderCurrent();toast("Live workspace synchronised")}
     else if(action==="export-patients"){exportCsv("averis-patients.csv",state.patients)}
     else if(action==="export-tasks"){exportCsv("averis-tasks.csv",state.tasks)}
@@ -498,6 +603,11 @@
     $("#closeSidebar").onclick=()=>$("#sidebar").classList.remove("open");
     $("#profileButton").onclick=()=>navigate("settings");
     $("#modalLayer").onclick=e=>{if(e.target.id==="modalLayer")closeModal()};
+    const backdrop=$("#backdropPhoto");
+    if(backdrop){
+      backdrop.addEventListener("error",()=>backdrop.classList.add("failed"),{once:true});
+      backdrop.addEventListener("load",()=>backdrop.classList.add("ready"),{once:true});
+    }
     document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openCommand()}if(e.key==="Escape"){closeCommand();closeModal()}});
     document.addEventListener("mousemove",e=>{document.documentElement.style.setProperty("--mx",(e.clientX/window.innerWidth*100)+"%");document.documentElement.style.setProperty("--my",(e.clientY/window.innerHeight*100)+"%")});
     setInterval(liveTick,1000);
