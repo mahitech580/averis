@@ -15,17 +15,35 @@
   };
 
   var DB = {
+    prefix: "MAHI_AVERIS_2026_V7_",
+    legacyPrefix: "MAHI_AVERIS_2026_",
     get: function (k, fallback) {
       try {
-        var raw = localStorage.getItem("MAHI_AVERIS_2026_V7_" + k);
-        return raw === null ? fallback : JSON.parse(raw);
+        var current = localStorage.getItem(this.prefix + k);
+        if (current !== null) return JSON.parse(current);
+        var legacy = localStorage.getItem(this.legacyPrefix + k);
+        if (legacy !== null) {
+          var value = JSON.parse(legacy);
+          localStorage.setItem(this.prefix + k, JSON.stringify(value));
+          return value;
+        }
+        return fallback;
       } catch (e) { return fallback; }
     },
     set: function (k, v) {
-      try { localStorage.setItem("MAHI_AVERIS_2026_" + k, JSON.stringify(v)); } catch (e) {}
+      try {
+        localStorage.setItem(this.prefix + k, JSON.stringify(v));
+        if (k === "profile" || k === "session") {
+          localStorage.setItem(this.legacyPrefix + k, JSON.stringify(v));
+        }
+        return true;
+      } catch (e) { return false; }
     },
     remove: function (k) {
-      try { localStorage.removeItem("MAHI_AVERIS_2026_" + k); } catch (e) {}
+      try {
+        localStorage.removeItem(this.prefix + k);
+        localStorage.removeItem(this.legacyPrefix + k);
+      } catch (e) {}
     }
   };
 
