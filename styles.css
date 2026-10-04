@@ -706,3 +706,33 @@ body{line-height:1.6;letter-spacing:.005em}
 .website-shell .command-group,.website-shell .command-help{font-size:10px!important}
 .website-shell .toast p{font-size:11px!important}
 .website-shell .footer-note{font-size:11px!important;line-height:1.6}
+
+/* HERO FLOATING INFO — move status stack toward the right */
+.website-shell .hero-floating-b{
+  right:-8px;
+  left:auto;
+  bottom:auto;
+  top:24%;
+}
+.website-shell .hero-status{
+  left:auto;
+  right:-8px;
+  transform:none;
+  bottom:7%;
+  width:min(360px,78%);
+  min-width:280px;
+  white-space:normal;
+}
+.website-shell .hero-status div{min-width:0;flex:1}
+.website-shell .hero-status b{white-space:nowrap}
+.website-shell .hero-status small{white-space:normal;overflow-wrap:anywhere}
+@media(max-width:1050px){
+  .website-shell .hero-floating-b{right:8px;top:24%}
+  .website-shell .hero-status{right:8px;bottom:5%;width:min(380px,82%)}
+}
+@media(max-width:560px){
+  .website-shell .hero-floating-b{right:6px;top:22%}
+  .website-shell .hero-status{right:6px;bottom:3%;width:calc(100% - 12px);min-width:0}
+  .website-shell .hero-status b{font-size:10px}
+  .website-shell .hero-status small{font-size:9px}
+}
