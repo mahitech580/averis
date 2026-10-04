@@ -1,94 +1,71 @@
-# Averis — Care Command Center
+# Averis by Mahi — Care Operations OS
 
-> Better care starts with better coordination.
+> **See the hospital clearly. Move care with confidence.**
 
-Averis is an advanced healthcare operations command center for patient flow, appointments, care coordination, clinical signals, provider capacity, beds, pharmacy, laboratory operations, team communication, tasks, analytics, reporting and operational decision support.
+Averis is Mahi's portfolio-grade healthcare operations workspace. It brings patient flow, appointments, emergency triage, Patient 360, care coordination, clinical monitoring, providers, beds, laboratory, pharmacy, billing, communication, tasks, analytics, reporting and AI decision support into one coherent operating surface.
 
-The public GitHub Pages build is fully client-side. Its "LIVE" layer is a browser-side event simulation that continuously updates operational telemetry, activity, freshness and notifications. All patient, clinical, inventory and operational records are synthetic.
-
-**Live:** https://mahitech580.github.io/averis/  
+**Live:** https://mahitech580.github.io/averis/
 **Repository:** https://github.com/mahitech580/averis
 
-## Product areas
+## Full rebuild
 
-### Command
-- Command Center
-- Analytics
-- AI Copilot
+This release replaces the previous application rather than layering more patches onto it.
 
-### Care operations
-- Patients
-- Patient 360
-- Live OPD Queue
-- Appointments
-- Emergency & Triage
-- Care Hub
-- Clinical Monitor
-- Providers
-- Bed Board
+The project rebuilds the application shell, visual system, client-side state, navigation, local profile flow, synthetic records, operational modules, forms, reports, reference schema, data generator, PWA metadata and local SVG assets around one identity:
 
-### Hospital services
-- Pharmacy
-- Laboratory
-- Billing & Collections
-- Messages
-- Tasks
-- Reports
+**AVERIS BY MAHI**
 
-### System
-- Light/dark clinical theme
-- Real-time clock and freshness indicators
-- Live activity and notifications
-- Ctrl/Cmd + K command search
-- Responsive mobile navigation
-- Browser persistence
-- CSV export flows
-- Reduced-motion support
+The UX takes conceptual reference from the premium workspace approach used in Mahi's other portfolio work: strong entry experience, persistent atmosphere, glass navigation, compact information architecture, focused primary actions, smooth responsive behavior and clear ownership.
 
-## Design language
+## Modules
 
-The UI uses a clinical-first palette with high-contrast cinematic energy inspired by Marvel-style interface aesthetics:
+| Area | Workspace |
+| --- | --- |
+| Command | Command Center · Analytics · AI Copilot |
+| Patient flow | Patients · Patient 360 · Live Queue · Appointments · Emergency |
+| Clinical operations | Care Hub · Clinical Monitor · Providers · Bed Board |
+| Hospital services | Laboratory · Pharmacy · Billing · Messages · Tasks · Reports |
+| System | Mahi Workspace · Theme · Live simulation · Local profile |
 
-| Role | Color |
-|---|---|
-| Medical blue | #1565C0 |
-| Deep blue | #0D47A1 |
-| Healthcare teal | #00897B |
-| Signal red | #E23636 |
-| Priority gold | #FFC107 |
-| Positive green | #2E7D32 |
-| Clinical surface | #F4F8FC |
-| Medical navy | #172B4D |
+## Working interactions
 
-The product remains healthcare-focused rather than superhero-themed.
+- local profile creation and sign-in
+- browser-local session persistence
+- patient search and Patient 360 selection
+- appointment creation
+- care-item and task creation
+- emergency arrival registration
+- invoice and inventory entry flows
+- laboratory order creation
+- local messaging
+- notifications and unread state
+- command search with Ctrl K / Cmd K
+- light and dark clinical themes
+- CSV exports
+- responsive sidebar/navigation
+- live clock, latency and activity simulation
 
-## Motion and atmosphere
+The LIVE layer is a browser-side simulation. It is intentionally not presented as a connection to a real hospital system.
 
-Averis includes:
-- Layered animated fog
-- Ambient particles
-- Persistent healthcare backdrop with image-fallback layering
-- Pointer-responsive atmosphere
-- Hero image drift
-- Soft hover haze
-- Live pulse indicators
-- Animated clinical telemetry
-- Smooth navigation transitions
-- Reduced-motion handling
+## Visual direction
 
-Local SVG assets provide the brand mark and ambient visual system.
+Averis uses a clinical foundation rather than a generic admin-dashboard appearance:
 
-## Healthcare imagery
+- deep medical navy for high-focus areas
+- medical blue for primary actions and navigation
+- healthcare teal for positive flow
+- red for emergency signals
+- gold for priority and attention
+- layered glass surfaces over a persistent background system
+- healthcare photography as optional atmosphere
+- readable tables, queue rows, patient journeys and ward boards
+- animations that update operational details without hiding the application
 
-Selected healthcare photography is sourced from Pexels:
+A local fallback scene remains underneath the remote photo layer, so the workspace does not depend on a successful image request.
 
-- [Doctors and Nurses in a Hospital](https://www.pexels.com/photo/doctors-and-nurses-in-a-hospital-6129507/)
-- [Doctors Working Together](https://www.pexels.com/photo/doctors-working-together-6129207/)
-- [Doctor and Patient Talking in Office](https://www.pexels.com/photo/doctor-and-patient-talking-in-office-8413204/)
+## Project structure
 
-## Repository structure
-
-\`\`\`text
+```text
 averis/
 ├── assets/
 │   ├── averis-mark.svg
@@ -101,75 +78,89 @@ averis/
 ├── schema.sql
 ├── generate_data.py
 └── README.md
-\`\`\`
+```
 
-**index.html** — application shell, navigation, content hosts, overlays, PWA metadata and accessibility entry points.
+### index.html
 
-**styles.css** — clinical design system, responsive layouts, charts, tables, monitoring cards, atmospheric effects, hover states and light/dark themes.
+Owns the complete page shell: access experience, persistent scene, sidebar, topbar, module containers, profile controls and overlay roots.
 
-**app.js** — state management, synthetic data, live simulation, navigation, search, patient profiles, schedules, care workflows, clinical monitor, providers, pharmacy, laboratory, beds, messages, tasks, analytics, reports and AI Copilot.
+### styles.css
 
-**manifest.json** — PWA identity, scope, theme and install metadata.
+Owns the new clinical visual system, responsive behavior, glass surfaces, hero composition, charts, tables, queues, bed board, forms, modals, notifications and themes.
 
-**schema.sql** — reference PostgreSQL architecture covering organizations, locations, departments, users, providers, patients, encounters, appointments, care plans, tasks, beds, pharmacy, laboratory, conversations, notifications, system events, audit logging and integrations.
+### app.js
 
-**generate_data.py** — deterministic offline generator for larger synthetic datasets aligned with the domain model.
+Owns local data, profile/session behavior, routing, rendered modules, forms, notifications, command search, exports and the browser-side live simulation.
 
-## Synthetic data generator
+### schema.sql
 
-Requires only Python 3:
+Reference PostgreSQL design for a future authenticated backend. The public GitHub Pages build never executes this schema.
 
-\`\`\`bash
-python generate_data.py --seed 804 --patients 250 --appointments 600 --out data.json
-\`\`\`
+### generate_data.py
 
-The generator produces domains including patients, providers, appointments, encounters, care plans, care items, tasks, beds, medications, inventories, lab orders/results, conversations, messages, notifications and system events.
+Standard-library-only generator for larger synthetic Averis datasets.
 
-## Local development
+### manifest.json
 
-\`\`\`bash
+PWA identity and launch metadata for Averis by Mahi.
+
+## Run locally
+
+No package manager or build step is required.
+
+```bash
 python -m http.server 8000
-\`\`\`
+```
 
-Open `http://localhost:8000`.
+Open:
 
-No framework, package manager or build step is required.
+```text
+http://localhost:8000
+```
 
-## Real-time architecture
+Generate a larger demo dataset:
 
-The current browser build simulates the real-time experience. A production implementation can replace it with:
+```bash
+python generate_data.py --seed 804 --patients 250 --appointments 600 --out averis-data.json
+```
 
-\`\`\`text
-UI
- ↓
+## Production architecture
+
+The public build is deliberately front-end only. A production Averis service would replace browser storage and simulated events with authenticated, auditable infrastructure:
+
+```text
+Averis by Mahi UI
+        ↓
 Authenticated API
- ↓
-Application services
- ↓
-PostgreSQL + event store
- ↓
+        ↓
+Healthcare domain services
+        ↓
+PostgreSQL
+   ↙            ↘
+Audit log     Event store
+        ↓
 WebSocket / Server-Sent Events
- ↓
-Live subscriptions
-\`\`\`
+        ↓
+Role-based live workspace
+```
 
-The upgraded `schema.sql` is designed around this evolution.
+A real deployment would also require validated access controls, encryption, secrets management, auditability, observability, backup/recovery, integration boundaries and applicable healthcare compliance work.
 
-## Security boundary
+## Data boundary
 
-This public portfolio implementation does not provide production authentication, PHI controls, HIPAA compliance, server-side authorization, encrypted clinical storage, real EHR integrations or backend real-time infrastructure.
+All patient, clinical, operational, billing and inventory records in this public portfolio application are synthetic.
 
-Do not use the public build with real patient information.
+Do not enter real patient information.
 
 ## Author
 
-**Mahendra Sai Kondaveeti**
+**Mahi**
 
-GitHub: https://github.com/mahitech580
+**Averis by Mahi** is presented as a healthcare product design and engineering portfolio project.
 
 ---
 
 <p align="center">
-  <strong>Averis Care Command</strong><br>
-  Better care starts with better coordination.
+  <strong>AVERIS BY MAHI</strong><br>
+  Care Operations OS
 </p>
