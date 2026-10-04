@@ -804,3 +804,77 @@ html,body{max-width:100%;overflow-x:hidden}
   .website-shell .site-nav-link{padding:9px 10px;font-size:10px}
   .website-shell .workspace-main{padding-left:12px;padding-right:12px;padding-top:28px}
 }
+
+
+/* FINAL RESPONSIVE / FIXED PRESENTATION PASS */
+html{overflow-x:hidden}
+body{min-width:320px;overflow-x:hidden}
+.website-shell{width:100%;max-width:100vw;overflow-x:hidden}
+.website-shell button,.website-shell input,.website-shell select,.website-shell textarea{font:inherit}
+.website-shell button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.website-shell .site-header{width:100%;max-width:100vw}
+.website-shell .shell-main,.website-shell .workspace-main,.website-shell .site-footer{min-width:0;max-width:100vw}
+.website-shell .landing-hero-inner,.website-shell .section-inner,.website-shell .landing-metrics-inner{box-sizing:border-box}
+.website-shell img{max-width:100%;display:block}
+.website-shell .landing-actions .button,.website-shell .site-nav-link,.website-shell .icon-button,.website-shell .profile-button{min-height:40px}
+.website-shell .site-nav-link{white-space:nowrap}
+.website-shell .landing-hero-copy h1,.website-shell .center-heading h2,.website-shell .feature-copy h2,.website-shell .boundary-layout h2,.website-shell .landing-cta h2{overflow-wrap:anywhere}
+.website-shell .landing-lead,.website-shell .center-heading p,.website-shell .feature-copy>p,.website-shell .boundary-layout p,.website-shell .process-card p,.website-shell .capability-card p,.website-shell .layer-card small,.website-shell .showcase-copy em{overflow-wrap:anywhere}
+@media (max-width:1200px){
+  .website-shell .site-header{flex-wrap:wrap;row-gap:10px}
+  .website-shell .site-nav{order:3;width:100%;overflow-x:auto;justify-content:flex-start;padding-bottom:3px;scrollbar-width:none}
+  .website-shell .site-nav::-webkit-scrollbar{display:none}
+  .website-shell .top-actions{margin-left:auto}
+  .website-shell .landing-hero-inner{grid-template-columns:1fr;gap:42px}
+  .website-shell .landing-hero-copy{max-width:900px}
+  .website-shell .landing-hero-visual{min-height:460px}
+  .website-shell .hero-image-window{max-width:620px}
+  .website-shell .process-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .website-shell .layer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .website-shell .showcase-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .website-shell .boundary-layout{grid-template-columns:1fr;gap:42px}
+}
+@media (max-width:760px){
+  .website-shell .site-header{padding:12px 14px}
+  .website-shell .site-brand small{font-size:9px}
+  .website-shell .top-actions{width:100%;justify-content:flex-end;gap:7px}
+  .website-shell .local-chip,.website-shell .clock{display:none}
+  .website-shell .site-command{flex:1;min-width:0}
+  .website-shell .site-command div{display:flex}
+  .website-shell .site-command kbd{display:none}
+  .website-shell .landing-hero{padding:42px 0 58px;min-height:0}
+  .website-shell .landing-hero-inner{padding:0 16px;gap:30px}
+  .website-shell .landing-hero-copy h1{font-size:clamp(40px,11vw,58px);line-height:.98;letter-spacing:-.055em}
+  .website-shell .landing-lead{font-size:14px;line-height:1.75}
+  .website-shell .landing-actions{width:100%;flex-direction:column;align-items:stretch}
+  .website-shell .landing-actions .button{width:100%;justify-content:center}
+  .website-shell .landing-trust{gap:10px 16px;font-size:9px}
+  .website-shell .landing-hero-visual{min-height:330px}
+  .website-shell .hero-image-window{width:100%;height:330px;border-radius:20px}
+  .website-shell .landing-intro,.website-shell .process-section,.website-shell .landing-feature,.website-shell .layers-section,.website-shell .landing-showcase,.website-shell .boundary-section,.website-shell .landing-cta{padding-top:74px;padding-bottom:74px}
+  .website-shell .section-inner{padding-left:16px;padding-right:16px}
+  .website-shell .center-heading{margin-bottom:30px}
+  .website-shell .center-heading h2,.website-shell .feature-copy h2,.website-shell .boundary-layout h2,.website-shell .landing-cta h2{font-size:clamp(32px,8.8vw,46px)}
+  .website-shell .capability-grid,.website-shell .process-grid,.website-shell .layer-grid,.website-shell .showcase-grid,.website-shell .boundary-points{grid-template-columns:1fr}
+  .website-shell .capability-card,.website-shell .process-card{min-height:auto}
+  .website-shell .feature-media{height:300px;max-width:none}
+  .website-shell .landing-metrics-inner{grid-template-columns:1fr 1fr;padding:12px 10px}
+  .website-shell .landing-metrics-inner>div{padding:18px 8px}
+  .website-shell .landing-metrics-inner b{font-size:30px}
+  .website-shell .landing-metrics-inner small{font-size:8px}
+  .website-shell .showcase-card{height:330px}
+  .website-shell .landing-cta{align-items:stretch;flex-direction:column}
+}
+@media (max-width:440px){
+  .website-shell .site-brand b{font-size:15px}
+  .website-shell .site-nav{gap:6px}
+  .website-shell .site-nav-link{padding:8px 10px;font-size:10px}
+  .website-shell .icon-button{width:38px;height:38px}
+  .website-shell .profile-button{width:38px;height:38px}
+  .website-shell .landing-metrics-inner{grid-template-columns:1fr}
+  .website-shell .landing-metrics-inner>div{border-right:0;border-bottom:1px solid rgba(255,255,255,.08)}
+  .website-shell .landing-metrics-inner>div:last-child{border-bottom:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .website-shell *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
