@@ -13,51 +13,42 @@
 <body>
 <div class="backdrop-scene"><div class="scene-grid"></div><div class="scene-orbit scene-orbit-a"></div><div class="scene-orbit scene-orbit-b"></div><div class="scene-light scene-light-a"></div><div class="scene-light scene-light-b"></div></div>
 <a class="skip-link" href="#workspace-root">Skip to workspace</a>
-<div class="app-shell">
-<aside class="sidebar" id="sidebar">
-  <div class="brand-row">
-    <a href="#/today" class="brand"><span class="brand-logo"><img src="./assets/averis-orbit.svg" alt=""></span><span><b>AVERIS</b><small>by Mahi · OPERATIONS OS</small></span></a>
-    <button id="sidebar-close" class="icon-button mobile-only" type="button" aria-label="Close navigation">×</button>
-  </div>
-  <div class="identity"><span class="avatar avatar-main">M</span><div><b id="profile-name">Mahi</b><small id="profile-role">Control room owner</small></div><span class="presence"></span></div>
-  <button id="command-trigger" class="command-open" type="button"><span>⌕</span><div><b>Command search</b><small>People · work · spaces</small></div><kbd>⌘K</kbd></button>
-  <div class="nav-label"><span>WORKSPACES</span><b>18</b></div>
-  <nav class="nav" aria-label="Workspaces"><button class="nav-item" data-route="today" type="button"><span class="nav-icon">⌂</span><span>Today</span><i class="nav-dot" data-dot="today"></i></button>
-<button class="nav-item" data-route="people" type="button"><span class="nav-icon">◉</span><span>People</span><i class="nav-dot" data-dot="people"></i></button>
-<button class="nav-item" data-route="journeys" type="button"><span class="nav-icon">↗</span><span>Journeys</span><i class="nav-dot" data-dot="journeys"></i></button>
-<button class="nav-item" data-route="queue" type="button"><span class="nav-icon">≡</span><span>Queue</span><i class="nav-dot" data-dot="queue"></i></button>
-<button class="nav-item" data-route="schedule" type="button"><span class="nav-icon">◷</span><span>Schedule</span><i class="nav-dot" data-dot="schedule"></i></button>
-<button class="nav-item" data-route="capacity" type="button"><span class="nav-icon">▦</span><span>Capacity</span><i class="nav-dot" data-dot="capacity"></i></button>
-<button class="nav-item" data-route="workforce" type="button"><span class="nav-icon">◌</span><span>Workforce</span><i class="nav-dot" data-dot="workforce"></i></button>
-<button class="nav-item" data-route="diagnostics" type="button"><span class="nav-icon">⌁</span><span>Diagnostics</span><i class="nav-dot" data-dot="diagnostics"></i></button>
-<button class="nav-item" data-route="pharmacy" type="button"><span class="nav-icon">✚</span><span>Pharmacy</span><i class="nav-dot" data-dot="pharmacy"></i></button>
-<button class="nav-item" data-route="finance" type="button"><span class="nav-icon">◇</span><span>Finance</span><i class="nav-dot" data-dot="finance"></i></button>
-<button class="nav-item" data-route="messages" type="button"><span class="nav-icon">✉</span><span>Messages</span><i class="nav-dot" data-dot="messages"></i></button>
-<button class="nav-item" data-route="incidents" type="button"><span class="nav-icon">⚠</span><span>Incidents</span><i class="nav-dot" data-dot="incidents"></i></button>
-<button class="nav-item" data-route="quality" type="button"><span class="nav-icon">✓</span><span>Quality</span><i class="nav-dot" data-dot="quality"></i></button>
-<button class="nav-item" data-route="insights" type="button"><span class="nav-icon">◫</span><span>Insights</span><i class="nav-dot" data-dot="insights"></i></button>
-<button class="nav-item" data-route="assistant" type="button"><span class="nav-icon">✦</span><span>Assistant</span><i class="nav-dot" data-dot="assistant"></i></button>
-<button class="nav-item" data-route="reports" type="button"><span class="nav-icon">▤</span><span>Reports</span><i class="nav-dot" data-dot="reports"></i></button>
-<button class="nav-item" data-route="audit" type="button"><span class="nav-icon">◌</span><span>Audit</span><i class="nav-dot" data-dot="audit"></i></button>
-<button class="nav-item" data-route="settings" type="button"><span class="nav-icon">⚙</span><span>Settings</span><i class="nav-dot" data-dot="settings"></i></button></nav>
-  <div class="side-footer">
-    <div class="side-visual"><img src="https://res.cloudinary.com/casden-edito/images/c_scale%2Cw_2048%2Ch_1442%2Cdpr_2/f_auto%2Cq_auto/v1699015961/prod/recrutement-FPH/recrutement-FPH.jpg?_i=AA" alt="Healthcare coordination team"></div><div class="simulation-badge"><span class="pulse-dot"></span><div><b>SIMULATED / LOCAL</b><small>No patient data · no external AI</small></div></div>
-    <button id="focus-button" class="focus-button" type="button"><span>◉</span> Focus mode <kbd>F</kbd></button>
-  </div>
-</aside>
+<div class="app-shell website-shell">
 <div class="shell-main">
-<header class="topbar">
-  <button id="menu-button" class="icon-button mobile-only" type="button" aria-label="Open navigation">☰</button>
-  <div class="breadcrumbs"><span>AVERIS</span><i>/</i><b id="crumb-current">Today</b></div>
+<header class="topbar site-header" id="site-header">
+  <a href="#/today" class="brand site-brand" aria-label="AVERIS home"><span class="brand-logo"><img src="./assets/averis-orbit.svg" alt=""></span><span><b>AVERIS</b><small>by Mahi · OPERATIONS OS</small></span></a>
+  <nav class="site-nav" aria-label="Primary navigation">
+    <button class="site-nav-link" data-route="today" type="button">Overview</button>
+    <button class="site-nav-link" data-route="people" type="button">People</button>
+    <button class="site-nav-link" data-route="journeys" type="button">Journeys</button>
+    <button class="site-nav-link" data-route="queue" type="button">Workflow</button>
+    <button class="site-nav-link" data-route="capacity" type="button">Capacity</button>
+    <button class="site-nav-link" data-route="insights" type="button">Insights</button>
+    <button class="site-nav-link" data-route="reports" type="button">Reports</button>
+  </nav>
   <div class="top-actions">
     <span class="local-chip"><span></span> Local simulation</span>
     <div class="clock"><b id="live-clock">--:--:--</b><small id="live-date">---</small></div>
+    <button id="command-trigger" class="command-open site-command" type="button"><span>⌕</span><div><b>Search</b><small>⌘K</small></div><kbd>⌘K</kbd></button>
     <button id="quick-add" class="icon-button" type="button" aria-label="Create record">＋</button>
     <button id="notification-button" class="icon-button notif" type="button" aria-label="Open messages">◔<b id="notification-count">0</b></button>
     <button id="profile-button" class="profile-button" type="button" aria-label="Profile"><span class="avatar avatar-main">M</span></button>
   </div>
 </header>
-<main id="workspace-root" class="workspace-main" tabindex="-1"><div class="loader"><div></div><p>Loading control room…</p></div></main>
+<main id="workspace-root" class="workspace-main" tabindex="-1"><div class="loader"><div></div><p>Loading AVERIS…</p></div></main>
+<footer class="site-footer">
+  <div class="footer-main">
+    <div class="footer-brand">
+      <a href="#/today" class="brand"><span class="brand-logo"><img src="./assets/averis-orbit.svg" alt=""></span><span><b>AVERIS</b><small>by Mahi</small></span></a>
+      <p>Local-first healthcare operations coordination for synthetic workflows, capacity, communication, incidents, reporting and operational intelligence.</p>
+      <span class="footer-boundary"><i></i> SIMULATED / LOCAL · NO PATIENT DATA</span>
+    </div>
+    <div class="footer-column"><b>Operations</b><button data-route="today" type="button">Overview</button><button data-route="people" type="button">People</button><button data-route="journeys" type="button">Journeys</button><button data-route="queue" type="button">Workflow</button><button data-route="schedule" type="button">Schedule</button></div>
+    <div class="footer-column"><b>Intelligence</b><button data-route="capacity" type="button">Capacity</button><button data-route="workforce" type="button">Workforce</button><button data-route="diagnostics" type="button">Diagnostics</button><button data-route="pharmacy" type="button">Pharmacy</button><button data-route="finance" type="button">Finance</button></div>
+    <div class="footer-column"><b>Governance</b><button data-route="messages" type="button">Messages</button><button data-route="incidents" type="button">Incidents</button><button data-route="quality" type="button">Quality</button><button data-route="insights" type="button">Insights</button><button data-route="assistant" type="button">Assistant</button><button data-route="reports" type="button">Reports</button><button data-route="audit" type="button">Audit</button><button data-route="settings" type="button">Settings</button></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 AVERIS by Mahi</span><span>Browser-local synthetic workspace</span><button data-action="go-settings" type="button">Boundary & privacy</button></div>
+</footer>
 </div>
 </div>
 <div class="mobile-scrim" id="mobile-scrim"></div>
