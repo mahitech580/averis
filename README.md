@@ -2,7 +2,7 @@
 
 **SIMULATED / LOCAL**
 
-AVERIS is a browser-local healthcare operations website that brings people, journeys, workflow, schedules, capacity, communication, incidents, intelligence, reports and governance into one understandable operating surface. The **Website Overview** is the starting point for the whole site: it explains what AVERIS is, how the major areas connect, what each workspace is responsible for, and where to continue exploring. The detailed workspaces then let you explore people, journeys, workflow, schedules, capacity, communication, incidents, intelligence, reports and governance. Everything shown is synthetic and stays inside the browser.
+AVERIS is a browser-local healthcare operations website that connects people, journeys, workflow, schedules, capacity, communication, incidents, intelligence, reports and governance in one operating surface. The **Website Overview** explains what the website contains, how its workspaces connect, what each area is for, and where to go next. The detailed workspaces then let you explore each operational area. Everything shown is synthetic and stays inside the browser.
 
 ## Live
 https://mahitech580.github.io/averis/
@@ -78,7 +78,7 @@ Author: **Mahi**
 Start on **Home / Website Overview** to understand AVERIS before entering the detailed workspaces.
 
 The page is organized as a guided introduction:
-1. **What AVERIS is** — the purpose and scope of the website.
+1. **Complete website overview** — what AVERIS contains, how the workspaces connect, what each area is for, and where to go next.
 2. **Capabilities** — the main coordination, execution, intelligence and governance areas.
 3. **How it works** — the path from seeing a signal to prioritizing work and taking a local action.
 4. **Operational layers** — the detailed workspaces behind the overall operating picture.
