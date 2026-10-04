@@ -80,7 +80,7 @@
   const iso = d => { const x=new Date(d); return x.toISOString().slice(0,10); };
   const prettyDate = d => new Date(d+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric"});
   const initials = n => n.split(" ").map(x=>x[0]).slice(0,2).join("").toUpperCase();
-  const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",""":"&quot;","'":"&#39;" }[m]));
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
 
   function seed(){
     if(state.patients && state.appointments && state.providers) return;
@@ -450,7 +450,7 @@
     document.body.appendChild(overlay);
     const results=$("#commandResults"),input=$("#commandInput");
     const items=[
-      ...state.patients.slice(0,12).map(p=>({t:p.name,s:"Patient",action:()=>openPatient(p.id)})),
+      ...state.patients.slice(0,12).map(p=>({t:p.name,s:"Patient",action:()=>{closeCommand();openPatient(p.id)}})),
       ...NAV.flatMap(n=>n.items).map(x=>({t:x[1],s:"Module",action:()=>{closeCommand();navigate(x[0])}})),
       ...state.tasks.slice(0,8).map(t=>({t:t.title,s:"Task",action:()=>{closeCommand();navigate("tasks")}}))
     ];
@@ -459,6 +459,7 @@
     overlay.onclick=e=>{if(e.target===overlay)closeCommand()};input.onkeydown=e=>{if(e.key==="Escape")closeCommand();if(e.key==="Enter")$(".command-item",results)?.click()};
   }
   function closeCommand(){$("#commandOverlay")?.remove()}
+  window.addEventListener("hashchange",()=>{const v=location.hash.replace("#","");if(v&&v!==state.view){state.view=v;renderNav();renderCurrent()}});
 
   function renderNotifications(){
     const p=$("#notificationsPopover"),unread=state.notifications.filter(n=>n.unread).length;
