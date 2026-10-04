@@ -2,7 +2,7 @@
 
 **SIMULATED / LOCAL**
 
-AVERIS is a local-first healthcare operations workspace designed around operational coordination and intelligence. It brings people, journeys, work, scheduling, capacity, workforce, diagnostics workflow, inventory, administration, communication, incidents, quality, insights, reporting and audit into one browser-based control environment.
+AVERIS is a browser-local healthcare operations workspace that gives one clear view of how work is moving across the organization. It connects people, journeys, workflow, scheduling, capacity, workforce, diagnostics workflow, inventory, communication, incidents, quality, insights, reporting and audit in one operating surface. The goal is simple: make complex operational information easier to see, understand and act on without connecting to real healthcare infrastructure.
 
 ## Live
 https://mahitech580.github.io/averis/
@@ -75,4 +75,4 @@ Author: **Mahi**
 
 
 ## Positioning
-AVERIS demonstrates how complex healthcare operations can be organized into a clear, auditable decision workspace without accessing real healthcare infrastructure. The emphasis is on coordination, workflow visibility, resource awareness, communication, reporting and operational clarity.
+AVERIS demonstrates how a complex healthcare operation can be organized into one understandable operating surface. People, work, schedules, resources, communications, incidents and intelligence are connected so a user can quickly see what is happening, where attention is needed, and what can be acted on next — all using synthetic browser-local data.
