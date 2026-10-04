@@ -44,8 +44,9 @@ a{color:inherit}
 ::-webkit-scrollbar{width:9px;height:9px}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:20px}
 ::-webkit-scrollbar-track{background:transparent}
+.skip-link{position:fixed;left:14px;top:12px;z-index:200;padding:8px 12px;border-radius:9px;background:var(--blue-2);color:#fff;transform:translateY(-180%);transition:transform .2s var(--ease);text-decoration:none;font-size:11px;font-weight:750}.skip-link:focus{transform:none}
 
-.ambient{position:fixed;inset:-12%;z-index:0;overflow:hidden;pointer-events:none;background:
+.ambient{position:fixed;inset:-12%;z-index:0;overflow:hidden;pointer-events:none;background-image:url("assets/ambient-grid.svg"),
  radial-gradient(520px circle at var(--mx) var(--my),rgba(21,101,192,.11),transparent 60%),
  radial-gradient(780px circle at 10% 12%,rgba(0,137,123,.08),transparent 68%),
  radial-gradient(900px circle at 92% 84%,rgba(226,54,54,.055),transparent 72%)}
