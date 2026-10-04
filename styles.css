@@ -341,16 +341,131 @@ html[data-theme="dark"] .sidebar{background:rgba(8,20,34,.78)}
 .provider-metrics{margin-top:14px}
 .inset{margin-top:13px;padding:11px;background:var(--surface-soft);border:1px solid var(--border)}
 
-/* Section photography layer — every Averis module gets a distinct healthcare atmosphere.
-   The local scene remains underneath so a remote image can fail without breaking the UI. */
-.view{position:relative;isolation:isolate;min-height:calc(100vh - var(--topbar) - 30px);overflow:hidden}
-.view::before{content:"";position:absolute;inset:0;z-index:-2;background-repeat:no-repeat;background-size:cover;background-position:center 26%;opacity:.095;filter:saturate(.72) contrast(.95);pointer-events:none;transform:scale(1.015)}
-.view::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 91%,transparent) 30%,color-mix(in srgb,var(--bg) 94%,transparent) 100%);pointer-events:none}
-.view>*{position:relative;z-index:1}
-#view-overview::before,#view-analytics::before,#view-reports::before{background-image:url("https://images.pexels.com/photos/6129507/pexels-photo-6129507.jpeg?auto=compress&cs=tinysrgb&w=1800&q=78")}
-#view-patients::before,#view-appointments::before,#view-providers::before,#view-messages::before{background-image:url("https://images.pexels.com/photos/6129207/pexels-photo-6129207.jpeg?auto=compress&cs=tinysrgb&w=1600&q=78")}
-#view-patient360::before,#view-care::before,#view-ai::before,#view-settings::before{background-image:url("https://images.pexels.com/photos/8413204/pexels-photo-8413204.jpeg?auto=compress&cs=tinysrgb&w=1600&q=78")}
-#view-queue::before,#view-clinical::before{background-image:url("https://images.pexels.com/photos/6129651/pexels-photo-6129651.jpeg?auto=compress&cs=tinysrgb&w=1600&q=78")}
-#view-emergency::before,#view-beds::before,#view-lab::before,#view-pharmacy::before{background-image:url("https://images.pexels.com/photos/29329917/pexels-photo-29329917.jpeg?auto=compress&cs=tinysrgb&w=1600&q=78")}
-#view-billing::before,#view-tasks::before{background-image:url("https://images.pexels.com/photos/6129507/pexels-photo-6129507.jpeg?auto=compress&cs=tinysrgb&w=1600&q=78");background-position:center 58%}
-html[data-theme="dark"] .view::before{opacity:.065;filter:brightness(.55) saturate(.78)}
+/* =========================================================
+   SECTION PHOTOGRAPHY — every workspace view has a visible
+   healthcare background image with its own readability veil.
+   Images are atmospheric; the local scene remains underneath.
+   ========================================================= */
+.view{
+  position:relative;
+  isolation:isolate;
+  min-height:calc(100vh - var(--topbar) - 30px);
+  overflow:hidden;
+  background:transparent !important;
+}
+.view::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position:center;
+  opacity:.18;
+  filter:saturate(.78) contrast(.98);
+  transform:scale(1.025);
+}
+.view::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb,var(--bg) 78%,transparent) 0%,
+      color-mix(in srgb,var(--bg) 67%,transparent) 32%,
+      color-mix(in srgb,var(--bg) 83%,transparent) 100%);
+}
+.view > *{
+  position:relative;
+  z-index:2;
+}
+
+/* Command / intelligence */
+#view-overview::before{
+  background-image:url("https://images.pexels.com/photos/6129507/pexels-photo-6129507.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+  background-position:center 28%;
+}
+#view-analytics::before{
+  background-image:url("https://images.pexels.com/photos/4386467/pexels-photo-4386467.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+#view-ai::before{
+  background-image:url("https://images.pexels.com/photos/7088526/pexels-photo-7088526.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+
+/* Patient flow */
+#view-patients::before{
+  background-image:url("https://images.pexels.com/photos/7089629/pexels-photo-7089629.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+#view-patient360::before{
+  background-image:url("https://images.pexels.com/photos/7659564/pexels-photo-7659564.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+#view-queue::before{
+  background-image:url("https://images.pexels.com/photos/5998474/pexels-photo-5998474.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+#view-appointments::before{
+  background-image:url("https://images.pexels.com/photos/5214958/pexels-photo-5214958.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+#view-emergency::before{
+  background-image:url("https://images.pexels.com/photos/263402/pexels-photo-263402.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+  background-position:center 40%;
+}
+
+/* Clinical operations */
+#view-care::before{
+  background-image:url("https://images.pexels.com/photos/6129507/pexels-photo-6129507.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+  background-position:center 55%;
+}
+#view-clinical::before{
+  background-image:url("https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+#view-providers::before{
+  background-image:url("https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+#view-beds::before{
+  background-image:url("https://images.pexels.com/photos/6682998/pexels-photo-6682998.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+
+/* Hospital services */
+#view-lab::before{
+  background-image:url("https://images.pexels.com/photos/2280551/pexels-photo-2280551.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+#view-pharmacy::before{
+  background-image:url("https://images.pexels.com/photos/3683087/pexels-photo-3683087.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+#view-billing::before{
+  background-image:url("https://images.pexels.com/photos/4386327/pexels-photo-4386327.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+#view-messages::before{
+  background-image:url("https://images.pexels.com/photos/5207102/pexels-photo-5207102.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+#view-tasks::before{
+  background-image:url("https://images.pexels.com/photos/7089628/pexels-photo-7089628.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+#view-reports::before{
+  background-image:url("https://images.pexels.com/photos/669615/pexels-photo-669615.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+
+/* System */
+#view-settings::before{
+  background-image:url("https://images.pexels.com/photos/7659576/pexels-photo-7659576.jpeg?auto=compress&cs=tinysrgb&w=2000&q=82);
+}
+
+html[data-theme="dark"] .view::before{
+  opacity:.20;
+  filter:brightness(.55) saturate(.82) contrast(1.02);
+}
+html[data-theme="dark"] .view::after{
+  background:
+    linear-gradient(180deg,
+      rgba(7,19,34,.76) 0%,
+      rgba(7,19,34,.60) 34%,
+      rgba(7,19,34,.82) 100%);
+}
+
+@media (max-width:680px){
+  .view::before{opacity:.15;background-position:center}
+  html[data-theme="dark"] .view::before{opacity:.17}
+}
