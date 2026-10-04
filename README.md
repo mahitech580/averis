@@ -1,374 +1,211 @@
-# Averis — Healthcare Coordination Platform
+# Averis — Care Command Center
 
 > **Better care starts with better coordination.**
 
-Averis is a polished **healthcare operations and care-coordination SaaS demo** built as a fully client-side web application. It brings patient management, appointments, care coordination, providers, communication, tasks, analytics, and AI-assisted operational insights into one workspace.
+Averis is a polished healthcare operations command center built for a portfolio-quality product experience. The redesigned interface brings patient operations, scheduling, care coordination, clinical monitoring, staffing, capacity, pharmacy, laboratory, collaboration, tasks, analytics, reporting and an AI operations copilot into one responsive workspace.
 
-The project is intentionally designed to run **without a backend, database server, external API, or build pipeline**. It can be opened locally or deployed directly to GitHub Pages.
+The current GitHub Pages build is **100% client-side**. Its live layer is a **browser-side operational simulation** that updates timestamps, activity, capacity signals and clinical telemetry continuously. A production version would replace the simulation with authenticated backend APIs, database events and real-time infrastructure.
 
-> **Important:** Averis is a portfolio/demo application. Its records and metrics are synthetic, the AI layer is deterministic demo logic, and the application is not intended for real clinical or production healthcare use.
-
----
-
-## 🚀 Live Demo
-
-**Live application:**  
-https://mahitech580.github.io/averis/
-
-**Repository:**  
-https://github.com/mahitech580/averis
-
-### Demo login
-
-\`\`\`text
-Email:    admin@averis.demo
-Password: averis123
-\`\`\`
-
-The login is part of the browser-side demo experience and is not a production authentication system.
+> **Portfolio safety:** all patient, clinical, inventory and operational values are synthetic. Averis is not a clinical system and should not be used for real patient care.
 
 ---
 
-## ✨ What Averis Demonstrates
+## 🚀 Live
 
-Averis models the day-to-day operational workflows of a healthcare coordination team in a single interface.
+**Application:** https://mahitech580.github.io/averis/  
+**Repository:** https://github.com/mahitech580/averis
 
-### Workspace & Navigation
-- Role-aware sidebar navigation
-- Overview dashboard
-- Global search trigger with **Ctrl/Cmd + K** interaction
-- Notifications
-- Light/dark theme switching
-- Responsive mobile navigation
-- Hash-based view navigation
-
-### Patients
-- Patient directory
-- Patient status and risk information
-- Provider relationships
-- Attendance/no-show related information
-- Search, filtering, sorting, and pagination
-- Patient detail workflows
-
-### Appointments
-- Appointment scheduling workflow
-- Daily appointment views
-- Appointment status handling
-- Provider/patient relationships
-- Appointment activity visualization
-- New appointment flow from the dashboard
-
-### Care Hub
-- Open coordination items
-- Care issues and follow-ups
-- Workflow stages such as **New, Assigned, In Progress, Waiting, and Resolved**
-- Priority follow-up handling
-
-### Providers
-- Provider directory
-- Specialty and location information
-- Operational workload indicators
-- Workload states including **Normal, Busy, and Overloaded**
-
-### Messages
-- Internal conversation-style messaging UI
-- Conversation list
-- Unread indicators
-- Sample message history
-
-### Tasks
-- Task management
-- Patient-linked work items
-- Priority levels
-- Due dates
-- To Do / In Progress / Completed workflow
-
-### Analytics
-- Operational metrics
-- Appointment activity
-- No-show analysis
-- Department-level comparisons
-- Provider workload information
-- Visual dashboard charts
-
-### AI Insights
-Averis includes a lightweight, transparent **deterministic insights engine** rather than a connected LLM API.
-
-It can reason over the current demo data to answer questions around:
-- Appointment volume
-- Provider overload
-- Follow-up attention
-- No-show performance
-- Department-level patterns
-
-The insight engine produces a summary, an operational action, and a confidence value using predefined calculations.
-
-### Settings
-- Workspace-oriented configuration UI
-- Role switching for demo purposes
-- Theme and application preferences
+Open the site directly — there is no server setup or account creation required for the portfolio build.
 
 ---
 
-## 🧠 AI / Analytics Approach
+## ✨ What is inside
 
-The AI Insights section is intentionally self-contained.
+### Command Center
+- Live operational overview
+- Patient flow trend
+- Capacity and occupancy snapshot
+- Care queue visibility
+- Live activity stream
+- Network/system health indicator
+- Animated healthcare imagery
+- Real-time clock and freshness signals
 
-For example, the application calculates signals such as:
-
-- **No-show rate** from historical appointments
-- **Provider workload** from today's appointments, active patients, and open tasks
-- **Follow-up priority** from elapsed time, open tasks, upcoming appointments, and care-plan progress
-- **Department risk** by comparing appointment and no-show counts
-
-These calculations are implemented in JavaScript and operate against the browser's current demo state.
-
-This makes the project:
-- easy to inspect
-- deterministic
-- reproducible
-- usable without API keys
-- suitable for demonstrating product thinking and frontend engineering
-
----
-
-## 🛠️ Tech Stack
-
-| Area | Technology |
-|---|---|
-| Markup | HTML5 |
-| Styling | CSS3 |
-| Application logic | Vanilla JavaScript |
-| Charts | Inline SVG generated by JavaScript |
-| Persistence | Browser \`localStorage\` |
-| PWA metadata | Web App Manifest |
-| Reference data model | PostgreSQL-style SQL schema |
-| Deployment | GitHub Pages |
-| Build tooling | None |
-
-No framework or package manager is required for the current demo.
-
----
-
-## 🏗️ Project Structure
-
-\`\`\`text
-averis/
-├── index.html        # Application shell, authentication UI, views
-├── styles.css        # Design system and responsive UI styles
-├── app.js            # State, seeded data, rendering, interactions, analytics and AI demo logic
-├── manifest.json     # Progressive Web App metadata
-├── schema.sql        # Reference relational database schema
-├── generate_data.py  # Supporting synthetic data generation utility
-└── README.md         # Project documentation
-\`\`\`
-
----
-
-## 💾 Data & Architecture
-
-The live demo is intentionally **100% static**.
-
-Application state is stored in the browser using \`localStorage\`. On first use, Averis seeds a deterministic set of synthetic providers, patients, appointments, tasks, care-hub items, notifications, and conversations.
-
-The application therefore supports state changes during a session without requiring a server.
-
-### Reference backend model
-
-The repository also contains \`schema.sql\`, which documents how the same concepts could be represented in a relational backend.
-
-The reference schema includes entities such as:
-
-- Organizations
-- Users
-- Providers
+### Care Operations
 - Patients
 - Appointments
-- Care plans
-- Care-plan goals
-- Care Hub items
-- Tasks
+- Care Hub
+- Clinical Monitor
+- Providers
+- Bed Board
+
+### Services
+- Pharmacy
+- Laboratory
 - Messages
+- Tasks
+- Reports
+
+### Intelligence
+- Operational analytics
+- Provider workload signals
+- No-show and scheduling signals
+- Care-cycle metrics
+- Explainable AI Copilot
+
+### System
+- Light/dark clinical theme
+- Live simulation toggle
+- Responsive navigation
+- Global command/search palette
 - Notifications
-
-The SQL file is **documentation only** and is not executed by the GitHub Pages demo.
-
----
-
-## 🔐 Demo Authentication
-
-Averis includes a browser-side authentication experience with:
-
-- Demo sign-in
-- Workspace creation flow
-- Session persistence
-- Demo organization information
-- Role-aware UI behavior
-
-Supported demo roles include:
-
-\`\`\`text
-Organization Admin
-Doctor
-Care Coordinator
-Receptionist
-Patient
-\`\`\`
-
-Some navigation areas are intentionally hidden for lower-privilege demo roles to illustrate role-aware product design.
-
-> This authentication implementation is not secure production authentication. Credentials and session state are handled in client-side JavaScript/localStorage for demonstration purposes only.
+- Browser persistence with localStorage
+- CSV export flows
 
 ---
 
-## 📊 Synthetic Data
+## 🎨 Design direction
 
-The demo uses generated records rather than real patient information.
+The visual system combines **clinical healthcare UI patterns** with a restrained cinematic color language inspired by the energy of Marvel-style interfaces:
 
-Examples of synthetic operational data include:
-- Patient records and statuses
-- Appointment schedules
-- Provider workloads
-- Tasks and priorities
-- Care coordination issues
-- Notifications
-- Internal messages
-- Dashboard metrics
+- Medical blue for primary navigation and actions
+- Healthcare teal for positive/active signals
+- Deep red for critical states
+- Gold for attention and priority states
+- Navy/slate text and surfaces for readability
+- Soft glass and atmospheric fog rather than heavy neon effects
+- Animated hover haze and subtle lift interactions
+- Responsive layouts for desktop, tablet and mobile
 
-This keeps the project safe to showcase publicly while still providing realistic product behavior.
-
----
-
-## 🎨 Design System
-
-Averis uses a custom interface designed around a healthcare-operations workspace rather than a generic dashboard template.
-
-Design characteristics include:
-- Slate-based surfaces
-- Teal as the primary interaction signal
-- Amber for attention/risk states
-- Clear hierarchy and compact information density
-- Responsive layouts
-- Animated view transitions
-- Animated SVG charts
-- Hover/focus states
-- Toast feedback
-- Light and dark themes
-- Mobile sidebar behavior
-
-The UI is implemented with plain HTML and CSS rather than a component framework.
+The intent is **healthcare first** — not superhero theming.
 
 ---
 
-## ⚡ Run Locally
+## 🌫️ Motion & atmosphere
 
-Because the application is static, no installation step is required.
+Averis includes a lightweight motion layer designed to feel alive without making the interface distracting:
 
-### Option 1 — Open directly
+- Animated background fog
+- Slow ambient particle movement
+- Mouse-following atmosphere
+- Hero image drift
+- Soft card hover haze
+- Button/search hover glow
+- Live status pulses
+- Animated clinical telemetry
+- Periodic activity updates
+- Smooth view transitions
 
-Download or clone the repository and open:
+The animation system respects `prefers-reduced-motion`.
 
-\`\`\`text
-index.html
-\`\`\`
+---
 
-### Option 2 — Use a local server
+## 🖼️ Healthcare imagery
 
-From the project directory:
+The redesigned UI uses healthcare photography from **Pexels** for the hero, care and hospital-environment surfaces. The selected source pages are marked as free-use by Pexels:
 
-\`\`\`bash
+- Hospital care team image — Pexels photo 6129507 urlSource pagehttps://www.pexels.com/photo/doctors-and-nurses-in-a-hospital-6129507/
+- Doctor/patient care image — Pexels photo 6129651 urlSource pagehttps://www.pexels.com/photo/doctor-talking-to-a-patient-6129651/
+- Modern hospital interior — Pexels photo 29329917 urlSource pagehttps://www.pexels.com/photo/modern-hospital-interior-with-staircase-and-elevators-29329917/
+
+The photographs are used as visual product surfaces rather than as patient records or clinical evidence.
+
+---
+
+## 🛠️ Tech stack
+
+| Layer | Technology |
+|---|---|
+| UI | HTML5 |
+| Styling | CSS3 |
+| Application | Vanilla JavaScript |
+| Charts | Inline SVG |
+| State | localStorage |
+| PWA | Web App Manifest |
+| Data | Synthetic browser-side data |
+| Deployment | GitHub Pages |
+| Backend | None in the current build |
+
+No framework or package manager is required.
+
+---
+
+## 🏗️ Project structure
+
+```text
+averis/
+├── index.html
+├── styles.css
+├── app.js
+├── manifest.json
+├── schema.sql
+├── generate_data.py
+└── README.md
+```
+
+### Main application files
+
+**index.html**  
+Application shell, navigation, content views, overlays and modal host.
+
+**styles.css**  
+Full clinical design system, responsive layouts, motion, fog atmosphere, image surfaces, tables, charts, cards and component states.
+
+**app.js**  
+Synthetic data generation, state management, live simulation, rendering, navigation, command search, patient details, messaging, tasks, analytics, reports and AI Copilot logic.
+
+**schema.sql**  
+Reference relational model showing how the client-side concepts could be connected to PostgreSQL in a production architecture.
+
+---
+
+## ⚡ Run locally
+
+Because the current build is static:
+
+```bash
 python -m http.server 8000
-\`\`\`
+```
 
 Then open:
 
-\`\`\`text
+```text
 http://localhost:8000
-\`\`\`
+```
+
+Opening `index.html` directly also works in modern browsers.
 
 ---
 
-## 🌐 Deploy to GitHub Pages
+## 🔴 Live data note
 
-Averis is already structured for static GitHub Pages deployment.
+The interface intentionally displays **LIVE** indicators and continuously changing operational values, but those values are simulated inside the browser.
 
-1. Push the repository to GitHub.
-2. Enable **GitHub Pages** for the repository.
-3. Publish from the \`main\` branch.
-4. Open the generated Pages URL.
+A genuinely real-time deployment would require:
 
-No build command is required.
+```text
+Frontend
+   ↓
+Authenticated API
+   ↓
+Application services
+   ↓
+PostgreSQL / event store
+   ↓
+WebSocket / SSE event stream
+   ↓
+Live UI updates
+```
 
----
-
-## 🧪 Portfolio / Engineering Highlights
-
-Averis demonstrates several frontend engineering concepts in a single project:
-
-- Single-page application architecture without a framework
-- Client-side state management
-- Persistent browser storage
-- Deterministic data seeding
-- Role-aware navigation
-- Search and filtering interactions
-- Pagination and sorting
-- Modal and toast interactions
-- Responsive design
-- Theme switching
-- SVG chart generation
-- Lightweight analytics calculations
-- Explainable rule-based AI-style insights
-- PWA manifest integration
-- Reference relational schema design
-- GitHub Pages deployment
+That architecture is the natural next step for turning the current portfolio build into a production-grade healthcare operations platform.
 
 ---
 
-## ⚠️ Scope & Limitations
+## 🔐 Security & healthcare scope
 
-Averis is a **product demonstration**, not a production healthcare platform.
+The current repository does not provide production authentication, HIPAA controls, audit logging, encrypted clinical storage, real patient integrations or server-side authorization.
 
-It does not currently provide:
-- Real patient records
-- HIPAA/compliance controls
-- Secure backend authentication
-- Server-side authorization
-- Encrypted healthcare data storage
-- Production database connectivity
-- Real clinical integrations
-- Real messaging delivery
-- Real appointment integrations
-- External AI/LLM API connectivity
-
-The displayed financial, satisfaction, appointment, patient, and operational values are demonstration data.
-
----
-
-## 🗺️ Future Evolution
-
-A natural production-oriented evolution of Averis could include:
-
-- Secure backend APIs
-- PostgreSQL database
-- Real authentication and RBAC
-- Audit logging
-- Secure patient data handling
-- Calendar integrations
-- Notification services
-- Real-time messaging
-- Provider scheduling rules
-- Clinical/EMR integrations
-- Production ML/LLM services
-- Observability and automated testing
-- Role-specific workflow permissions
-
-The existing client-side architecture provides a clear UI/product foundation for that next stage.
-
----
-
-## 📄 License
-
-No license is currently declared in this repository.
+The correct production path would add secure identity, role-based permissions, audit trails, encryption, consent workflows, validated integrations and a backend event model before real healthcare data is introduced.
 
 ---
 
@@ -376,12 +213,11 @@ No license is currently declared in this repository.
 
 **Mahendra Sai Kondaveeti**
 
-GitHub:  
-https://github.com/mahitech580
+GitHub: https://github.com/mahitech580
 
 ---
 
 <p align="center">
-  <strong>Averis</strong><br/>
+  <strong>Averis Care Command</strong><br>
   Better care starts with better coordination.
 </p>
