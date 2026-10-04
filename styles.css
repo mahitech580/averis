@@ -736,3 +736,30 @@ body{line-height:1.6;letter-spacing:.005em}
   .website-shell .hero-status b{font-size:10px}
   .website-shell .hero-status small{font-size:9px}
 }
+
+/* FINAL HERO CARD SPACING */
+.website-shell .hero-floating-a{
+  left:auto;
+  right:-8px;
+  top:14%;
+  bottom:auto;
+  min-width:132px;
+}
+.website-shell .hero-floating-b{
+  left:auto;
+  right:-8px;
+  top:34%;
+  bottom:auto;
+  min-width:132px;
+}
+.website-shell .hero-floating{
+  white-space:nowrap;
+}
+@media(max-width:1050px){
+  .website-shell .hero-floating-a{right:8px;top:12%}
+  .website-shell .hero-floating-b{right:8px;top:34%}
+}
+@media(max-width:560px){
+  .website-shell .hero-floating-a{right:6px;top:10%;min-width:116px}
+  .website-shell .hero-floating-b{right:6px;top:34%;min-width:116px}
+}
