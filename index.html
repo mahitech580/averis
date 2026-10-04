@@ -1,124 +1,178 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#1565C0"><meta name="color-scheme" content="light dark"><meta name="application-name" content="Averis Care Command">
-  <meta name="description" content="Averis — a real-time healthcare operations command center.">
-  <title>Averis — Healthcare Operations Command Center</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#eef5fb">
+  <meta name="description" content="Averis by Mahi — a polished healthcare operations workspace for patient flow, clinical coordination, hospital services and decision support.">
+  <meta name="application-name" content="Averis by Mahi">
+  <title>Averis by Mahi — Care Operations OS</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="assets/averis-mark.svg">
-  <link rel="preconnect" href="https://images.pexels.com">
-  <link rel="preload" as="image" href="https://images.pexels.com/photos/6129507/pexels-photo-6129507.jpeg?auto=compress&cs=tinysrgb&w=1800"><link rel="stylesheet" href="styles.css">
+  <link rel="preload" as="image" href="https://images.pexels.com/photos/6129507/pexels-photo-6129507.jpeg?auto=compress&cs=tinysrgb&w=1600&q=78">
+  <style>
+    html{background:#eef5fb}body{visibility:hidden}body.app-ready{visibility:visible}
+  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body><a class="skip-link" href="#content">Skip to content</a>
-  <div class="scroll-progress" aria-hidden="true"><span></span></div>
-  <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
-  <div class="site-backdrop" aria-hidden="true">
-  <div class="backdrop-fallback"></div>
-  <img id="backdropPhoto" src="https://images.pexels.com/photos/6129507/pexels-photo-6129507.jpeg?auto=compress&cs=tinysrgb&w=1800&q=82" alt="">
-  <div class="backdrop-wash"></div>
-</div>
-<div class="ambient" aria-hidden="true">
-    <span class="fog fog-a"></span>
-    <span class="fog fog-b"></span>
-    <span class="fog fog-c"></span>
-    <span class="particle-field"></span>
+<body>
+  <a class="skip-link" href="#appContent">Skip to content</a>
+
+  <div class="global-scene" aria-hidden="true">
+    <div class="scene-base"></div>
+    <img id="scenePhoto" class="scene-photo" alt="">
+    <div class="scene-grid"></div>
+    <div class="scene-glass"></div>
+    <div class="scene-orb scene-orb-a"></div>
+    <div class="scene-orb scene-orb-b"></div>
   </div>
 
-  <div id="toastHost" aria-live="polite" aria-atomic="true"></div>
+  <div id="toastHost" class="toast-host" aria-live="polite"></div>
 
-  <div class="app-shell" id="app">
-    <aside class="sidebar" id="sidebar">
-      <div class="brand-block">
-        <button class="brand" data-view="overview" aria-label="Averis Command Center">
+  <!-- Local-first access shell, modeled after the polished Mahi workspace pattern. -->
+  <section id="authGate" class="auth-gate" aria-label="Mahi Averis access">
+    <div class="auth-backdrop">
+      <div class="auth-noise"></div>
+      <div class="auth-line line-one"></div>
+      <div class="auth-line line-two"></div>
+    </div>
+    <div class="auth-layout">
+      <div class="auth-story">
+        <div class="brand-lockup">
           <span class="brand-mark"><i></i><b></b></span>
-          <span>
-            <strong>Averis</strong>
-            <small>CARE COMMAND</small>
-          </span>
+          <span><strong>AVERIS</strong><small>BY MAHI</small></span>
+        </div>
+        <span class="story-kicker">HEALTHCARE OPERATIONS OS</span>
+        <h1>Run care with a<br><span>clearer picture.</span></h1>
+        <p>One workspace for patient flow, appointments, care coordination, clinical signals and hospital services — designed as Mahi's portfolio-grade healthcare product.</p>
+        <div class="story-points">
+          <span><i>✓</i> Patient-first workflows</span>
+          <span><i>✓</i> Live operational signals</span>
+          <span><i>✓</i> Local-first portfolio build</span>
+        </div>
+        <div class="story-metric"><strong>01</strong><span>Connected care workspace</span><em>MAHI / AVERIS</em></div>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-head">
+          <div>
+            <span class="micro">WELCOME TO MAHI'S WORKSPACE</span>
+            <h2 id="authTitle">Enter Averis</h2>
+            <p id="authSubtitle">Use a local account to open your care operations workspace.</p>
+          </div>
+          <span class="ready-pill"><i></i>READY</span>
+        </div>
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" data-auth-mode="signin">Sign in</button>
+          <button type="button" class="auth-tab" data-auth-mode="create">Create profile</button>
+        </div>
+
+        <form id="signinForm" class="auth-form">
+          <label>Email<input id="signinEmail" type="email" placeholder="mahi@example.com" autocomplete="email" required></label>
+          <label>Password<div class="password-field"><input id="signinPassword" type="password" placeholder="Enter password" autocomplete="current-password" required><button type="button" data-password="signinPassword">Show</button></div></label>
+          <label class="check-row"><input id="rememberMe" type="checkbox" checked><span>Keep me signed in on this device</span></label>
+          <button class="btn auth-submit primary" type="submit">Open Mahi Averis <span>→</span></button>
+          <p id="signinMessage" class="form-message"></p>
+        </form>
+
+        <form id="createForm" class="auth-form hidden">
+          <label>Name<input id="createName" type="text" placeholder="Mahi" autocomplete="name" required></label>
+          <label>Email<input id="createEmail" type="email" placeholder="mahi@example.com" autocomplete="email" required></label>
+          <div class="form-two">
+            <label>Password<input id="createPassword" type="password" placeholder="6+ characters" required minlength="6"></label>
+            <label>Confirm<input id="createConfirm" type="password" placeholder="Repeat password" required minlength="6"></label>
+          </div>
+          <label class="check-row"><input id="createTerms" type="checkbox" required><span>I understand this portfolio account stays in this browser.</span></label>
+          <button class="btn auth-submit primary" type="submit">Create Mahi profile <span>✦</span></button>
+          <p id="createMessage" class="form-message"></p>
+        </form>
+
+        <div class="auth-note"><span>⌁</span><p>Portfolio build only. No real patient records, authentication server, or clinical integrations are connected.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="appShell" class="app-shell hidden">
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-top">
+        <button class="logo-button" data-route="overview" aria-label="Averis home">
+          <span class="brand-mark"><i></i><b></b></span>
+          <span class="logo-copy"><strong>AVERIS</strong><small>BY MAHI</small></span>
         </button>
-        <button class="icon-btn mobile-close" id="closeSidebar" aria-label="Close navigation">×</button>
+        <button id="closeSidebar" class="round-btn mobile-only" aria-label="Close menu">×</button>
       </div>
 
-      <div class="workspace-card">
-        <div class="workspace-avatar">M</div>
-        <div class="workspace-meta">
-          <strong>Mahi Health</strong>
-          <span>Care Operations Workspace</span>
-        </div>
-        <span class="status-dot"></span>
+      <div class="workspace-switcher">
+        <span class="workspace-icon">M</span>
+        <span><strong>Mahi Health</strong><small>Care Operations</small></span>
+        <i class="live-dot"></i>
       </div>
 
-      <nav class="side-nav" id="nav"></nav>
+      <nav id="sideNav" class="side-nav" aria-label="Averis modules"></nav>
 
-      <div class="sidebar-bottom">
-        <div class="system-card">
-          <div class="system-line"><span class="pulse-dot"></span><span>Live systems</span><strong id="systemLatency">18 ms</strong></div>
-          <div class="system-bar"><span id="systemBarFill"></span></div>
-          <small id="syncText">Synchronised just now</small>
+      <div class="sidebar-foot">
+        <div class="system-panel">
+          <div class="system-top"><span><i class="live-dot"></i> Live systems</span><strong id="latencyValue">18 ms</strong></div>
+          <div class="system-track"><span id="latencyBar"></span></div>
+          <small id="syncLabel">Synchronized just now</small>
         </div>
-        <button class="profile-row" id="profileButton">
-          <span class="avatar">M</span>
-          <span><strong>Mahi</strong><small>Healthcare Operations</small></span>
-          <span class="profile-chevron">⌄</span>
+        <button id="profileButton" class="profile-row">
+          <span id="profileAvatar" class="profile-avatar">M</span>
+          <span><strong id="profileName">Mahi</strong><small id="profileRole">Healthcare Operations</small></span>
+          <b>⌄</b>
         </button>
       </div>
     </aside>
 
     <div class="main-column">
       <header class="topbar">
-        <div class="topbar-left">
-          <button class="icon-btn mobile-menu" id="openSidebar" aria-label="Open navigation">☰</button>
-          <div class="crumbs"><span>Averis</span><b>/</b><strong id="crumbView">Command Center</strong></div>
-          <button class="search-pill" id="openCommand" aria-label="Open global search">
-            <span class="search-icon">⌕</span>
-            <span>Search patients, tasks, appointments…</span>
-            <kbd>Ctrl K</kbd>
+        <div class="top-left">
+          <button id="openSidebar" class="round-btn mobile-only" aria-label="Open menu">☰</button>
+          <div class="breadcrumbs"><span>Averis</span><b>/</b><strong id="routeName">Command Center</strong></div>
+          <button id="globalSearch" class="search-launch" aria-label="Search Averis">
+            <span>⌕</span><span>Search patients, appointments, tasks…</span><kbd>Ctrl K</kbd>
           </button>
         </div>
-        <div class="topbar-actions">
-          <div class="live-chip"><span class="pulse-dot"></span><strong>LIVE</strong><span id="liveTime">--:--:--</span></div>
-          <button class="icon-btn" id="refreshLive" title="Sync live data">↻</button>
-          <button class="icon-btn" id="themeToggle" title="Toggle theme">◐</button>
-          <button class="topbar-profile" id="topProfileButton" aria-label="Open Mahi profile"><span class="top-profile-avatar">M</span><span><strong>Mahi</strong><small>Care Operations</small></span></button>
-          <div class="notif-wrap">
-            <button class="icon-btn notif-button" id="notifButton" title="Notifications">◔<span id="notifCount">4</span></button>
-            <div class="popover notifications" id="notificationsPopover"></div>
+        <div class="top-right">
+          <div class="live-chip"><i class="live-dot"></i><strong>LIVE</strong><span id="liveClock">--:--:--</span></div>
+          <button id="refreshBtn" class="round-btn" title="Refresh live workspace">↻</button>
+          <button id="themeBtn" class="round-btn" title="Toggle theme">◐</button>
+          <button id="topProfile" class="top-profile" title="Open Mahi settings"><span>M</span><b>Mahi</b></button>
+          <div class="notification-wrap">
+            <button id="notificationBtn" class="round-btn" aria-label="Notifications">◔<em id="notificationCount">0</em></button>
+            <div id="notificationPanel" class="notification-panel"></div>
           </div>
         </div>
       </header>
 
-      <main class="content" id="content">
-        <section class="view active" id="view-overview"></section>
-        <section class="view" id="view-patients"></section>
-        <section class="view" id="view-appointments"></section>
-        <section class="view" id="view-care"></section>
-        <section class="view" id="view-clinical"></section>
-        <section class="view" id="view-providers"></section>
-        <section class="view" id="view-pharmacy"></section>
-        <section class="view" id="view-lab"></section>
-        <section class="view" id="view-beds"></section>
-        <section class="view" id="view-emergency"></section>
-        <section class="view" id="view-queue"></section>
-        <section class="view" id="view-patient360"></section>
-        <section class="view" id="view-billing"></section>
-        <section class="view" id="view-messages"></section>
-        <section class="view" id="view-tasks"></section>
-        <section class="view" id="view-analytics"></section>
-        <section class="view" id="view-ai"></section>
-        <section class="view" id="view-reports"></section>
-        <section class="view" id="view-settings"></section>
+      <main id="appContent" class="content">
+        <section id="view-overview" class="view"></section>
+        <section id="view-patients" class="view"></section>
+        <section id="view-appointments" class="view"></section>
+        <section id="view-queue" class="view"></section>
+        <section id="view-emergency" class="view"></section>
+        <section id="view-patient360" class="view"></section>
+        <section id="view-care" class="view"></section>
+        <section id="view-clinical" class="view"></section>
+        <section id="view-providers" class="view"></section>
+        <section id="view-beds" class="view"></section>
+        <section id="view-lab" class="view"></section>
+        <section id="view-pharmacy" class="view"></section>
+        <section id="view-billing" class="view"></section>
+        <section id="view-messages" class="view"></section>
+        <section id="view-tasks" class="view"></section>
+        <section id="view-analytics" class="view"></section>
+        <section id="view-ai" class="view"></section>
+        <section id="view-reports" class="view"></section>
+        <section id="view-settings" class="view"></section>
       </main>
 
-      <footer class="footer">
-        <span>Averis Care Command • Mahi Health Workspace</span>
-        <span><span class="footer-dot"></span><span id="footerStatus">All systems nominal</span></span>
-      </footer>
+      <footer class="footer"><span>Averis by Mahi • Care Operations OS</span><span><i class="live-dot"></i><b id="footerStatus">All systems nominal</b></span></footer>
     </div>
   </div>
 
-  <div class="modal-layer" id="modalLayer"></div>
+  <div id="modalRoot" class="modal-root"></div>
+  <div id="commandRoot" class="command-root"></div>
 
   <script src="app.js"></script>
 </body>
