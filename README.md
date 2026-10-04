@@ -104,9 +104,9 @@ The animation system respects `prefers-reduced-motion`.
 
 The redesigned UI uses healthcare photography from **Pexels** for the hero, care and hospital-environment surfaces. The selected source pages are marked as free-use by Pexels:
 
-- Hospital care team image — Pexels photo 6129507 urlSource pagehttps://www.pexels.com/photo/doctors-and-nurses-in-a-hospital-6129507/
-- Doctor/patient care image — Pexels photo 6129651 urlSource pagehttps://www.pexels.com/photo/doctor-talking-to-a-patient-6129651/
-- Modern hospital interior — Pexels photo 29329917 urlSource pagehttps://www.pexels.com/photo/modern-hospital-interior-with-staircase-and-elevators-29329917/
+- Hospital care team image — Pexels photo 6129507 [Pexels source page](https://www.pexels.com/photo/doctors-and-nurses-in-a-hospital-6129507/)
+- Doctor/patient care image — Pexels photo 6129651 [Pexels source page](https://www.pexels.com/photo/doctor-talking-to-a-patient-6129651/)
+- Modern hospital interior — Pexels photo 29329917 [Pexels source page](https://www.pexels.com/photo/modern-hospital-interior-with-staircase-and-elevators-29329917/)
 
 The photographs are used as visual product surfaces rather than as patient records or clinical evidence.
 
