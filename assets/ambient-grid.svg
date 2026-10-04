@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180" fill="none">
+<path d="M0 45h180M0 90h180M0 135h180M45 0v180M90 0v180M135 0v180" stroke="#1565C0" stroke-opacity=".08"/>
+<circle cx="45" cy="45" r="1.5" fill="#00897B" fill-opacity=".25"/><circle cx="135" cy="90" r="1.5" fill="#E23636" fill-opacity=".22"/><circle cx="90" cy="135" r="1.5" fill="#FFC107" fill-opacity=".24"/>
+</svg>
