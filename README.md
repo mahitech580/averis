@@ -2,7 +2,7 @@
 
 **SIMULATED / LOCAL**
 
-AVERIS is a browser-local healthcare operations website that connects people, journeys, workflow, schedules, capacity, communication, incidents, intelligence, reports and governance in one operating surface. The **Website Overview** explains what the website contains, how its workspaces connect, what each area is for, and where to go next. The detailed workspaces then let you explore each operational area. Everything shown is synthetic and stays inside the browser.
+AVERIS is a browser-local healthcare operations website that brings 18 connected workspaces into one operating surface. The **Website Overview** is the starting point: it explains the full website map, how coordination, execution, capacity, communication, intelligence and governance connect, what each workspace is for, and where to explore next. Every detailed workspace then provides its own local workflow view. Everything shown is synthetic and stays inside the browser.
 
 ## Live
 https://mahitech580.github.io/averis/
@@ -13,10 +13,10 @@ All visible records are synthetic. AVERIS does not connect to real patients, hea
 The Diagnostics and Pharmacy workspaces demonstrate operational workflows only. The People drawer can show synthetic medication/pharmacy context, explicitly marked as non-clinical operational data.
 
 ## Product experience
-The interface uses a cinematic healthcare-control-room presentation with realistic healthcare photography, responsive cards, larger readability-focused typography, dark/light mode, live operational signals, and local interactive workflows. Visual imagery is used as contextual presentation only; the application remains synthetic and non-clinical.
+The interface uses a cinematic healthcare operations presentation with realistic contextual photography, clear hierarchy, larger readability-focused typography, responsive layouts and local interactive workflows. The Overview is deliberately arranged left-to-right on larger screens so the product story, explanation and representative environment are understood in one visual pass. On tablet and mobile, the layout collapses without fixed-height text containers or page-level horizontal scrolling. Visual imagery is presentation-only; the application remains synthetic and non-clinical.
 
 ## Product structure
-- Website Overview — the starting point for understanding the entire AVERIS website. It explains the product, the operating model, the main workspaces, the operational layers, the synthetic-only boundary and the next places to explore.
+- Website Overview — the starting point for understanding the entire AVERIS website. It gives the complete map of the product, explains the operating model, identifies the 18 workspaces, shows the operational layers, states the synthetic-only boundary and provides clear paths into the rest of the site.
 - People — search, filter, sort, profiles, journeys, work, appointments, diagnostic workflow, synthetic medication context, messages and activity.
 - Journeys — stage, progress, ownership and person counts.
 - Queue — create/edit, owner assignment, priority, state, complete/reopen and blocked movement.
@@ -37,7 +37,10 @@ The interface uses a cinematic healthcare-control-room presentation with realist
 
 ## Visual system
 - Clear website-style homepage followed by structured workspace pages, with persistent browser-local application state.
-- Responsive command-center layout for desktop, tablet and mobile.
+- Responsive layouts across laptop, desktop, tablet and mobile, including portrait/landscape behavior.
+- Left-to-right Website Overview on larger screens: heading, explanation/actions and representative environment image.
+- Readable text widths, flexible controls and contained table scrolling to prevent overlap or page-level horizontal scrolling.
+- Only explicit controls trigger application actions; decorative surfaces and non-control areas do not act like buttons.
 - Realistic healthcare imagery with readability overlays across major workspaces.
 - Local interaction patterns: drawers, modals, command search, forms, state transitions, exports and toasts.
 - No rotating rainbow button effect; controls use restrained operational emphasis.
@@ -64,10 +67,10 @@ State is stored in browser `localStorage` under a versioned AVERIS key. The runt
 5. exports browser-local JSON,
 6. resets the browser state without modifying GitHub.
 
-The clock updates once per second without replacing the workspace DOM.
+The clock updates once per second without replacing the workspace DOM. Overview imagery uses bounded aspect-ratio containers so visual size adapts to the viewport instead of forcing a fixed page height.
 
 ## QA
-The Pages workflow validates JavaScript with `node --check app.js` and Python with `python -m py_compile generate_data.py` before uploading the Pages artifact. Manual browser QA should verify routes, forms, filters, sort, drawers, state transitions, search, persistence, export, responsive layouts and the synthetic-only boundary.
+The Pages workflow validates JavaScript with `node --check app.js` and Python with `python -m py_compile generate_data.py` before uploading the Pages artifact. Manual browser QA should verify routes, forms, filters, sort, drawers, state transitions, search, persistence, export, click behavior, keyboard navigation, portrait/landscape layouts, desktop/tablet/mobile breakpoints, 400% zoom behavior and the synthetic-only boundary.
 
 ## Repository
 GitHub: https://github.com/mahitech580/averis  
