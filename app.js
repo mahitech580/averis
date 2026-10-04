@@ -100,8 +100,8 @@ const load=Math.round(state.resources.reduce((a,r)=>a+r.util,0)/state.resources.
 const incidents=state.incidents.filter(i=>i.state!=="Resolved").length;
 return '<section class="landing-hero website-section-bg hero-bg"><div class="section-overlay"></div><div class="landing-hero-inner">'+
 '<div class="landing-hero-copy"><span class="eyebrow">AVERIS · BY MAHI</span><div class="hero-kicker"><span class="led"></span> LOCAL-FIRST HEALTHCARE OPERATIONS</div>'+
-'<h1>Operational clarity for <span>complex environments.</span></h1>'+
-'<p class="landing-lead">A modern browser-local workspace for coordinating people, workflows, capacity, communication, incidents, reporting and operational intelligence in one clear operating surface.</p>'+
+'<h1>One clear view of <span>healthcare operations.</span></h1>'+
+'<p class="landing-lead">AVERIS brings people, journeys, work, schedules, capacity, communication, incidents, insights and reporting into one browser-local workspace, making complex day-to-day operations easier to understand and act on.</p>'+
 '<div class="landing-actions">'+btn("go-people","Explore operations","primary")+btn("go-insights","Explore intelligence","ghost")+btn("open-command","⌕ Search AVERIS","ghost")+'</div>'+
 '<div class="landing-trust"><span>18 workspaces</span><span>Local persistence</span><span>Synthetic by design</span></div></div>'+
 '<div class="landing-hero-visual"><div class="hero-image-window"><img src="https://www.ihhhealthcare.com/images/default-source/ihh/occ-2.jpg?sfvrsn=2801dfb4_1" alt="Healthcare operations command center"></div>'+
