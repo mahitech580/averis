@@ -469,7 +469,9 @@
     window.addEventListener("hashchange",function(){var v=location.hash.replace("#","")||"overview";if(v!==state.view)navigate(v,true);});
     document.addEventListener("keydown",function(e){if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openCommand();}if(e.key==="Escape"){closeModal();closeCommand();$("#notificationPanel").classList.remove("open");}});
     document.addEventListener("mousemove",function(e){document.documentElement.style.setProperty("--mx",(e.clientX/innerWidth*100)+"%");document.documentElement.style.setProperty("--my",(e.clientY/innerHeight*100)+"%");},{passive:true});
-    bindGlobalImageFallback();updateNotifications();currentRender();updateLive();document.body.classList.add("app-ready");
+    bindGlobalImageFallback();updateNotifications();
+    if(currentProfile() && DB.get("session",null)) navigate(state.view || "overview", true);
+    updateLive();document.body.classList.add("app-ready");
     setInterval(function(){if(state.live){state.tick++;updateLive();if(state.view==="clinical"&&state.tick%6===0)renderClinical();}},1000);
     setInterval(function(){if(state.live)pushNotification("Live workspace event","Averis received a synthetic operational update.","system");},22000);
     } catch (error) {
