@@ -945,3 +945,20 @@ The Supabase schema changes are also checked into `database/migrations/` with th
 **Finish the Render connection:** open [Supabase Connect settings](https://supabase.com/dashboard/project/zspustvmjtdsnfkprbvv), copy the *Session pooler* connection string (Render uses IPv4), then open the [Render Blueprint](https://dashboard.render.com/blueprint/new?repo=https://github.com/mahitech580/averis) and supply that string for `DATABASE_URL`. Then apply the Blueprint and wait for `/api/health` to pass. Do not paste database passwords into source files or GitHub commits.
 
 **Finish the Netlify update:** create a Netlify personal access token and add it as the `NETLIFY_AUTH_TOKEN` repository secret under GitHub → Settings → Secrets and variables → Actions. The next main-branch CI run will deploy the latest static site to Netlify. Without this secret, the workflow deliberately skips the Netlify publish step.
+
+
+## Release v32: resilient UI, isolated cloud demo, expanded API tests
+
+- Theme state is respected by every render. Light/dark mode is available in Settings and from the sticky site header.
+- All auth hero imagery is now local SVG artwork rather than fragile third-party photo URLs; the service worker caches release-matched assets.
+- The API's public demo action creates a dedicated synthetic tenant per run, seeds 126 ERP records across all 15 modules, and never returns a reusable password. Demo creation has per-network and global rolling-window limits.
+- Production cookies use Secure/HttpOnly/SameSite=None for browser-to-API flows; frontend fetch sends cookies with \`credentials: include\`. Netlify proxies \`/api/*\` to the Render API to keep the primary deployment on one origin.
+- Postman collection now checks health, private demo creation, session identity, 15 module catalogue, summary, ERP CRUD, search, snapshot versioning, organization, audit events and logout.
+- Accessibility includes visible focus outlines, reduced-motion support, skip navigation and small-height viewport adjustments. Prefer a same-origin API proxy for reliable browser session cookies.
+
+### Current deployment secret requirements
+1. Apply the [Render Blueprint](https://dashboard.render.com/blueprint/new?repo=https://github.com/mahitech580/averis) and supply \`DATABASE_URL\` using the dedicated Supabase project's Session Pooler connection string. Never commit that secret.
+2. For the current Netlify project, configure the \`NETLIFY_AUTH_TOKEN\` GitHub Actions secret so CI publishes the latest frontend.
+3. The GitHub Pages preview falls back to local demo if the Render API is not reachable. The intended cloud-first host is Netlify with its same-origin \`/api\` proxy.
+
+Supabase security note: connection strings and database passwords remain in dashboard secret fields only. Public \`anon\` and \`authenticated\` roles do not have access to AVERIS business tables; the FastAPI database connection is the trusted server access boundary.

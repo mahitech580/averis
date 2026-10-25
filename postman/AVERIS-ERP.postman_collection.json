@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AVERIS ERP API",
-    "description": "Smoke tests for local or hosted AVERIS API. Use synthetic data only.",
+    "description": "Production-minded API checks for local/hosted AVERIS. Use synthetic data only. Cookie-based sessions are kept in the Postman cookie jar; demo access provisions a private organization per run.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -20,18 +20,36 @@
     {
       "key": "organizationName",
       "value": "Demo ERP Company"
+    },
+    {
+      "key": "recordId",
+      "value": ""
     }
   ],
   "item": [
     {
-      "name": "Health",
+      "name": "00 · Health check",
       "request": {
         "method": "GET",
+        "header": [],
         "url": "{{baseUrl}}/api/health"
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('API is ready', function () { pm.response.to.have.status(200); });",
+              "pm.test('Persistence is server-side', function () { pm.expect(pm.response.json().persistence).to.eql('server'); });",
+              "pm.test('Database is configured', function () { pm.expect(pm.response.json().database).to.be.a('string'); });"
+            ]
+          }
+        }
+      ]
     },
     {
-      "name": "Register",
+      "name": "01 · Launch isolated demo",
       "request": {
         "method": "POST",
         "header": [
@@ -42,20 +60,98 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\"full_name\":\"ERP Owner\",\"email\":\"{{email}}\",\"password\":\"{{password}}\",\"organization_name\":\"{{organizationName}}\"}"
+          "raw": "{}"
         },
-        "url": "{{baseUrl}}/api/auth/register"
-      }
+        "url": "{{baseUrl}}/api/auth/demo"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Demo workspace created', function () { pm.response.to.have.status(200); });",
+              "pm.test('Demo uses a dedicated tenant', function () { const x=pm.response.json(); pm.expect(x.demo_workspace).to.eql(true); pm.expect(x.seeded_erp_records).to.be.at.least(100); pm.environment.set('demoOrganizationId', x.organization.id); });"
+            ]
+          }
+        }
+      ]
     },
     {
-      "name": "ERP modules",
+      "name": "02 · Current identity",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/auth/me"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Session cookie is accepted', function () { pm.response.to.have.status(200); });",
+              "pm.test('Public response contains no password hash', function () { pm.expect(pm.response.text()).not.to.include('password_hash'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 · ERP module catalogue",
       "request": {
         "method": "GET",
         "url": "{{baseUrl}}/api/erp/modules"
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('All 15 ERP modules are exposed', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().modules.length).to.eql(15); });"
+            ]
+          }
+        }
+      ]
     },
     {
-      "name": "Create product",
+      "name": "04 · ERP summary",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/erp/summary"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Every module has records in demo', function () { pm.response.to.have.status(200); pm.expect(Object.keys(pm.response.json().counts).length).to.eql(15); pm.expect(pm.response.json().low_stock).to.be.above(0); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 · Products",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/erp/products?limit=100"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Products are available', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().count).to.be.at.least(12); pm.environment.set('recordId', pm.response.json().items[0].id); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 · Create product",
       "request": {
         "method": "POST",
         "header": [
@@ -66,48 +162,142 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\"name\":\"USB-C Dock\",\"sku\":\"DOCK-TEST\",\"quantity\":14,\"reorder_level\":5,\"selling_price\":65,\"status\":\"Active\"}"
+          "raw": "{\n  \"name\": \"Postman Sample Dock\",\n  \"sku\": \"POSTMAN-DOCK-1001\",\n  \"category\": \"IT\",\n  \"unit\": \"unit\",\n  \"quantity\": 14,\n  \"reorder_level\": 5,\n  \"unit_cost\": 44.5,\n  \"selling_price\": 65,\n  \"location\": \"Zone Q\",\n  \"status\": \"Active\"\n}"
         },
         "url": "{{baseUrl}}/api/erp/products"
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Product create returns 201', function () { pm.response.to.have.status(201); const x = pm.response.json().item; pm.expect(x.sku).to.eql('POSTMAN-DOCK-1001'); pm.environment.set('createdProductId', x.id); });"
+            ]
+          }
+        }
+      ]
     },
     {
-      "name": "Global search",
+      "name": "07 · Update created product",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Sample Dock Updated\",\n  \"sku\": \"POSTMAN-DOCK-1001\",\n  \"category\": \"IT\",\n  \"unit\": \"unit\",\n  \"quantity\": 10,\n  \"reorder_level\": 5,\n  \"unit_cost\": 44.5,\n  \"selling_price\": 69,\n  \"location\": \"Zone Q\",\n  \"status\": \"Active\"\n}"
+        },
+        "url": "{{baseUrl}}/api/erp/products/{{createdProductId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Update persists', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().item.name).to.include('Updated'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 · Global search",
       "request": {
         "method": "GET",
-        "url": "{{baseUrl}}/api/erp/search?q=DOCK"
-      }
+        "url": "{{baseUrl}}/api/erp/search?q=POSTMAN-DOCK"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Search finds created record', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().count).to.be.at.least(1); });"
+            ]
+          }
+        }
+      ]
     },
     {
-      "name": "Summary",
+      "name": "09 · Workspace snapshot",
       "request": {
         "method": "GET",
-        "url": "{{baseUrl}}/api/erp/summary"
-      }
+        "url": "{{baseUrl}}/api/workspace"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Workspace snapshot is versioned', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.have.property('revision'); });"
+            ]
+          }
+        }
+      ]
     },
     {
-      "name": "Products",
-      "request": {
-        "method": "GET",
-        "url": "{{baseUrl}}/api/erp/products?limit=100"
-      }
-    },
-    {
-      "name": "Organization",
+      "name": "10 · Organization",
       "request": {
         "method": "GET",
         "url": "{{baseUrl}}/api/organization"
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Organization is tenant-scoped', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().id).to.eql(pm.environment.get('demoOrganizationId')); });"
+            ]
+          }
+        }
+      ]
     },
     {
-      "name": "Activity",
+      "name": "11 · Activity log",
       "request": {
         "method": "GET",
         "url": "{{baseUrl}}/api/activity?limit=30"
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Audit events are returned', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().items.length).to.be.above(0); });"
+            ]
+          }
+        }
+      ]
     },
     {
-      "name": "Logout",
+      "name": "12 · Delete created product",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/erp/products/{{createdProductId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Delete removes record', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().ok).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 · Logout",
       "request": {
         "method": "POST",
         "header": [
@@ -121,7 +311,36 @@
           "raw": "{}"
         },
         "url": "{{baseUrl}}/api/auth/logout"
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Logout revokes session', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 · Protected request after logout",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/auth/me"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Protected routes reject logged-out sessions', function () { pm.response.to.have.status(401); });"
+            ]
+          }
+        }
+      ]
     }
   ]
 }

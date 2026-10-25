@@ -4,3 +4,16 @@
 
 [build.environment]
   PYTHON_VERSION = "3.12"
+
+
+# Keep the browser API same-origin on Netlify so secure session cookies work.
+[[redirects]]
+  from = "/api/*"
+  to = "https://averis-platform-api-mahi.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"

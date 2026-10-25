@@ -1,6 +1,6 @@
 """AVERIS shared SaaS API. Synthetic operational records only; not a clinical system."""
 from __future__ import annotations
-import hashlib, json, os, re, secrets, uuid
+import hashlib, json, os, re, secrets, uuid, time
 from datetime import date, datetime, timedelta, timezone
 from typing import Any, Generator
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
@@ -134,7 +134,7 @@ def issue_cookie(response:Response,request:Request,db:Session,user:User):
     token=secrets.token_urlsafe(40)
     db.add(AuthSession(token_hash=digest(token),user_id=user.id,created_at=utcnow(),expires_at=utcnow()+timedelta(seconds=SESSION_TTL)))
     db.commit()
-    response.set_cookie(COOKIE,token,max_age=SESSION_TTL,httponly=True,secure=(APP_ENV=="production" or request.url.scheme=="https"),samesite="lax",path="/")
+    response.set_cookie(COOKIE,token,max_age=SESSION_TTL,httponly=True,secure=(APP_ENV=="production" or request.url.scheme=="https"),samesite=("none" if APP_ENV=="production" else "lax"),path="/")
 
 def current_user(request:Request,db:Session=Depends(get_db))->User:
     token=request.cookies.get(COOKIE)
@@ -257,7 +257,7 @@ def logout(request:Request,response:Response,db:Session=Depends(get_db)):
     if token:
         row=db.get(AuthSession,digest(token))
         if row is not None and row.revoked_at is None: row.revoked_at=utcnow();db.add(row);db.commit()
-    response.delete_cookie(COOKIE,path="/",httponly=True,secure=(APP_ENV=="production" or request.url.scheme=="https"),samesite="lax")
+    response.delete_cookie(COOKIE,path="/",httponly=True,secure=(APP_ENV=="production" or request.url.scheme=="https"),samesite=("none" if APP_ENV=="production" else "lax"))
     return {"ok":True}
 
 @app.get("/api/organization")
@@ -343,6 +343,195 @@ ERP_PREFIX = {
     "projects":"PROJ", "assets":"AST", "journal_entries":"JRN", "support_tickets":"TKT",
     "production_orders":"MFG", "stock_movements":"MOV", "quality_checks":"QC",
 }
+
+
+
+# Public demo is isolated per visitor: no shared credentials, real patient data, or cross-visitor edits.
+_DEMO_WINDOW_SECONDS = 3600
+_DEMO_PER_IP_LIMIT = 8
+_DEMO_GLOBAL_LIMIT = 100
+_demo_attempts: dict[str, list[float]] = {}
+_demo_all_attempts: list[float] = []
+
+def _allow_demo_request(request: Request) -> None:
+    now = time.time()
+    _demo_all_attempts[:] = [ts for ts in _demo_all_attempts if now - ts < _DEMO_WINDOW_SECONDS]
+    if len(_demo_all_attempts) >= _DEMO_GLOBAL_LIMIT:
+        raise HTTPException(429, "Demo capacity is temporarily busy. Try again later.")
+    forwarded = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+    client_host = request.client.host if request.client else "unknown"
+    key = (forwarded or client_host)[:100]
+    attempts = [ts for ts in _demo_attempts.get(key, []) if now - ts < _DEMO_WINDOW_SECONDS]
+    if len(attempts) >= _DEMO_PER_IP_LIMIT:
+        raise HTTPException(429, "Demo limit reached for this network. Try again later.")
+    attempts.append(now)
+    _demo_attempts[key] = attempts
+    _demo_all_attempts.append(now)
+    if len(_demo_attempts) > 1000:
+        _demo_attempts.clear()
+
+def _demo_erp_payload(collection: str, i: int, today: date) -> dict[str, Any]:
+    n = i + 1
+    date_a = (today - timedelta(days=(i * 3) % 75)).isoformat()
+    date_b = (today + timedelta(days=(i * 2) % 60 + 1)).isoformat()
+    state = ["Active", "In Progress", "Pending", "Review"][i % 4]
+    data: dict[str, dict[str, Any]] = {
+        "products": {
+            "name": f"Operations Supply {n:02d}", "sku": f"AVR-DEMO-{n:04d}",
+            "category": ["Equipment", "Consumables", "IT", "Maintenance"][i % 4],
+            "unit": "unit", "quantity": [4, 18, 62, 11, 2, 37][i % 6],
+            "reorder_level": [8, 12, 10, 6, 5, 20][i % 6],
+            "unit_cost": round(11.25 + n * 2.4, 2), "selling_price": round(17.5 + n * 3.1, 2),
+            "location": f"Zone {chr(65 + i % 5)}", "status": "Active"
+        },
+        "suppliers": {
+            "name": f"Supplier {n:02d}", "company": f"Northstar Supply {n:02d}",
+            "email": f"supplier{n}@example.test", "phone": f"+91-90000-{n:05d}",
+            "city": ["Hyderabad", "Bengaluru", "Chennai", "Pune"][i % 4],
+            "payment_terms": ["Net 15", "Net 30", "Net 45"][i % 3], "status": state
+        },
+        "purchase_orders": {
+            "po_number": f"PO-DEMO-{n:04d}", "supplier": f"Supplier {n:02d}",
+            "order_date": date_a, "expected_date": date_b, "items_count": (i % 8) + 1,
+            "total": round(3200 + n * 615.5, 2), "status": ["Received", "Open", "Approved", "In Transit"][i % 4]
+        },
+        "customers": {
+            "name": f"Customer Account {n:02d}", "company": f"Meridian Group {n:02d}",
+            "email": f"customer{n}@example.test", "phone": f"+91-91000-{n:05d}",
+            "segment": ["Enterprise", "Mid-market", "SMB"][i % 3],
+            "city": ["Hyderabad", "Bengaluru", "Chennai", "Mumbai"][i % 4],
+            "lifetime_value": 12000 + n * 2475, "status": state
+        },
+        "sales_orders": {
+            "so_number": f"SO-DEMO-{n:04d}", "customer": f"Customer Account {n:02d}",
+            "order_date": date_a, "due_date": date_b, "items_count": (i % 6) + 1,
+            "total": round(2400 + n * 845.25, 2), "status": ["Fulfilled", "Open", "Processing", "On Hold"][i % 4]
+        },
+        "invoices": {
+            "invoice_number": f"INV-DEMO-{n:04d}", "party": f"Customer Account {n:02d}",
+            "direction": "payable" if i % 5 == 0 else "receivable",
+            "issue_date": date_a, "due_date": date_b, "amount": round(1900 + n * 540.75, 2),
+            "paid_amount": round((1900 + n * 540.75) * (0.25 if i % 3 == 0 else 0.6 if i % 4 == 0 else 0), 2),
+            "status": ["Sent", "Partially Paid", "Overdue", "Draft"][i % 4]
+        },
+        "employees": {
+            "name": f"Team Member {n:02d}", "email": f"team{n}@example.test",
+            "department": ["Operations", "Finance", "Sales", "Engineering", "Quality"][i % 5],
+            "job_title": ["Coordinator", "Analyst", "Specialist", "Manager"][i % 4],
+            "manager": "Demo Administrator", "employment_type": "Full-time",
+            "start_date": (today - timedelta(days=90 + i * 13)).isoformat(),
+            "salary": 30000 + n * 2250, "status": "Active"
+        },
+        "leads": {
+            "name": f"Prospect {n:02d}", "company": f"Enterprise Prospect {n:02d}",
+            "email": f"prospect{n}@example.test", "source": ["Website", "Referral", "Event", "Outbound"][i % 4],
+            "owner": f"Team Member {(i % 8) + 1:02d}", "stage": ["New", "Qualified", "Proposal", "Negotiation"][i % 4],
+            "value": 15000 + n * 5200, "next_activity": date_b
+        },
+        "projects": {
+            "name": f"Delivery Program {n:02d}", "client": f"Customer Account {(i % 10) + 1:02d}",
+            "owner": f"Team Member {(i % 8) + 1:02d}", "start_date": date_a, "due_date": date_b,
+            "budget": 45000 + n * 15000, "status": ["Active", "Planning", "On Hold", "Completed"][i % 4],
+            "progress": [15, 35, 62, 84, 100][i % 5]
+        },
+        "assets": {
+            "name": f"Workstation Asset {n:02d}", "asset_tag": f"AST-DEMO-{n:04d}",
+            "category": ["Laptop", "Monitor", "Network", "Office"][i % 4],
+            "assigned_to": f"Team Member {(i % 8) + 1:02d}", "purchase_date": date_a,
+            "value": 22000 + n * 3300, "condition": ["Good", "Excellent", "Service Due"][i % 3],
+            "status": "Assigned"
+        },
+        "journal_entries": {
+            "entry_number": f"JE-DEMO-{n:04d}", "date": date_a,
+            "description": f"Monthly operating settlement {n:02d}", "debit_account": "Operating Expense",
+            "credit_account": "Accounts Payable", "amount": round(1200 + n * 385.4, 2),
+            "status": ["Posted", "Draft", "Approved"][i % 3]
+        },
+        "support_tickets": {
+            "subject": f"Operations request {n:02d}", "customer": f"Customer Account {(i % 10) + 1:02d}",
+            "priority": ["Low", "Normal", "High", "Critical"][i % 4],
+            "assignee": f"Team Member {(i % 8) + 1:02d}", "created_date": date_a,
+            "status": ["Open", "In Progress", "Waiting", "Resolved"][i % 4]
+        },
+        "production_orders": {
+            "order_number": f"MO-DEMO-{n:04d}", "product": f"Operations Supply {(i % 12) + 1:02d}",
+            "quantity": (i + 2) * 5, "due_date": date_b,
+            "work_center": ["Assembly A", "Packaging B", "Quality C"][i % 3],
+            "status": ["Planned", "In Progress", "Completed"][i % 3]
+        },
+        "stock_movements": {
+            "movement_date": date_a, "sku": f"AVR-DEMO-{(i % 12) + 1:04d}",
+            "product": f"Operations Supply {(i % 12) + 1:02d}",
+            "movement_type": ["Receipt", "Issue", "Transfer", "Adjustment"][i % 4],
+            "quantity": (i % 20) + 1, "reference": f"REF-DEMO-{n:04d}"
+        },
+        "quality_checks": {
+            "reference": f"QC-DEMO-{n:04d}", "item": f"Operations Supply {(i % 12) + 1:02d}",
+            "check_type": ["Visual", "Functional", "Count", "Documentation"][i % 4],
+            "result": ["Pass", "Pass", "Review", "Pass"][i % 4],
+            "inspector": f"Team Member {(i % 8) + 1:02d}", "check_date": date_a,
+            "status": ["Passed", "Passed", "Review"][i % 3]
+        },
+    }
+    return data[collection]
+
+_DEMO_ROW_COUNTS = {
+    "products": 12, "suppliers": 6, "purchase_orders": 6, "customers": 10,
+    "sales_orders": 8, "invoices": 12, "employees": 8, "leads": 8,
+    "projects": 6, "assets": 6, "journal_entries": 8, "support_tickets": 8,
+    "production_orders": 6, "stock_movements": 12, "quality_checks": 8,
+}
+
+@app.post("/api/auth/demo")
+def create_isolated_demo(request: Request, response: Response, db: Session = Depends(get_db)):
+    _allow_demo_request(request)
+    token_id = uuid.uuid4().hex
+    now = utcnow()
+    org = Organization(
+        name=f"AVERIS Demo {token_id[:6].upper()}",
+        slug=f"averis-demo-{token_id[:12]}",
+        invite_code=secrets.token_urlsafe(18),
+        created_at=now,
+    )
+    user = User(
+        organization=org,
+        full_name="Demo Administrator",
+        email=f"demo+{token_id}@averis-demo.invalid",
+        password_hash=PASSWORD_HASHER.hash(secrets.token_urlsafe(40)),
+        role="owner",
+        is_active=True,
+        created_at=now,
+    )
+    db.add_all([org, user])
+    try:
+        db.flush()
+        demo_records: list[BusinessRecord] = []
+        total = 0
+        today = date.today()
+        for collection, count in _DEMO_ROW_COUNTS.items():
+            for i in range(count):
+                key = f"{ERP_PREFIX[collection]}-D{token_id[:5].upper()}-{i + 1:03d}"
+                payload = clean_erp_payload(collection, _demo_erp_payload(collection, i, today))
+                payload["id"] = key
+                demo_records.append(BusinessRecord(
+                    organization_id=org.id, collection=collection, record_key=key,
+                    payload=payload, created_at=now, updated_at=now,
+                    created_by=user.id, updated_by=user.id,
+                ))
+                total += 1
+        db.add_all(demo_records)
+        audit(db, org.id, user.id, "demo.workspace_created", {"seeded_erp_records": total, "modules": len(_DEMO_ROW_COUNTS)})
+        db.commit()
+        db.refresh(user)
+    except Exception:
+        db.rollback()
+        raise
+    issue_cookie(response, request, db, user)
+    result = identity(user)
+    result["demo_workspace"] = True
+    result["seeded_erp_records"] = total
+    return result
+
 
 def validate_erp_collection(collection: str) -> dict[str, str]:
     fields = ERP_FIELDS.get(collection)

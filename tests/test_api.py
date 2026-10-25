@@ -158,3 +158,33 @@ def test_production_mode_rejects_ephemeral_sqlite_database():
     )
     assert result.returncode != 0
     assert "requires a persistent DATABASE_URL" in result.stderr
+
+
+def test_isolated_cloud_demo_seeds_all_erp_modules_and_is_tenant_scoped(client):
+    demo_a = client.post("/api/auth/demo", json={})
+    assert demo_a.status_code == 200, demo_a.text
+    body_a = demo_a.json()
+    assert body_a["demo_workspace"] is True
+    assert body_a["seeded_erp_records"] >= 100
+    assert client.get("/api/auth/me").json()["user"]["role"] == "owner"
+    counts_a = client.get("/api/erp/summary").json()["counts"]
+    assert len(counts_a) == 15
+    assert all(count > 0 for count in counts_a.values())
+    assert client.get("/api/erp/products").json()["count"] == 12
+
+    client.post("/api/auth/logout")
+    demo_b = client.post("/api/auth/demo", json={})
+    assert demo_b.status_code == 200, demo_b.text
+    assert demo_b.json()["organization"]["id"] != body_a["organization"]["id"]
+    assert client.get("/api/erp/products").json()["count"] == 12
+    assert client.put("/api/erp/products/" + client.get("/api/erp/products").json()["items"][0]["id"], json={"name": "wrong tenant"}).status_code == 200
+
+
+def test_demo_endpoint_is_available_without_account_and_marks_session_cookie_secure_in_production(monkeypatch, client):
+    monkeypatch.setattr(api, "APP_ENV", "production")
+    response = client.post("/api/auth/demo", json={})
+    assert response.status_code == 200
+    cookie = response.headers.get("set-cookie", "").lower()
+    assert "httponly" in cookie
+    assert "secure" in cookie
+    assert "samesite=none" in cookie
