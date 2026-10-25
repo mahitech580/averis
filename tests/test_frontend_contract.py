@@ -70,7 +70,10 @@ def test_photo_backgrounds_and_images_have_bundled_fallbacks():
         ".layers-bg", ".showcase-bg", ".boundary-bg", ".cta-bg",
     ):
         assert selector in css
-    assert 'data-fallback="./assets/' in app
+    assert 'const art=register?' in app and 'artFallback=register?' in app
+    assert "data-fallback=\"'+artFallback+'\"" in app
+    assert "data-fallback=\"'+x[4]+'\"" in app
+    assert "./assets/healthcare-scene.svg" in app
 
 
 def test_service_worker_and_html_use_one_asset_version():
