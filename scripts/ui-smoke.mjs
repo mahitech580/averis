@@ -88,22 +88,27 @@ try {
   await page.evaluate(() => { location.hash = "/today"; });
   await page.waitForFunction(() => location.hash === "#/today");
 
-  // Check every major homepage section and major card group has a photographic layer.
+  // Confirm imagery is subtle but still visible, and the footer blends without a hard seam.
   for (const selector of [".hero-bg", ".capabilities-bg", ".process-bg", ".feature-bg", ".layers-bg", ".showcase-bg", ".boundary-bg", ".cta-bg"]) {
     const backgroundImage = await page.locator("#workspace-root " + selector).evaluate((node) => getComputedStyle(node).backgroundImage);
     assert.ok(backgroundImage.includes("https://"), "section must include a photo background: " + selector);
     const overlayImage = await page.locator("#workspace-root " + selector + " > .section-overlay").evaluate((node) => getComputedStyle(node).backgroundImage);
-    assert.ok(overlayImage.includes("0.97") || overlayImage.includes("0.95") || overlayImage.includes("0.98"), "section photo must stay very subtle behind content: " + selector);
+    assert.ok(overlayImage.includes("0.83") || overlayImage.includes("0.84") || overlayImage.includes("0.87"), "section photo should have an 80–85% dark overlay: " + selector);
   }
-  const footerPhoto = await page.locator("footer.site-footer").evaluate((node) => getComputedStyle(node).backgroundImage);
-  assert.ok(footerPhoto.includes("https://"), "footer must include a photo background");
+  const footerStyle = await page.locator("footer.site-footer").evaluate((node) => ({
+    backgroundImage: getComputedStyle(node).backgroundImage,
+    borderTopWidth: getComputedStyle(node).borderTopWidth,
+  }));
+  assert.ok(footerStyle.backgroundImage.includes("https://"), "footer must include a photo background");
+  assert.equal(footerStyle.borderTopWidth, "0px", "footer should not add a hard horizontal border seam");
 
-  for (const selector of [".capability-card", ".process-card", ".layer-card"]) {
+  for (const selector of [".capability-card", ".process-card", ".layer-card", ".boundary-point", ".landing-metrics>div"]) {
     const count = await page.locator("#workspace-root " + selector).count();
     assert.ok(count > 0, "expected card group " + selector);
     const image = await page.locator("#workspace-root " + selector).first().evaluate((node) => getComputedStyle(node, "::before").backgroundImage);
     assert.ok(image.includes("https://"), "cards should have photo overlays: " + selector);
-    assert.equal(await page.locator("#workspace-root " + selector).first().evaluate((node) => getComputedStyle(node, "::before").opacity), "0.12", "card background image should remain very faint: " + selector);
+    const opacity = Number(await page.locator("#workspace-root " + selector).first().evaluate((node) => getComputedStyle(node, "::before").opacity));
+    assert.ok(opacity >= 0.34 && opacity <= 0.36, "card photo opacity should be calibrated: " + selector + " = " + opacity);
   }
 
   // Exercise all persistent footer navigation links; this footer is outside the re-rendered workspace root.
@@ -169,7 +174,7 @@ try {
 
   assert.deepEqual(pageErrors, [], "uncaught browser exceptions: " + pageErrors.join(" | "));
   assert.equal(await page.locator("#site-nav-menu button[data-route]").count(), 4, "secondary navigation remains available");
-  console.log("OK: fixed header, five primary links + More submenu, dark-only theme, photo-backed sections/cards, login/signup photography with fallbacks, " + landingActions.length + " card destinations, " + routes.length + " footer routes, offline demo, signup and 390px mobile width.");
+  console.log("OK: fixed header, five primary links + More submenu, dark-only theme, 80–85% dark imagery, blended footer, login/signup photography, " + landingActions.length + " card destinations, " + routes.length + " footer routes, offline demo and mobile width.");
 } finally {
   await browser.close();
 }
