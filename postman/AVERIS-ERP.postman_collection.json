@@ -79,7 +79,7 @@
             "type": "text/javascript",
             "exec": [
               "pm.test('Demo workspace created', function () { pm.response.to.have.status(200); });",
-              "pm.test('Demo uses a dedicated tenant', function () { const x=pm.response.json(); pm.expect(x.demo_workspace).to.eql(true); pm.expect(x.seeded_erp_records).to.be.at.least(100); pm.collectionVariables.set('demoOrganizationId', x.organization.id); });"
+              "pm.test('Demo uses a dedicated tenant', function () { const x=pm.response.json(); pm.expect(x.demo_workspace).to.eql(true); pm.expect(x.seeded_erp_records).to.be.at.least(300); pm.collectionVariables.set('demoOrganizationId', x.organization.id); });"
             ]
           }
         }
@@ -262,7 +262,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Organization is tenant-scoped', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().id).to.eql(pm.environment.get('demoOrganizationId')); });"
+              "pm.test('Organization is tenant-scoped', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('demoOrganizationId')); });"
             ]
           }
         }
