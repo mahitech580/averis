@@ -126,3 +126,16 @@ def test_sku_uniqueness_and_erp_field_validation(client):
     assert bad_date.status_code==422
     bad_email=client.post("/api/erp/employees",json={"name":"Demo User","email":"not-an-email"})
     assert bad_email.status_code==422
+
+
+def test_allowed_origin_can_preflight_erp_delete(client):
+    response = client.options(
+        "/api/erp/products/PRD-1",
+        headers={
+            "Origin": "https://averis-saas.netlify.app",
+            "Access-Control-Request-Method": "DELETE",
+            "Access-Control-Request-Headers": "x-averis-request",
+        },
+    )
+    assert response.status_code == 200
+    assert "DELETE" in response.headers.get("access-control-allow-methods", "")

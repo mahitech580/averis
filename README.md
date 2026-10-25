@@ -929,3 +929,10 @@ Optional adapters in frameworks/optional_archives.py demonstrate MongoDB audit a
 ## Hosting and deployment wiring
 
 The Render Blueprint provisions the API service and prompts for a dedicated external PostgreSQL DATABASE_URL. The Netlify frontend uses the same-origin /api proxy to the Render host. A GitHub Actions Netlify deployment step is optional and runs only if the NETLIFY_AUTH_TOKEN repository secret is configured; GitHub Pages deploys independently from main.
+
+
+## Cloud database setup
+
+A dedicated Supabase project was created for AVERIS in the Mumbai region. Its core tables are provisioned with row-level security enabled; direct public/anonymous table grants are revoked, and the application accesses SQL through the FastAPI server. Render uses a separate \`DATABASE_URL\` secret. For Render's IPv4 network, open the Supabase dashboard → **Connect** → choose the **Session pooler** string, then enter it as \`DATABASE_URL\` while applying the Render Blueprint. Never commit the password or paste it into public source. The Render Blueprint intentionally does not create or reuse another project's database.
+
+Open the [Supabase dashboard for averis-erp-prod](https://supabase.com/dashboard/project/zspustvmjtdsnfkprbvv) and the [Render Blueprint setup](https://dashboard.render.com/blueprint/new?repo=https://github.com/mahitech580/averis). The API is not live until that dedicated connection string is supplied and the Render deploy passes its health check.

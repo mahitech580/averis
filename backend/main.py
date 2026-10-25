@@ -98,7 +98,7 @@ COLLECTIONS={"people","tasks","appointments","resources","workforce","messages",
 PREFERENCES={"compact","focus","notifications","theme"}
 ALLOWED_ORIGINS={x.strip().rstrip("/") for x in os.getenv("ALLOWED_ORIGINS","https://averis-saas.netlify.app,https://mahitech580.github.io,http://localhost:5500,http://127.0.0.1:5500").split(",") if x.strip()}
 app=FastAPI(title="AVERIS Workspace API",version="1.0.0",description="Tenant-scoped shared JSON workspaces. Synthetic operational data only.",docs_url="/api/docs",openapi_url="/api/openapi.json")
-app.add_middleware(CORSMiddleware,allow_origins=sorted(ALLOWED_ORIGINS),allow_credentials=True,allow_methods=["GET","POST","PUT","OPTIONS"],allow_headers=["Content-Type","X-Averis-Request"])
+app.add_middleware(CORSMiddleware,allow_origins=sorted(ALLOWED_ORIGINS),allow_credentials=True,allow_methods=["GET","POST","PUT","DELETE","OPTIONS"],allow_headers=["Content-Type","X-Averis-Request"])
 
 @app.middleware("http")
 async def request_safety(request:Request,call_next):
