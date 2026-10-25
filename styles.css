@@ -1479,3 +1479,8 @@ body{min-width:320px;overflow-x:hidden}
 @media(max-width:760px){.erp-launch-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.erp-integrations-strip{align-items:flex-start;flex-direction:column}.erp-section-head{flex-wrap:wrap}.erp-suite .page-head{align-items:flex-start}.erp-suite .page-head .page-actions{flex-wrap:wrap}.erp-list-toolbar{align-items:flex-start}.erp-list-actions{width:100%}.erp-search-controls input{max-width:none}.erp-record-count{width:100%;margin-left:0}}
 @media(max-width:420px){.erp-kpi-grid{gap:8px}.erp-kpi-card{padding:13px;min-height:125px}.erp-kpi-card>strong{font-size:24px}.erp-launch-grid{gap:7px}.erp-launch-card{padding:11px 9px}.erp-launch-card>small{min-height:0}.erp-list-actions .button{padding:8px 9px;font-size:10px}}
 @media(prefers-reduced-motion:reduce){.erp-launch-card,.erp-tab{transition:none}.erp-launch-card:hover{transform:none}}
+
+/* ERP tables quietly refresh from the server without animating the whole page. */
+.erp-row{transition:background-color .16s ease}
+.erp-loading{min-height:90px}
+@media(prefers-reduced-motion:reduce){.erp-row{transition:none}}
