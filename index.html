@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#07111f"><meta name="color-scheme" content="dark light"><link rel="preload" href="./assets/healthcare-scene.svg" as="image">
+<meta name="theme-color" content="#07111f"><meta name="color-scheme" content="dark light"><link rel="preload" href="https://www.ihhhealthcare.com/images/default-source/ihh/occ-2.jpg?sfvrsn=2801dfb4_1" as="image">
 <meta name="description" content="AVERIS by Mahi — a real-time operations ERP demo with inventory, purchasing, CRM, finance, workforce, analytics, API integrations and team workspaces. Synthetic data only.">
 <link rel="icon" href="./assets/averis-orbit.svg">
 <link rel="manifest" href="./manifest.json">
-<link rel="stylesheet" href="./styles.css?v=37">
+<link rel="stylesheet" href="./styles.css?v=38">
 <title>AVERIS — by Mahi</title>
 </head>
 <body>
@@ -23,15 +23,19 @@
     <button class="site-nav-link" data-route="journeys" type="button">Journeys</button>
     <button class="site-nav-link" data-route="queue" type="button">Workflow</button>
     <button class="site-nav-link" data-route="capacity" type="button">Capacity</button>
-    <button class="site-nav-link" data-route="insights" type="button">Insights</button>
-    <button class="site-nav-link" data-route="reports" type="button">Reports</button>
-    <button class="site-nav-link" data-route="erp" type="button">ERP Suite</button>
-    <button class="site-nav-link" data-route="workspace" type="button">Live Workspace</button>
+    <div class="site-nav-more" id="site-nav-more">
+      <button class="site-nav-link site-nav-more-trigger" id="site-more-toggle" type="button" aria-haspopup="true" aria-expanded="false">More <span aria-hidden="true">⌄</span></button>
+      <div class="site-nav-menu" id="site-nav-menu" role="menu" aria-label="More workspaces">
+        <button class="site-nav-link" data-route="insights" role="menuitem" type="button">Insights</button>
+        <button class="site-nav-link" data-route="reports" role="menuitem" type="button">Reports</button>
+        <button class="site-nav-link" data-route="erp" role="menuitem" type="button">ERP Suite</button>
+        <button class="site-nav-link" data-route="workspace" role="menuitem" type="button">Live Workspace</button>
+      </div>
+    </div>
   </nav>
   <div class="top-actions">
     <span class="connection-chip" id="connection-chip"><span></span> Checking connection</span>
     <div class="clock"><b id="live-clock">--:--:--</b><small id="live-date">---</small></div>
-    <button id="command-trigger" class="command-open site-command" type="button"><span>⌕</span><div><b>Search</b><small>⌘K</small></div><kbd>⌘K</kbd></button>
     <button id="quick-add" class="icon-button" type="button" aria-label="Create record">＋</button>
     <button id="notification-button" class="icon-button notif" type="button" aria-label="Open messages">◔<b id="notification-count">0</b></button>
     <button id="theme-trigger" class="icon-button theme-trigger" data-action="toggle-theme" type="button" aria-label="Toggle light and dark theme" title="Toggle theme">◐</button>
@@ -68,6 +72,6 @@
 <aside class="drawer" id="drawer" aria-hidden="true"><div class="drawer-head"><div><span class="eyebrow" id="drawer-eyebrow">DETAIL</span><h2 id="drawer-title">Record</h2></div><button id="drawer-close" class="icon-button" type="button">×</button></div><div id="drawer-body" class="drawer-body"></div></aside>
 <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
 <noscript><div class="noscript"><b>JavaScript is required for the AVERIS control room.</b><span>Everything is local to this browser.</span></div></noscript>
-<script src="./app.js?v=37" defer></script>
+<script src="./app.js?v=38" defer></script>
 </body>
 </html>
