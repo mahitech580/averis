@@ -1,7 +1,7 @@
 """AVERIS shared SaaS API. Synthetic operational records only; not a clinical system."""
 from __future__ import annotations
 import hashlib, json, os, re, secrets, uuid
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Any, Generator
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -305,7 +305,7 @@ def activity(limit:int=30,db:Session=Depends(get_db),user:User=Depends(current_u
 # ERP module catalogue: one authenticated REST API for every department.
 ERP_FIELDS: dict[str, dict[str, str]] = {
     "products": {"name":"text","sku":"text","category":"text","unit":"text","quantity":"number","reorder_level":"number","unit_cost":"number","selling_price":"number","location":"text","status":"text"},
-    "suppliers": {"name":"text","company":"text","email":"text","phone":"text","city":"text","payment_terms":"text","status":"text"},
+    "suppliers": {"name":"text","company":"text","email":"email","phone":"text","city":"text","payment_terms":"text","status":"text"},
     "purchase_orders": {"po_number":"text","supplier":"text","order_date":"date","expected_date":"date","items_count":"number","total":"number","status":"text"},
     "customers": {"name":"text","company":"text","email":"text","phone":"text","segment":"text","city":"text","lifetime_value":"number","status":"text"},
     "sales_orders": {"so_number":"text","customer":"text","order_date":"date","due_date":"date","items_count":"number","total":"number","status":"text"},
@@ -383,8 +383,18 @@ def clean_erp_payload(collection: str, raw: dict[str, Any], record_key: str | No
             value = value.strip()
             if len(value) > 500:
                 raise HTTPException(422, f"{key} exceeds 500 characters.")
+            if kind == "date" and value:
+                try:
+                    date.fromisoformat(value)
+                except ValueError as exc:
+                    raise HTTPException(422, f"{key} must use YYYY-MM-DD format.") from exc
+            if kind == "email" and value and not re.fullmatch(r"[^\\s@]+@[^\\s@]+\\.[^\\s@]+", value):
+                raise HTTPException(422, f"{key} must be a valid email address.")
             cleaned[key] = value
-    missing = [field for field in ERP_REQUIRED[collection] if not str(cleaned.get(field, "")).strip()]
+    missing = [
+        field for field in ERP_REQUIRED[collection]
+        if cleaned.get(field) is None or not str(cleaned.get(field, "")).strip()
+    ]
     if missing:
         raise HTTPException(422, "Required field(s): " + ", ".join(missing))
     if collection == "products" and "sku" in cleaned:
@@ -498,6 +508,13 @@ def create_erp_record(
 ):
     validate_erp_collection(collection)
     clean = clean_erp_payload(collection, payload)
+    if collection == "products":
+        existing_products = db.scalars(select(BusinessRecord).where(
+            BusinessRecord.organization_id == user.organization_id,
+            BusinessRecord.collection == "products"
+        )).all()
+        if any(str(row.payload.get("sku", "")).upper() == str(clean.get("sku", "")).upper() for row in existing_products):
+            raise HTTPException(409, "A product with this SKU already exists in your organization.")
     now = utcnow()
     key = ERP_PREFIX[collection] + "-" + uuid.uuid4().hex[:10].upper()
     clean["id"] = key
@@ -532,6 +549,17 @@ def update_erp_record(
     if row is None:
         raise HTTPException(404, "ERP record not found.")
     clean = clean_erp_payload(collection, payload, record_key=record_key)
+    if collection == "products":
+        existing_products = db.scalars(select(BusinessRecord).where(
+            BusinessRecord.organization_id == user.organization_id,
+            BusinessRecord.collection == "products"
+        )).all()
+        if any(
+            product.record_key != record_key
+            and str(product.payload.get("sku", "")).upper() == str(clean.get("sku", "")).upper()
+            for product in existing_products
+        ):
+            raise HTTPException(409, "A product with this SKU already exists in your organization.")
     row.payload = clean
     row.updated_at = utcnow()
     row.updated_by = user.id

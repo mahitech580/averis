@@ -112,3 +112,17 @@ def test_erp_global_search_and_reorder_priority(client):
     assert summary["low_stock"]==1
     assert summary["reorder_alerts"][0]["sku"]=="CABLE-LOW"
     assert summary["reorder_alerts"][0]["reorder_alert"] is True
+
+
+def test_sku_uniqueness_and_erp_field_validation(client):
+    register(client,"sku-owner@example.test","Stock Team")
+    first=client.post("/api/erp/products",json={"name":"Dock","sku":"same-sku","quantity":2,"reorder_level":1,"status":"Active"})
+    assert first.status_code==201, first.text
+    duplicate=client.post("/api/erp/products",json={"name":"Dock Duplicate","sku":"SAME-SKU","quantity":5,"reorder_level":2,"status":"Active"})
+    assert duplicate.status_code==409
+    bad_invoice=client.post("/api/erp/invoices",json={"invoice_number":"INV-1","party":"Synthetic Co","amount":None})
+    assert bad_invoice.status_code==422
+    bad_date=client.post("/api/erp/purchase_orders",json={"po_number":"PO-1","supplier":"Synthetic supplier","order_date":"next Friday"})
+    assert bad_date.status_code==422
+    bad_email=client.post("/api/erp/employees",json={"name":"Demo User","email":"not-an-email"})
+    assert bad_email.status_code==422
