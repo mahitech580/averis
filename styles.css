@@ -1942,3 +1942,42 @@ html[data-theme="dark"] .auth-card{background:rgba(4,12,22,.88);backdrop-filter:
   background-size:cover;
   background-repeat:no-repeat;
 }
+
+
+/* RELEASE v42 — quiet photographic backgrounds, fast auth loading, gentle page entrance. */
+.website-section-bg>.section-overlay{
+  background:
+    linear-gradient(180deg,rgba(3,9,17,.93) 0%,rgba(3,9,17,.94) 48%,rgba(3,9,17,.96) 100%),
+    radial-gradient(circle at 50% 35%,rgba(33,79,104,.035),transparent 55%)!important;
+}
+.capability-card:before,
+.process-card:before,
+.layer-card:before,
+.boundary-point:before,
+.landing-metrics>div:before{
+  opacity:.14!important;
+}
+.site-footer{
+  background-image:
+    linear-gradient(180deg,rgba(4,11,20,.94) 0%,rgba(4,11,20,.955) 38%,rgba(3,8,15,.97) 100%),
+    url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif"),
+    url("./assets/operational-pulse.svg")!important;
+  border-top:0!important;
+}
+.auth-screen{
+  background-image:
+    linear-gradient(135deg,rgba(2,8,16,.94),rgba(2,8,16,.965)),
+    url("https://www.ihhhealthcare.com/images/default-source/ihh/occ-2.jpg?sfvrsn=2801dfb4_1"),
+    url("./assets/healthcare-scene.svg")!important;
+}
+.auth-form[aria-busy="true"]{opacity:.84;transition:opacity .16s ease}
+.auth-form[aria-busy="true"] .auth-submit{cursor:progress}
+#workspace-root>section{animation:averis-view-enter .24s ease-out both}
+@keyframes averis-view-enter{
+  from{opacity:.72;transform:translateY(5px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@media(prefers-reduced-motion:reduce){
+  #workspace-root>section{animation:none!important}
+  .auth-form[aria-busy="true"]{transition:none}
+}
