@@ -11,6 +11,7 @@ from pwdlib import PasswordHash
 from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint, create_engine, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship, sessionmaker
+from backend.services.prioritization import prioritize_inventory
 
 APP_ENV=os.getenv("APP_ENV","development").lower()
 COOKIE="averis_session"
@@ -369,7 +370,7 @@ def clean_erp_payload(collection: str, raw: dict[str, Any], record_key: str | No
                 raise HTTPException(422, f"{key} must be numeric.") from exc
             if not __import__("math").isfinite(number):
                 raise HTTPException(422, f"{key} must be finite.")
-            if number < 0 and key not in {"progress"}:
+            if number < 0:
                 raise HTTPException(422, f"{key} cannot be negative.")
             if key in {"quantity", "reorder_level", "items_count", "progress"} and not number.is_integer():
                 raise HTTPException(422, f"{key} must be a whole number.")
@@ -407,18 +408,16 @@ def erp_modules(user: User = Depends(current_user)):
 def erp_summary(db: Session = Depends(get_db), user: User = Depends(current_user)):
     counts = {}
     for collection in ERP_FIELDS:
-        counts[collection] = db.scalar(select(BusinessRecord.id).where(
+        counts[collection] = len(db.scalars(select(BusinessRecord.id).where(
             BusinessRecord.organization_id == user.organization_id,
             BusinessRecord.collection == collection
-        ).limit(10000).with_only_columns(BusinessRecord.id).order_by(None).subquery().select()) if False else db.query(BusinessRecord.id).filter(
-            BusinessRecord.organization_id == user.organization_id,
-            BusinessRecord.collection == collection
-        ).count()
+        )).all())
     products = db.scalars(select(BusinessRecord).where(
         BusinessRecord.organization_id == user.organization_id,
         BusinessRecord.collection == "products"
     )).all()
     low_stock = sum(1 for row in products if int(row.payload.get("quantity") or 0) <= int(row.payload.get("reorder_level") or 0))
+    reorder_alerts = prioritize_inventory([dict(row.payload, id=row.record_key) for row in products], limit=6)
     invoices = db.scalars(select(BusinessRecord).where(
         BusinessRecord.organization_id == user.organization_id,
         BusinessRecord.collection == "invoices"
@@ -436,11 +435,36 @@ def erp_summary(db: Session = Depends(get_db), user: User = Depends(current_user
     return {
         "counts": counts,
         "low_stock": low_stock,
+        "reorder_alerts": reorder_alerts,
         "outstanding_receivables": round(receivables, 2),
         "outstanding_payables": round(payables, 2),
         "generated_at": iso(utcnow()),
         "synthetic_data_only": True,
     }
+
+@app.get("/api/erp/search")
+def search_erp_records(q: str="", limit: int=20, db: Session=Depends(get_db), user: User=Depends(current_user)):
+    query=q.strip().lower()
+    if not query:
+        return {"items":[],"count":0}
+    bounded=max(1,min(limit,50))
+    rows=db.scalars(select(BusinessRecord).where(
+        BusinessRecord.organization_id==user.organization_id
+    ).order_by(BusinessRecord.updated_at.desc()).limit(1000)).all()
+    matches=[]
+    for row in rows:
+        payload=public_erp_record(row)
+        if query not in json.dumps(payload,ensure_ascii=False,default=str).lower():
+            continue
+        label=(payload.get("name") or payload.get("company") or payload.get("sku")
+               or payload.get("subject") or payload.get("invoice_number")
+               or payload.get("po_number") or payload.get("so_number")
+               or payload.get("order_number") or payload.get("id"))
+        matches.append({"id":row.record_key,"collection":row.collection,
+                        "module_label":ERP_LABELS[row.collection],"label":str(label),"record":payload})
+        if len(matches)>=bounded:
+            break
+    return {"items":matches,"count":len(matches)}
 
 @app.get("/api/erp/{collection}")
 def list_erp_records(

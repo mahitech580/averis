@@ -98,3 +98,17 @@ def test_erp_module_tenant_isolation_and_field_validation(client):
     assert client.put(f"/api/erp/customers/{row_id}",json={"name":"Hijack"}).status_code==404
     invalid=client.post("/api/erp/products",json={"name":"Invalid","sku":"BAD","quantity":-1,"unknown_field":"blocked"})
     assert invalid.status_code==422
+
+
+def test_erp_global_search_and_reorder_priority(client):
+    register(client,"search-owner@example.test","Search Team")
+    client.post("/api/erp/products",json={"name":"Low Stock Cable","sku":"CABLE-LOW","quantity":1,"reorder_level":8,"selling_price":12,"status":"Active"})
+    client.post("/api/erp/products",json={"name":"Healthy Monitor","sku":"MON-OK","quantity":20,"reorder_level":4,"selling_price":80,"status":"Active"})
+    result=client.get("/api/erp/search?q=cable")
+    assert result.status_code==200
+    assert result.json()["count"]==1
+    assert result.json()["items"][0]["collection"]=="products"
+    summary=client.get("/api/erp/summary").json()
+    assert summary["low_stock"]==1
+    assert summary["reorder_alerts"][0]["sku"]=="CABLE-LOW"
+    assert summary["reorder_alerts"][0]["reorder_alert"] is True
