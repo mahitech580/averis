@@ -24,6 +24,14 @@
     {
       "key": "recordId",
       "value": ""
+    },
+    {
+      "key": "createdProductId",
+      "value": ""
+    },
+    {
+      "key": "demoOrganizationId",
+      "value": ""
     }
   ],
   "item": [
@@ -71,7 +79,7 @@
             "type": "text/javascript",
             "exec": [
               "pm.test('Demo workspace created', function () { pm.response.to.have.status(200); });",
-              "pm.test('Demo uses a dedicated tenant', function () { const x=pm.response.json(); pm.expect(x.demo_workspace).to.eql(true); pm.expect(x.seeded_erp_records).to.be.at.least(100); pm.environment.set('demoOrganizationId', x.organization.id); });"
+              "pm.test('Demo uses a dedicated tenant', function () { const x=pm.response.json(); pm.expect(x.demo_workspace).to.eql(true); pm.expect(x.seeded_erp_records).to.be.at.least(100); pm.collectionVariables.set('demoOrganizationId', x.organization.id); });"
             ]
           }
         }
@@ -144,7 +152,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Products are available', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().count).to.be.at.least(12); pm.environment.set('recordId', pm.response.json().items[0].id); });"
+              "pm.test('Products are available', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().count).to.be.at.least(12); pm.collectionVariables.set('recordId', pm.response.json().items[0].id); });"
             ]
           }
         }
@@ -172,7 +180,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Product create returns 201', function () { pm.response.to.have.status(201); const x = pm.response.json().item; pm.expect(x.sku).to.eql('POSTMAN-DOCK-1001'); pm.environment.set('createdProductId', x.id); });"
+              "pm.test('Product create returns 201', function () { pm.response.to.have.status(201); const x = pm.response.json().item; pm.expect(x.sku).to.eql('POSTMAN-DOCK-1001'); pm.collectionVariables.set('createdProductId', x.id); });"
             ]
           }
         }

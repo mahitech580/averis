@@ -962,3 +962,8 @@ The Supabase schema changes are also checked into `database/migrations/` with th
 3. The GitHub Pages preview falls back to local demo if the Render API is not reachable. The intended cloud-first host is Netlify with its same-origin \`/api\` proxy.
 
 Supabase security note: connection strings and database passwords remain in dashboard secret fields only. Public \`anon\` and \`authenticated\` roles do not have access to AVERIS business tables; the FastAPI database connection is the trusted server access boundary.
+
+
+### Link and asset integrity release check
+
+The delegated click handler now preserves normal anchor navigation and external destinations instead of swallowing link clicks. Marketing/auth imagery resolves to repository-local SVGs, avoiding third-party image-host dependence and extra third-party image requests. A persistent theme toggle is wired in the header and Settings, with browser theme-color metadata updated on change.
