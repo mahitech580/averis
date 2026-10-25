@@ -972,3 +972,8 @@ The delegated click handler now preserves normal anchor navigation and external 
 ### Release v33 — resilient imagery + light theme
 
 All CSS background-image references now use repository-local SVGs instead of third-party photo hosts, including landing, capacity, workflow, product-showcase and CTA sections. The complete landing-page light theme received its own surface, overlay, text, card and media contrast rules. Asset links are versioned v33 together with the service-worker cache.
+
+
+### Browser-level release gate
+
+The main GitHub Actions workflow runs a pinned Chromium/Playwright smoke test against a local static server. It scrolls the sticky header, toggles light/dark and reloads, visits every footer navigation route, checks visible local imagery, opens the offline demo and completes the synthetic signup flow, checks the narrow mobile viewport for horizontal document overflow, and fails on uncaught browser exceptions. This complements the FastAPI pytest suite and Postman API collection.
