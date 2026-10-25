@@ -15,6 +15,6 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: ALLOWED_ORIGINS
-        value: https://averis-saas.netlify.app,https://mahitech580.github.io
+        value: https://averis-saas.netlify.app,https://mahitech580.github.io,https://averis-tau.vercel.app
 previews:
   generation: off
