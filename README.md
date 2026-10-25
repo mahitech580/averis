@@ -376,7 +376,7 @@ The project remains a portfolio simulation, so this is not a claim of formal WCA
 
 ## 13. Technical architecture
 
-AVERIS is a static client-side application.
+AVERIS uses a static HTML/CSS/JavaScript frontend and an optional FastAPI service for real accounts and shared workspaces. The GitHub Pages version remains a browser-local synthetic preview.
 
 ### Front end
 
@@ -779,7 +779,7 @@ Browser
  └── optional service-worker cache
 ```
 
-The project does not send its synthetic operational state to an application server. Login and registration demonstrate a local-only interaction flow, not real authentication: account data is kept in `localStorage`, and the current password hash is a simple non-cryptographic demo hash. Browser storage and client-side checks can be inspected or changed by the user, so this must never be used for real accounts, secrets, or patient information.
+In local-preview mode the project does not send synthetic state to a server. In cloud mode, authenticated synthetic workspace state is intentionally stored server-side and shared within an organization. Login and registration demonstrate a local-only interaction flow, not real authentication: account data is kept in `localStorage`, and the current password hash is a simple non-cryptographic demo hash. Browser storage and client-side checks can be inspected or changed by the user, so this must never be used for real accounts, secrets, or patient information.
 
 This should not be confused with a formal security audit or production healthcare compliance certification.
 
@@ -874,3 +874,22 @@ Do not use it as:
 **Runtime:** Browser-local  
 **Data:** Synthetic  
 **Architecture:** Static client-side application
+
+
+## Real-time SaaS architecture
+
+The Netlify frontend is configured to proxy \`/api/*\` to a Render FastAPI service. Accounts use Argon2 password hashes and server-side HttpOnly sessions. Organizations can share an invite code; workspace state is stored in SQL JSON columns with optimistic revisions and a five-second polling interval. Non-conflicting record changes are merged; edits to the same record use last-write-wins behavior.
+
+Run the backend locally with the instructions in [backend/README.md](backend/README.md). SQLite is the local default; MySQL via \`mysql+pymysql://...\` and PostgreSQL via \`postgresql+psycopg://...\` are supported through \`DATABASE_URL\`. API health and docs are available at \`/api/health\` and \`/api/docs\` when the Render service is deployed.
+
+The included Render Blueprint uses a free PostgreSQL plan for initial evaluation. Free database plans are temporary; select a persistent plan before relying on the service long term.
+
+### Product and engineering references
+
+- [Linear search patterns](https://linear.app/docs/search) — command search, keyboard navigation and global filtering.
+- [FastAPI SQL database tutorial](https://fastapi.tiangolo.com/tutorial/sql-databases/) — SQLAlchemy and SQL database support.
+- [Render FastAPI deployment](https://render.com/docs/deploy-fastapi) — service setup and health checks.
+- [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html) — Argon2 password hashing guidance.
+- [OWASP Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html) — secure cookie/session patterns.
+
+These references inform implementation patterns; they do not imply vendor affiliation or healthcare compliance.

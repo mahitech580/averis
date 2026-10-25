@@ -7,7 +7,7 @@
 <meta name="description" content="AVERIS by Mahi — local-first healthcare operations workspace for coordination, workflow visibility, capacity, communication, incidents, reporting and operational intelligence.">
 <link rel="icon" href="./assets/averis-orbit.svg">
 <link rel="manifest" href="./manifest.json">
-<link rel="stylesheet" href="./styles.css?v=27">
+<link rel="stylesheet" href="./styles.css?v=29">
 <title>AVERIS — by Mahi</title>
 </head>
 <body>
@@ -25,9 +25,10 @@
     <button class="site-nav-link" data-route="capacity" type="button">Capacity</button>
     <button class="site-nav-link" data-route="insights" type="button">Insights</button>
     <button class="site-nav-link" data-route="reports" type="button">Reports</button>
+    <button class="site-nav-link" data-route="workspace" type="button">Live Workspace</button>
   </nav>
   <div class="top-actions">
-    <span class="local-chip"><span></span> Local simulation</span>
+    <span class="connection-chip" id="connection-chip"><span></span> Checking connection</span>
     <div class="clock"><b id="live-clock">--:--:--</b><small id="live-date">---</small></div>
     <button id="command-trigger" class="command-open site-command" type="button"><span>⌕</span><div><b>Search</b><small>⌘K</small></div><kbd>⌘K</kbd></button>
     <button id="quick-add" class="icon-button" type="button" aria-label="Create record">＋</button>
@@ -45,7 +46,7 @@
     </div>
     <div class="footer-column"><b>Operations</b><button data-route="today" type="button">Home</button><button data-route="people" type="button">People</button><button data-route="journeys" type="button">Journeys</button><button data-route="queue" type="button">Workflow</button><button data-route="schedule" type="button">Schedule</button></div>
     <div class="footer-column"><b>Intelligence</b><button data-route="capacity" type="button">Capacity</button><button data-route="workforce" type="button">Workforce</button><button data-route="diagnostics" type="button">Diagnostics</button><button data-route="pharmacy" type="button">Pharmacy</button><button data-route="finance" type="button">Finance</button></div>
-    <div class="footer-column"><b>Governance</b><button data-route="messages" type="button">Messages</button><button data-route="incidents" type="button">Incidents</button><button data-route="quality" type="button">Quality</button><button data-route="insights" type="button">Insights</button><button data-route="assistant" type="button">Assistant</button><button data-route="reports" type="button">Reports</button><button data-route="audit" type="button">Audit</button><button data-route="settings" type="button">Settings</button></div>
+    <div class="footer-column"><b>Governance</b><button data-route="workspace" type="button">Live workspace</button><button data-route="messages" type="button">Messages</button><button data-route="incidents" type="button">Incidents</button><button data-route="quality" type="button">Quality</button><button data-route="insights" type="button">Insights</button><button data-route="assistant" type="button">Assistant</button><button data-route="reports" type="button">Reports</button><button data-route="audit" type="button">Audit</button><button data-route="settings" type="button">Settings</button></div>
   </div>
   <div class="footer-bottom"><span>© 2026 AVERIS by Mahi</span><span>Browser-local synthetic workspace</span><button data-action="go-settings" type="button">Boundary & privacy</button></div>
 </footer>
@@ -65,6 +66,6 @@
 <aside class="drawer" id="drawer" aria-hidden="true"><div class="drawer-head"><div><span class="eyebrow" id="drawer-eyebrow">DETAIL</span><h2 id="drawer-title">Record</h2></div><button id="drawer-close" class="icon-button" type="button">×</button></div><div id="drawer-body" class="drawer-body"></div></aside>
 <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
 <noscript><div class="noscript"><b>JavaScript is required for the AVERIS control room.</b><span>Everything is local to this browser.</span></div></noscript>
-<script src="./app.js?v=27" defer></script>
+<script src="./app.js?v=29" defer></script>
 </body>
 </html>
