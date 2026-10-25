@@ -1,6 +1,6 @@
 [build]
-  publish = "."
-  command = "node --check app.js && python scripts/validate_site.py"
+  publish = "dist"
+  command = "node --check app.js && python scripts/validate_site.py && python scripts/build_pages.py --output dist"
 
 [build.environment]
   PYTHON_VERSION = "3.12"

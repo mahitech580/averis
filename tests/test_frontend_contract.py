@@ -133,3 +133,9 @@ def test_static_publish_artifact_contains_only_frontend_assets(tmp_path):
     for private_dir in ("backend", "database", "frameworks", "postman", "tests", "scripts", ".github", "node_modules"):
         assert not (output / private_dir).exists(), private_dir + " must not be published"
     assert not list(output.rglob("*.db"))
+
+
+def test_netlify_build_uses_the_clean_static_distribution():
+    netlify = read("netlify.toml")
+    assert re.search(r'(?m)^\s*publish\s*=\s*"dist"\s*$', netlify)
+    assert "python scripts/build_pages.py --output dist" in netlify

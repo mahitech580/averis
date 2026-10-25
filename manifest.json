@@ -5,7 +5,7 @@
 "scope":"./",
 "display":"standalone",
 "background_color":"#050b14",
-"theme_color":"#47f2b5",
+"theme_color":"#07111f",
 "description":"Synthetic operations ERP demo covering inventory, procurement, sales, finance, people, projects, manufacturing, quality and analytics. Sample records only.",
 "icons":[{"src":"./assets/averis-orbit.svg","sizes":"any","type":"image/svg+xml"}]
 }
