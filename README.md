@@ -4,7 +4,7 @@ AVERIS is a multi-tenant operations ERP demonstration built with a responsive HT
 
 **Hosted preview:** https://mahitech580.github.io/averis/  
 **Repository:** https://github.com/mahitech580/averis  
-**CI / release run:** https://github.com/mahitech580/averis/actions/runs/40183448179
+**CI / release runs:** https://github.com/mahitech580/averis/actions
 
 > **Data boundary:** all sample records are synthetic. Do not enter patient information, production customer information, real employee data, or other sensitive data into the public preview.
 
