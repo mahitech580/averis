@@ -32,6 +32,20 @@ try {
   await page.evaluate(() => { location.hash = "/today"; });
   await page.waitForFunction(() => location.hash === "#/today");
 
+  // New visitors can get to signup/login from the homepage and switch between forms.
+  assert.ok(await page.locator('#workspace-root [data-action="open-register"]').count() >= 1, "overview should expose Create account");
+  assert.ok(await page.locator('#workspace-root [data-action="open-login"]').count() >= 1, "overview should expose Sign in");
+  await page.locator('#workspace-root [data-action="open-register"]').first().click();
+  await page.waitForFunction(() => location.hash === "#/register");
+  assert.equal(await page.locator('form[data-auth-form="register"]').count(), 1, "signup form should render");
+  await page.locator('form[data-auth-form="register"] [data-action="open-login"]').click();
+  await page.waitForFunction(() => location.hash === "#/login");
+  assert.equal(await page.locator('form[data-auth-form="login"]').count(), 1, "login form should render");
+  await page.locator('form[data-auth-form="login"] [data-action="open-register"]').click();
+  await page.waitForFunction(() => location.hash === "#/register");
+  await page.evaluate(() => { location.hash = "/today"; });
+  await page.waitForFunction(() => location.hash === "#/today");
+
   // Verify the navigation bar stays at the top of the viewport during scroll.
   const headerStyle = await page.locator("#site-header").evaluate((node) => ({
     position: getComputedStyle(node).position,
@@ -93,7 +107,7 @@ try {
     const backgroundImage = await page.locator("#workspace-root " + selector).evaluate((node) => getComputedStyle(node).backgroundImage);
     assert.ok(backgroundImage.includes("https://"), "section must include a photo background: " + selector);
     const overlayImage = await page.locator("#workspace-root " + selector + " > .section-overlay").evaluate((node) => getComputedStyle(node).backgroundImage);
-    assert.ok(overlayImage.includes("0.83") || overlayImage.includes("0.84") || overlayImage.includes("0.87"), "section photo should have an 80–85% dark overlay: " + selector);
+    assert.ok(overlayImage.includes("0.93") || overlayImage.includes("0.94") || overlayImage.includes("0.96"), "section photo should be very subtle beneath a 93–96% dark overlay: " + selector);
   }
   const footerStyle = await page.locator("footer.site-footer").evaluate((node) => ({
     backgroundImage: getComputedStyle(node).backgroundImage,
@@ -108,7 +122,7 @@ try {
     const image = await page.locator("#workspace-root " + selector).first().evaluate((node) => getComputedStyle(node, "::before").backgroundImage);
     assert.ok(image.includes("https://"), "cards should have photo overlays: " + selector);
     const opacity = Number(await page.locator("#workspace-root " + selector).first().evaluate((node) => getComputedStyle(node, "::before").opacity));
-    assert.ok(opacity >= 0.34 && opacity <= 0.36, "card photo opacity should be calibrated: " + selector + " = " + opacity);
+    assert.ok(opacity >= 0.13 && opacity <= 0.15, "card background images should remain very subtle: " + selector + " = " + opacity);
   }
 
   // Exercise all persistent footer navigation links; this footer is outside the re-rendered workspace root.
@@ -159,6 +173,22 @@ try {
   await page.waitForFunction(() => location.hash === "#/today");
   const savedRegistration = await page.evaluate(() => JSON.parse(localStorage.getItem("averis-neon-v8") || "{}"));
   assert.equal(savedRegistration.profile?.name, "Browser Smoke Tester", "signup should save the new profile locally");
+  assert.equal(savedRegistration.account?.email, "ui-smoke@example.test", "signup should save the local account email");
+
+  // Local sign-out keeps the new account on this browser; verify it still signs in after a reload.
+  await page.locator("#profile-button").click();
+  await page.locator('#drawer-body [data-action="logout"]').click();
+  await page.waitForFunction(() => location.hash === "#/login");
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.locator('form[data-auth-form="login"]').waitFor({ state: "visible" });
+  const persistedAfterLogout = await page.evaluate(() => JSON.parse(localStorage.getItem("averis-neon-v8") || "{}"));
+  assert.equal(persistedAfterLogout.account?.email, "ui-smoke@example.test", "local account should survive sign-out/reload");
+  await page.locator("#auth-email").fill("ui-smoke@example.test");
+  await page.locator("#auth-password").fill("Synthetic-QA-Password-2026!");
+  await page.locator('form[data-auth-form="login"] button[type="submit"]').click();
+  await page.waitForFunction(() => location.hash === "#/today");
+  const persistedAfterLogin = await page.evaluate(() => JSON.parse(localStorage.getItem("averis-neon-v8") || "{}"));
+  assert.equal(persistedAfterLogin.session?.authenticated, true, "successful local sign-in should persist the session");
 
   // A narrow viewport must not force the whole page to be wider than the screen.
   await page.setViewportSize({ width: 390, height: 844 });
@@ -174,7 +204,7 @@ try {
 
   assert.deepEqual(pageErrors, [], "uncaught browser exceptions: " + pageErrors.join(" | "));
   assert.equal(await page.locator("#site-nav-menu button[data-route]").count(), 4, "secondary navigation remains available");
-  console.log("OK: fixed header, five primary links + More submenu, dark-only theme, 80–85% dark imagery, blended footer, login/signup photography, " + landingActions.length + " card destinations, " + routes.length + " footer routes, offline demo and mobile width.");
+  console.log("OK: fixed header, five primary links + More submenu, dark-only theme, very subtle photo backgrounds, visible signup/sign-in, local signup + sign-out + sign-in, image fallbacks, " + landingActions.length + " card destinations, " + routes.length + " footer routes and mobile width.");
 } finally {
   await browser.close();
 }
