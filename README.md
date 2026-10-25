@@ -998,3 +998,6 @@ Sticky-header fix validation: the header is now viewport-fixed and uses a measur
 
 
 Release v35 updates the service-worker and HTML asset references together so browsers do not keep a stale stylesheet or JavaScript bundle after the viewport-fixed header repair.
+
+
+The Chromium route sweep now authenticates through the browser-local demo before visiting its full persistent footer navigation set, so protected pages are tested as rendered ERP views instead of being masked by the unauthenticated redirect.

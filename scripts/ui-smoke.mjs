@@ -42,6 +42,11 @@ try {
   await page.locator("#theme-trigger").click();
   assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
 
+  // Enter the offline demo first so route checks test real protected screens, not login redirects.
+  await page.locator('[data-action="login-demo"]').click();
+  await page.waitForFunction(() => location.hash === "#/today");
+  assert.ok((await page.locator("#workspace-root").innerText()).length > 30, "offline demo should open before route coverage");
+
   // Exercise all persistent footer navigation links; this footer is outside the re-rendered workspace root.
   const routes = await page.locator("footer [data-route]").evaluateAll((buttons) =>
     [...new Set(buttons.map((node) => node.getAttribute("data-route")).filter(Boolean))]
