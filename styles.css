@@ -1546,7 +1546,7 @@ html{scroll-padding-top:96px}
 #workspace-root [id]{scroll-margin-top:100px}
 button,a,input,select,textarea{touch-action:manipulation}
 button:disabled{opacity:.62;cursor:wait;transform:none!important}
-@media(max-height:560px) and (min-width:821px){.site-header{position:relative;top:auto}}
+/* Keep the primary header sticky at every viewport height. */
 @media(max-width:820px){.website-shell .site-header{position:sticky;top:0;backdrop-filter:blur(18px)}.website-shell .site-nav{max-height:calc(100dvh - 130px);overscroll-behavior:contain}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}.scene-grid,.scene-orbit,.scene-light,.hero:after,.presence,.pulse-dot{animation:none!important}}
 
