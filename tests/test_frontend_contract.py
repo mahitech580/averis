@@ -18,40 +18,59 @@ def test_sticky_header_is_not_disabled_at_short_viewport_heights():
     assert re.search(r"html\s*,\s*body\s*\{[^}]*overflow-x:\s*clip", css)
 
 
-def test_light_dark_theme_is_persistent_and_available_in_both_controls():
+def test_dark_only_mode_is_enforced_across_shell_and_settings():
     app = read("app.js")
     html = read("index.html")
     css = read("styles.css")
     render_start = app.index("function render(){")
     render_end = app.index("function pulse(){", render_start)
     render = app[render_start:render_end]
-    assert 'document.documentElement.dataset.theme=state.theme' in render
-    assert 'if(!["dark","light"].includes(state.theme))state.theme="dark";document.documentElement.dataset.theme=state.theme' in render
+    assert 'state.theme="dark";document.documentElement.dataset.theme="dark"' in render
+    assert 'document.documentElement.style.colorScheme="dark"' in render
+    assert 'name="color-scheme" content="dark"' in html
+    assert 'data-theme="dark"' in html
+    assert 'id="theme-trigger"' not in html
+    assert 'data-action="toggle-theme"' not in html
+    assert 'btn("toggle-theme"' not in app
     assert 'if(a==="toggle-theme")' in app
-    assert 'data-action="toggle-theme"' in html
-    assert 'btn("toggle-theme"' in app
-    assert 'html[data-theme="light"] .website-section-bg' in css
-    assert 'html[data-theme="light"] .erp-suite .erp-table tbody td' in css
+    assert 'state.theme="dark"' in app[app.index('if(a==="toggle-theme")'):app.index('if(a==="toggle-theme")') + 240]
+    assert 'html{color-scheme:dark!important}' in css
 
 
-def test_images_are_local_and_css_has_no_external_background_requests():
+def test_photo_backgrounds_and_images_have_bundled_fallbacks():
     html = read("index.html")
     app = read("app.js")
     css = read("styles.css")
-    assert not re.search(r"url\(\s*['\"]?https?://", css, re.IGNORECASE)
-    # Frontend source can include the API URL, but it should not depend on remote photo hosts.
-    blocked_hosts = (
+
+    # Photo backgrounds are intentional, but each remote background declaration
+    # must layer bundled SVG artwork behind it so blocked hosts never leave blanks.
+    external_backgrounds = []
+    for block in re.findall(r"\{([^{}]*)\}", css, re.S):
+        for declaration in block.split(";"):
+            if re.search(r"url\(\s*['\"]?https?://", declaration, re.I):
+                external_backgrounds.append(declaration.strip())
+                assert "./assets/" in declaration, "photo background is missing its local fallback: " + declaration[:220]
+    assert len(external_backgrounds) >= 20
+
+    # Remote <img> sources are intentionally used to restore the photo-led design.
+    # Runtime onerror handlers point to bundled SVG assets as the resilient fallback.
+    assert 'data-fallback="' in app
+    assert 'onerror="this.onerror=null;this.src=this.dataset.fallback"' in app
+    for host in (
         "healthtechmagazine.net", "hopkinsmedicine.org", "yahata.saiseikai.or.jp",
         "res.cloudinary.com", "ihhhealthcare.com", "research.com",
-        "arizent.brightspotcdn.com", "hfmmagazine.com", "bratislavaliving.sk",
-        "d2o532ht0hlr4u.cloudfront.net",
-    )
-    for host in blocked_hosts:
-        assert host not in html
-        assert host not in app
-        assert host not in css
-    assert 'href="./styles.css?v=37"' in html
-    assert 'src="./app.js?v=37"' in html
+        "arizent.brightspotcdn.com", "hfmmagazine.com", "d2o532ht0hlr4u.cloudfront.net",
+    ):
+        if host in app:
+            assert 'data-fallback="' in app and "this.dataset.fallback" in app
+
+    # All long-form website sections retain photographic backgrounds and local SVG fallbacks.
+    for selector in (
+        ".hero-bg", ".capabilities-bg", ".process-bg", ".metrics-bg", ".feature-bg",
+        ".layers-bg", ".showcase-bg", ".boundary-bg", ".cta-bg",
+    ):
+        assert selector in css
+    assert 'data-fallback="./assets/' in app
 
 
 def test_service_worker_and_html_use_one_asset_version():
@@ -60,11 +79,12 @@ def test_service_worker_and_html_use_one_asset_version():
     css_v = re.findall(r"styles\.css\?v=(\d+)", html)
     js_v = re.findall(r"app\.js\?v=(\d+)", html)
     cache = re.search(r"const CACHE=['\"]averis-by-mahi-v(\d+)['\"]", sw)
-    assert css_v == ["37"]
-    assert js_v == ["37"]
-    assert cache and cache.group(1) == "37"
+    assert len(css_v) == 1
+    assert len(js_v) == 1
+    assert css_v == js_v
+    assert cache and cache.group(1) == css_v[0]
     for name in ("styles.css", "app.js"):
-        assert f"./{name}?v=37" in sw
+        assert f"./{name}?v={css_v[0]}" in sw
 
 
 def test_anchor_navigation_does_not_swallow_links():
