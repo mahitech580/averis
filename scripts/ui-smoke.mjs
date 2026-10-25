@@ -88,7 +88,8 @@ try {
   await page.locator("#auth-local-only").check();
   await page.locator('form[data-auth-form="register"] button[type="submit"]').click();
   await page.waitForFunction(() => location.hash === "#/today");
-  assert.equal(await page.locator("#profile-name").innerText(), "Browser Smoke Tester");
+  const savedRegistration = await page.evaluate(() => JSON.parse(localStorage.getItem("averis-neon-v8") || "{}"));
+  assert.equal(savedRegistration.profile?.name, "Browser Smoke Tester", "signup should save the new profile locally");
 
   // A narrow viewport must not force the whole page to be wider than the screen.
   await page.setViewportSize({ width: 390, height: 844 });

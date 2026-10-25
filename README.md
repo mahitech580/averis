@@ -1001,3 +1001,6 @@ Release v35 updates the service-worker and HTML asset references together so bro
 
 
 The Chromium route sweep now authenticates through the browser-local demo before visiting its full persistent footer navigation set, so protected pages are tested as rendered ERP views instead of being masked by the unauthenticated redirect.
+
+
+The browser signup smoke test asserts the serialized local account/profile record rather than looking for a profile label that is not part of the site header, verifying the actual persistence contract of offline signup.
