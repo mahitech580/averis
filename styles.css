@@ -196,30 +196,30 @@ body{background:radial-gradient(circle at 70% 0%,rgba(38,118,183,.10),transparen
   border-radius:inherit;
   background:
     linear-gradient(135deg,rgba(3,10,18,.95),rgba(4,13,23,.80) 58%,rgba(5,18,28,.91)),
-    var(--surface-photo,url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif"));
+    var(--surface-photo,url("./assets/operational-pulse.svg"));
   background-size:cover;
   background-position:center;
   opacity:.68;
   pointer-events:none;
 }
 .signal:before{opacity:.42}
-.person-card:before{background-image:linear-gradient(135deg,rgba(3,11,18,.94),rgba(4,17,27,.78)),url("https://www.hfmmagazine.com/sites/default/files/hfmmagazine/ext/resources/images/2018/magazine/jan_feb/0118_SpecialReport_Sidebar_NerveCenter_700x468.jpg")}
-.report:before{background-image:linear-gradient(135deg,rgba(3,11,18,.95),rgba(4,15,24,.78)),url("https://healthtechmagazine.net/sites/healthtechmagazine.net/files/styles/flexslider_full/public/2020-02/HT_Q120_Feat-Hennick-slide3-2.jpg?itok=GF9w27yz")}
-.small-stat:before{background-image:linear-gradient(135deg,rgba(3,11,18,.96),rgba(4,16,24,.72)),url("https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960")}
-.network:before{background-image:linear-gradient(135deg,rgba(2,9,17,.78),rgba(3,18,27,.46)),url("https://www.hfmmagazine.com/sites/default/files/hfmmagazine/ext/resources/images/2018/magazine/jan_feb/0118_SpecialReport_Sidebar_NerveCenter_700x468.jpg")}
-.workspace-grid>.card:first-child{--surface-photo:url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif")}
-.workspace-grid>.stack>.card:first-child{--surface-photo:url("https://www.hfmmagazine.com/sites/default/files/hfmmagazine/ext/resources/images/2018/magazine/jan_feb/0118_SpecialReport_Sidebar_NerveCenter_700x468.jpg")}
-.workspace-grid>.stack>.card:nth-child(2){--surface-photo:url("https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960")}
-.departments-card{--surface-photo:url("https://d2o532ht0hlr4u.cloudfront.net/_next/image?q=75&url=https%3A%2F%2Fdata.openasset.com%2F32707b49%2F2795990d012f22ab865c88cbe90876fa%2F100410_04_NYU_ED_N3_tif%2F100410_04_NYU_ED_N3_screenview.jpg&w=3840")}
-.resource-card{--surface-photo:url("https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960")}
-.activity-card{--surface-photo:url("https://res.cloudinary.com/casden-edito/images/c_scale%2Cw_2048%2Ch_1442%2Cdpr_2/f_auto%2Cq_auto/v1699015961/prod/recrutement-FPH/recrutement-FPH.jpg?_i=AA")}
+.person-card:before{background-image:linear-gradient(135deg,rgba(3,11,18,.94),rgba(4,17,27,.78)),url("./assets/operations.svg")}
+.report:before{background-image:linear-gradient(135deg,rgba(3,11,18,.95),rgba(4,15,24,.78)),url("./assets/healthcare-scene.svg")}
+.small-stat:before{background-image:linear-gradient(135deg,rgba(3,11,18,.96),rgba(4,16,24,.72)),url("./assets/operations.svg")}
+.network:before{background-image:linear-gradient(135deg,rgba(2,9,17,.78),rgba(3,18,27,.46)),url("./assets/operations.svg")}
+.workspace-grid>.card:first-child{--surface-photo:url("./assets/operational-pulse.svg")}
+.workspace-grid>.stack>.card:first-child{--surface-photo:url("./assets/operations.svg")}
+.workspace-grid>.stack>.card:nth-child(2){--surface-photo:url("./assets/operations.svg")}
+.departments-card{--surface-photo:url("./assets/care-team.svg")}
+.resource-card{--surface-photo:url("./assets/operations.svg")}
+.activity-card{--surface-photo:url("./assets/care-team.svg")}
 
 /* Rich visual context on non-Today workspaces. */
-table,.table-wrap{background-image:linear-gradient(90deg,rgba(3,10,18,.92),rgba(3,12,20,.78)),url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif");background-size:cover;background-position:center}
-.journey{background-image:linear-gradient(90deg,rgba(3,10,18,.94),rgba(3,15,24,.72)),url("https://www.hfmmagazine.com/sites/default/files/hfmmagazine/ext/resources/images/2018/magazine/jan_feb/0118_SpecialReport_Sidebar_NerveCenter_700x468.jpg");background-size:cover;background-position:center}
-.message{background-image:linear-gradient(90deg,rgba(3,11,18,.86),rgba(4,17,28,.72)),url("https://res.cloudinary.com/casden-edito/images/c_scale%2Cw_2048%2Ch_1442%2Cdpr_2/f_auto%2Cq_auto/v1699015961/prod/recrutement-FPH/recrutement-FPH.jpg?_i=AA");background-size:cover;background-position:center}
-.auth-card{background-image:linear-gradient(135deg,rgba(3,12,20,.96),rgba(4,18,28,.84)),url("https://www.yahata.saiseikai.or.jp/storage/uploads/block/202501/20250115_200254.webp");background-size:cover;background-position:center}
-.sidebar .simulation-badge{background-image:linear-gradient(90deg,rgba(3,13,21,.94),rgba(4,16,25,.78)),url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif");background-size:cover;background-position:center}
+table,.table-wrap{background-image:linear-gradient(90deg,rgba(3,10,18,.92),rgba(3,12,20,.78)),url("./assets/operational-pulse.svg");background-size:cover;background-position:center}
+.journey{background-image:linear-gradient(90deg,rgba(3,10,18,.94),rgba(3,15,24,.72)),url("./assets/operations.svg");background-size:cover;background-position:center}
+.message{background-image:linear-gradient(90deg,rgba(3,11,18,.86),rgba(4,17,28,.72)),url("./assets/care-team.svg");background-size:cover;background-position:center}
+.auth-card{background-image:linear-gradient(135deg,rgba(3,12,20,.96),rgba(4,18,28,.84)),url("./assets/operational-pulse.svg");background-size:cover;background-position:center}
+.sidebar .simulation-badge{background-image:linear-gradient(90deg,rgba(3,13,21,.94),rgba(4,16,25,.78)),url("./assets/operational-pulse.svg");background-size:cover;background-position:center}
 
 
 /* AVERIS THEME FIX — light mode is a true light workspace, dark mode remains cinematic. */
@@ -533,7 +533,7 @@ body{line-height:1.6;letter-spacing:.005em}
 .website-section-bg{position:relative;isolation:isolate;overflow:hidden;background-color:#06101c;background-position:center;background-size:cover;background-repeat:no-repeat}
 .website-section-bg>.section-overlay{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(3,9,17,.92),rgba(3,9,17,.76) 48%,rgba(3,9,17,.96)),radial-gradient(circle at 50% 35%,rgba(33,79,104,.20),transparent 55%)}
 .section-inner{position:relative;width:min(100%,1320px);margin:0 auto;padding-left:clamp(18px,4vw,60px);padding-right:clamp(18px,4vw,60px)}
-.hero-bg{background-image:url("https://www.ihhhealthcare.com/images/default-source/ihh/occ-2.jpg?sfvrsn=2801dfb4_1")}
+.hero-bg{background-image:url("./assets/healthcare-scene.svg")}
 .landing-hero{min-height:720px;padding:70px 0 78px}
 .landing-hero-inner{position:relative;z-index:2;width:min(100%,1320px);margin:0 auto;padding:0 clamp(18px,4vw,60px);display:grid;grid-template-columns:1.02fr .98fr;gap:70px;align-items:center}
 .landing-hero-copy{text-align:center;max-width:760px;margin:auto}
@@ -547,14 +547,14 @@ body{line-height:1.6;letter-spacing:.005em}
 .landing-hero-visual{position:relative;min-height:500px}
 .hero-image-window{width:min(100%,510px);height:480px;margin:auto;border-radius:28px;overflow:hidden;border:1px solid rgba(255,255,255,.18);box-shadow:0 35px 100px rgba(0,0,0,.42)}
 .hero-image-window img{width:100%;height:100%;object-fit:cover}
-.metrics-bg{background-image:url("https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960")}
+.metrics-bg{background-image:url("./assets/operations.svg")}
 .landing-metric-band{padding:0}
 .landing-metrics-inner{position:relative;z-index:2;width:min(100%,1320px);margin:0 auto;padding:18px clamp(18px,4vw,60px);display:grid;grid-template-columns:repeat(4,1fr);gap:1px}
 .landing-metrics-inner>div{text-align:center;padding:24px 16px;border-right:1px solid rgba(255,255,255,.10)}
 .landing-metrics-inner>div:last-child{border-right:0}
 .landing-metrics-inner span{font-size:9px;letter-spacing:.15em;color:#91a5ba}
 .landing-metrics-inner b{display:block;font-size:38px;line-height:1;margin:10px 0 7px}.landing-metrics-inner small{font-size:9px;color:#91a5ba}
-.capabilities-bg{background-image:url("https://www.bratislavaliving.sk/1680089795873.jpeg")}
+.capabilities-bg{background-image:url("./assets/care-network.svg")}
 .landing-intro{padding:110px 0}
 .center-heading{max-width:820px;margin:0 auto 46px;text-align:center}
 .center-heading .section-kicker{margin-bottom:10px}
@@ -567,7 +567,7 @@ body{line-height:1.6;letter-spacing:.005em}
 .capability-icon{margin:0 auto 24px}
 .capability-card h3{font-size:18px}
 .capability-card p{max-width:280px;font-size:12px;line-height:1.75;margin-bottom:25px}
-.process-bg{background-image:url("https://www.bratislavaliving.sk/1680089795873.jpeg")}
+.process-bg{background-image:url("./assets/care-network.svg")}
 .process-section{padding:112px 0}
 .light-heading p{color:#b4c1cf}
 .process-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
@@ -577,7 +577,7 @@ body{line-height:1.6;letter-spacing:.005em}
 .process-card>small{color:var(--teal);font-size:9px;letter-spacing:.16em;font-weight:800}
 .process-card h3{margin:10px 0 12px;font-size:20px}
 .process-card p{margin:0 auto 24px;max-width:320px;color:var(--muted);font-size:12px;line-height:1.8}
-.feature-bg{background-image:url("https://research.com/resized/uploads/1773729435_0_title_currentyear_clinical_nurse_leader_degree_masters_programs_you_can_start_without_meeting_all_requirements_40ff2f516e.webp?format=large")}
+.feature-bg{background-image:url("./assets/care-team.svg")}
 .landing-feature{padding:112px 0}
 .feature-layout{display:grid;grid-template-columns:.92fr 1.08fr;align-items:center;gap:70px}
 .feature-media{height:430px;max-width:560px;margin:auto;border-radius:25px;overflow:hidden;border:1px solid rgba(255,255,255,.15);box-shadow:0 25px 75px rgba(0,0,0,.3)}
@@ -588,19 +588,19 @@ body{line-height:1.6;letter-spacing:.005em}
 .feature-copy>p{max-width:650px;margin:0 auto;color:var(--muted);font-size:14px;line-height:1.85}
 .feature-list{max-width:540px;margin:28px auto 5px;text-align:left}
 .feature-list>div{justify-content:center}
-.layers-bg{background-image:url("https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960")}
+.layers-bg{background-image:url("./assets/operations.svg")}
 .layers-section{padding:112px 0}
 .layer-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
 .layer-card{display:grid;grid-template-columns:45px 1fr auto;gap:12px;align-items:center;min-height:120px;padding:17px;border:1px solid rgba(255,255,255,.12);border-radius:17px;background:rgba(5,13,23,.71);backdrop-filter:blur(13px);color:var(--text);cursor:pointer;text-align:left;transition:.23s var(--ease)}
 .layer-card:hover{transform:translateY(-4px);border-color:rgba(94,240,218,.24);background:rgba(9,19,32,.80)}
 .layer-icon{width:43px;height:43px;display:grid;place-items:center;border-radius:12px;background:rgba(94,240,218,.08);color:var(--teal);font-size:18px}
 .layer-card b{display:block;font-size:14px}.layer-card small{display:block;margin-top:5px;color:var(--muted);font-size:10px;line-height:1.45}.layer-card>strong{color:var(--teal);font-size:18px}
-.showcase-bg{background-image:url("https://www.yahata.saiseikai.or.jp/storage/uploads/block/202501/20250115_200254.webp")}
+.showcase-bg{background-image:url("./assets/operational-pulse.svg")}
 .landing-showcase{padding:112px 0}
 .showcase-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .showcase-card{height:370px;border-radius:20px}
 .showcase-copy{left:20px;right:20px;bottom:20px}.showcase-copy b{font-size:22px}.showcase-copy em{font-size:11px}
-.boundary-bg{background-image:url("https://www.bratislavaliving.sk/1680089795873.jpeg")}
+.boundary-bg{background-image:url("./assets/care-network.svg")}
 .boundary-section{padding:105px 0}
 .boundary-layout{display:grid;grid-template-columns:1.1fr .9fr;gap:70px;align-items:center}
 .boundary-layout h2{margin:10px 0 15px;font-size:clamp(35px,4vw,57px);line-height:1}
@@ -610,7 +610,7 @@ body{line-height:1.6;letter-spacing:.005em}
 .boundary-points{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .boundary-point{padding:20px;border:1px solid rgba(255,255,255,.13);border-radius:16px;background:rgba(3,10,18,.70);backdrop-filter:blur(14px)}
 .boundary-point b{display:block;color:var(--teal);font-size:10px;letter-spacing:.13em}.boundary-point span{display:block;margin-top:6px;color:var(--text);font-size:12px}
-.cta-bg{background-image:url("https://healthtechmagazine.net/sites/healthtechmagazine.net/files/styles/flexslider_full/public/2020-02/HT_Q120_Feat-Hennick-slide3-2.jpg?itok=GF9w27yz")}
+.cta-bg{background-image:url("./assets/healthcare-scene.svg")}
 .landing-cta{padding:100px 0 110px}
 .cta-inner{display:flex;justify-content:center;align-items:center;gap:45px;text-align:center}
 .cta-inner h2{font-size:clamp(38px,4.4vw,64px);margin:10px 0 13px}
@@ -1549,3 +1549,84 @@ button:disabled{opacity:.62;cursor:wait;transform:none!important}
 @media(max-height:560px) and (min-width:821px){.site-header{position:relative;top:auto}}
 @media(max-width:820px){.website-shell .site-header{position:sticky;top:0;backdrop-filter:blur(18px)}.website-shell .site-nav{max-height:calc(100dvh - 130px);overscroll-behavior:contain}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}.scene-grid,.scene-orbit,.scene-light,.hero:after,.presence,.pulse-dot{animation:none!important}}
+
+
+/* RELEASE v33 — locally hosted visual assets and complete light-mode landing surfaces. */
+html[data-theme="light"] .website-section-bg{
+  background-color:#edf3f9;
+  color:#182a3e;
+}
+html[data-theme="light"] .website-section-bg>.section-overlay{
+  background:linear-gradient(180deg,rgba(244,248,252,.90),rgba(239,245,250,.84) 48%,rgba(244,248,252,.94)),
+    radial-gradient(circle at 50% 35%,rgba(33,112,132,.08),transparent 55%);
+}
+html[data-theme="light"] .landing-lead,
+html[data-theme="light"] .light-heading p,
+html[data-theme="light"] .center-heading p,
+html[data-theme="light"] .feature-copy>p,
+html[data-theme="light"] .landing-cta p,
+html[data-theme="light"] .boundary-layout p{color:#50657b}
+html[data-theme="light"] .landing-trust{color:#596e83}
+html[data-theme="light"] .landing-trust span:before{box-shadow:none}
+html[data-theme="light"] .landing-hero-copy h1 span,
+html[data-theme="light"] .center-heading h2 span,
+html[data-theme="light"] .feature-copy h2 span,
+html[data-theme="light"] .boundary-layout h2 span{
+  background:linear-gradient(120deg,#20354d,#087f78 52%,#4e64cf 90%);
+  -webkit-background-clip:text;background-clip:text;
+}
+html[data-theme="light"] .capability-card,
+html[data-theme="light"] .process-card,
+html[data-theme="light"] .layer-card,
+html[data-theme="light"] .boundary-point,
+html[data-theme="light"] .landing-metrics>div,
+html[data-theme="light"] .landing-metrics-inner>div{
+  background:rgba(255,255,255,.92);
+  border-color:#d6e1ec;
+  color:#182a3e;
+  box-shadow:0 12px 32px rgba(34,57,83,.07);
+}
+html[data-theme="light"] .capability-card p,
+html[data-theme="light"] .process-card p,
+html[data-theme="light"] .layer-card small,
+html[data-theme="light"] .boundary-point span,
+html[data-theme="light"] .landing-metrics small,
+html[data-theme="light"] .landing-metrics-inner small{color:#576c82}
+html[data-theme="light"] .capability-card h3,
+html[data-theme="light"] .process-card h3,
+html[data-theme="light"] .layer-card b,
+html[data-theme="light"] .landing-metrics b{color:#172a40}
+html[data-theme="light"] .process-number{color:rgba(36,67,95,.16)}
+html[data-theme="light"] .landing-metrics{background:#dce5ee}
+html[data-theme="light"] .landing-metrics-inner span{color:#63768a}
+html[data-theme="light"] .feature-list>div{border-color:#dce4ed}
+html[data-theme="light"] .feature-list span{color:#52677e}
+html[data-theme="light"] .feature-list strong{color:#182a3e}
+html[data-theme="light"] .landing-overlay-panel{
+  background:rgba(255,255,255,.93);
+  border-color:rgba(55,83,116,.18);
+  color:#172a40;
+  box-shadow:0 12px 32px rgba(24,44,66,.12);
+}
+html[data-theme="light"] .landing-overlay-panel small{color:#5a6f84}
+html[data-theme="light"] .landing-mini-stat{
+  background:rgba(255,255,255,.96);
+  border-color:#d6e1ec;
+  color:#172a40;
+  box-shadow:0 16px 38px rgba(24,44,66,.12);
+}
+html[data-theme="light"] .landing-mini-stat span{color:#5a6f84}
+html[data-theme="light"] .landing-image:after{background:linear-gradient(180deg,rgba(5,16,26,.02),rgba(5,16,26,.50) 100%)}
+html[data-theme="light"] .showcase-shade{background:linear-gradient(180deg,rgba(6,17,29,.02) 18%,rgba(6,17,29,.82) 100%)}
+html[data-theme="light"] .showcase-copy em{color:#e7eef6}
+html[data-theme="light"] .landing-metrics-inner>div{border-color:#d9e3ed}
+html[data-theme="light"] .hero-image-window,
+html[data-theme="light"] .feature-media,
+html[data-theme="light"] .landing-image{border-color:#d4e0ed}
+html[data-theme="light"] .site-footer{color:#182a3e}
+html[data-theme="light"] .site-footer .footer-boundary{color:#4a6777}
+html[data-theme="light"] .site-footer .footer-column b{color:#263d54}
+html[data-theme="light"] .site-footer .footer-column button:hover{color:#087f78}
+html[data-theme="light"] .section-kicker{color:#087f78}
+html[data-theme="light"] .button:focus-visible,
+html[data-theme="light"] a:focus-visible{outline-color:#087f78}

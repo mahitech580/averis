@@ -967,3 +967,8 @@ Supabase security note: connection strings and database passwords remain in dash
 ### Link and asset integrity release check
 
 The delegated click handler now preserves normal anchor navigation and external destinations instead of swallowing link clicks. Marketing/auth imagery resolves to repository-local SVGs, avoiding third-party image-host dependence and extra third-party image requests. A persistent theme toggle is wired in the header and Settings, with browser theme-color metadata updated on change.
+
+
+### Release v33 — resilient imagery + light theme
+
+All CSS background-image references now use repository-local SVGs instead of third-party photo hosts, including landing, capacity, workflow, product-showcase and CTA sections. The complete landing-page light theme received its own surface, overlay, text, card and media contrast rules. Asset links are versioned v33 together with the service-worker cache.
