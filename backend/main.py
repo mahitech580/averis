@@ -307,11 +307,11 @@ ERP_FIELDS: dict[str, dict[str, str]] = {
     "products": {"name":"text","sku":"text","category":"text","unit":"text","quantity":"number","reorder_level":"number","unit_cost":"number","selling_price":"number","location":"text","status":"text"},
     "suppliers": {"name":"text","company":"text","email":"email","phone":"text","city":"text","payment_terms":"text","status":"text"},
     "purchase_orders": {"po_number":"text","supplier":"text","order_date":"date","expected_date":"date","items_count":"number","total":"number","status":"text"},
-    "customers": {"name":"text","company":"text","email":"text","phone":"text","segment":"text","city":"text","lifetime_value":"number","status":"text"},
+    "customers": {"name":"text","company":"text","email":"email","phone":"text","segment":"text","city":"text","lifetime_value":"number","status":"text"},
     "sales_orders": {"so_number":"text","customer":"text","order_date":"date","due_date":"date","items_count":"number","total":"number","status":"text"},
     "invoices": {"invoice_number":"text","party":"text","direction":"text","issue_date":"date","due_date":"date","amount":"number","paid_amount":"number","status":"text"},
-    "employees": {"name":"text","email":"text","department":"text","job_title":"text","manager":"text","employment_type":"text","start_date":"date","salary":"number","status":"text"},
-    "leads": {"name":"text","company":"text","email":"text","source":"text","owner":"text","stage":"text","value":"number","next_activity":"date"},
+    "employees": {"name":"text","email":"email","department":"text","job_title":"text","manager":"text","employment_type":"text","start_date":"date","salary":"number","status":"text"},
+    "leads": {"name":"text","company":"text","email":"email","source":"text","owner":"text","stage":"text","value":"number","next_activity":"date"},
     "projects": {"name":"text","client":"text","owner":"text","start_date":"date","due_date":"date","budget":"number","status":"text","progress":"number"},
     "assets": {"name":"text","asset_tag":"text","category":"text","assigned_to":"text","purchase_date":"date","value":"number","condition":"text","status":"text"},
     "journal_entries": {"entry_number":"text","date":"date","description":"text","debit_account":"text","credit_account":"text","amount":"number","status":"text"},
@@ -388,7 +388,7 @@ def clean_erp_payload(collection: str, raw: dict[str, Any], record_key: str | No
                     date.fromisoformat(value)
                 except ValueError as exc:
                     raise HTTPException(422, f"{key} must use YYYY-MM-DD format.") from exc
-            if kind == "email" and value and not re.fullmatch(r"[^\\s@]+@[^\\s@]+\\.[^\\s@]+", value):
+            if kind == "email" and value and not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", value):
                 raise HTTPException(422, f"{key} must be a valid email address.")
             cleaned[key] = value
     missing = [
