@@ -1,5 +1,7 @@
 from __future__ import annotations
-import os, uuid
+import os, sys, uuid
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 os.environ["DATABASE_URL"]=f"sqlite:///./test_averis_{uuid.uuid4().hex}.db"
 os.environ["APP_ENV"]="test"
 from fastapi.testclient import TestClient
