@@ -26,7 +26,7 @@ def test_light_dark_theme_is_persistent_and_available_in_both_controls():
     render_end = app.index("function pulse(){", render_start)
     render = app[render_start:render_end]
     assert 'document.documentElement.dataset.theme=state.theme' in render
-    assert 'state.theme="dark";document.documentElement.dataset.theme' not in render
+    assert 'if(!["dark","light"].includes(state.theme))state.theme="dark";document.documentElement.dataset.theme=state.theme' in render
     assert 'if(a==="toggle-theme")' in app
     assert 'data-action="toggle-theme"' in html
     assert 'btn("toggle-theme"' in app
