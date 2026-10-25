@@ -1894,3 +1894,51 @@ html[data-theme="dark"] .auth-card{background:rgba(4,12,22,.88);backdrop-filter:
 .person-card:before,.report:before,.small-stat:before,.network:before{
   background-blend-mode:normal;
 }
+
+
+/* RELEASE v41 — consistent 80–85% dark photo treatment and seamless footer blend. */
+.website-section-bg>.section-overlay{
+  background:
+    linear-gradient(180deg,rgba(3,9,17,.83) 0%,rgba(3,9,17,.84) 48%,rgba(3,9,17,.87) 100%),
+    radial-gradient(circle at 50% 35%,rgba(33,79,104,.06),transparent 55%)!important;
+}
+.capability-card:before,
+.process-card:before,
+.layer-card:before,
+.boundary-point:before,
+.landing-metrics>div:before{
+  /* These pseudo layers already have a 48% dark overlay; .35 opacity leaves
+     about 18% image visibility while keeping the foreground text untouched. */
+  opacity:.35!important;
+}
+.site-footer{
+  position:relative;
+  isolation:isolate;
+  border-top:0!important;
+  background-image:
+    linear-gradient(180deg,rgba(4,11,20,.82) 0%,rgba(4,11,20,.85) 38%,rgba(3,8,15,.90) 100%),
+    url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif"),
+    url("./assets/operational-pulse.svg")!important;
+  background-position:center;
+  background-size:cover;
+  background-repeat:no-repeat;
+}
+.site-footer:before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  height:44px;
+  pointer-events:none;
+  z-index:0;
+  background:linear-gradient(180deg,rgba(4,11,20,.12),transparent);
+}
+.site-footer>*{position:relative;z-index:1}
+.auth-screen{
+  background-image:
+    linear-gradient(135deg,rgba(2,8,16,.82),rgba(2,8,16,.85)),
+    url("https://www.ihhhealthcare.com/images/default-source/ihh/occ-2.jpg?sfvrsn=2801dfb4_1"),
+    url("./assets/healthcare-scene.svg")!important;
+  background-position:center;
+  background-size:cover;
+  background-repeat:no-repeat;
+}
