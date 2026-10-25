@@ -129,8 +129,11 @@ if(cloud.online){if(organizationName.length<2){toast("Organization required","En
 state.account={name,email,passHash:localHash(password)};state.profile.name=name;state.profile.role="Control room owner";state.session={authenticated:true,lastLogin:stamp()};audit("Registered local account",email);save();navigate("today");toast("Local workspace created","Account saved locally in this browser.");
 }
 async function logout(){
-if(cloud.online&&cloud.authenticated){try{await apiRequest("/auth/logout",{method:"POST",body:JSON.stringify({})})}catch(error){cloud.lastError=cloudErrorMessage(error)}}
-if(cloud.pollTimer)clearInterval(cloud.pollTimer);clearTimeout(cloud.syncTimer);cloud.authenticated=false;cloud.user=null;cloud.organization=null;cloud.revision=0;cloud.lastData=null;state.session.authenticated=false;try{localStorage.removeItem(KEY)}catch(e){}closeAll();route="login";location.hash="/login";render();updateCloudChrome();toast("Signed out","Your server session has been ended.")
+const wasCloudSession=cloud.online&&cloud.authenticated;
+if(wasCloudSession){try{await apiRequest("/auth/logout",{method:"POST",body:JSON.stringify({})})}catch(error){cloud.lastError=cloudErrorMessage(error)}}
+if(cloud.pollTimer)clearInterval(cloud.pollTimer);clearTimeout(cloud.syncTimer);cloud.authenticated=false;cloud.user=null;cloud.organization=null;cloud.revision=0;cloud.lastData=null;state.session.authenticated=false;
+if(wasCloudSession){try{localStorage.removeItem(KEY)}catch(e){}}else{save()}
+closeAll();route="login";location.hash="/login";render();updateCloudChrome();toast("Signed out","Your local account remains on this browser. Cloud sessions are cleared.")
 }
 function todayExtras(){
 const image=(src,fallback)=>'<img src="'+src+'" data-fallback="'+fallback+'" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=this.dataset.fallback">';
