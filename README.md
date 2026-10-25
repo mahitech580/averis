@@ -10,8 +10,8 @@ AVERIS is a multi-tenant operations ERP demonstration built with a responsive HT
 
 ## What is included
 
-- Responsive application shell with viewport-fixed navigation, mobile layout, focus states, smooth transitions, reduced-motion support, and persisted light/dark appearance.
-- Restored photo-led healthcare imagery across landing and workspace surfaces, with bundled SVG fallbacks when an image host is unavailable.
+- Responsive application shell with viewport-fixed navigation, a five-link primary bar with a More submenu, mobile layout, focus states, smooth transitions, reduced-motion support, and a dark-only appearance.
+- Photo-led healthcare imagery across hero sections, feature cards, operational layers, login, and signup, with bundled SVG fallbacks when an image host is unavailable.
 - Local/browser demo and an isolated cloud-demo route; the cloud demo provisions a dedicated organization per visitor and seeds **313 synthetic records across 15 ERP modules**.
 - Server-side registration/sign-in, password hashing, HttpOnly session cookies, logout/revocation, organization-scoped records, shared workspace snapshots, revision checks, and server audit events.
 - ERP search, summary counts, low-stock signals, CRUD operations, field validation, duplicate SKU checks, and organization-level isolation.
