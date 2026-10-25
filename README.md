@@ -989,3 +989,6 @@ The release workflow starts FastAPI against a fresh temporary SQLite database an
 
 
 The Chromium test revealed the source of sticky-header drift: hidden horizontal overflow on the root/body created a non-viewport scroll ancestor. The final header fix uses `overflow-x: clip` at the document root so horizontal clipping remains without converting the vertical scroll container; the browser smoke test guards the sticky behavior.
+
+
+Release v34: updated the static asset/service-worker version to force the sticky-header fix into existing browsers; the Chromium smoke test exercises routes from the persistent header and now reports ancestor layout/overflow details if sticky behavior regresses.

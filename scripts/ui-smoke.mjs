@@ -30,7 +30,8 @@ try {
   await page.evaluate(() => window.scrollTo(0, Math.min(900, document.documentElement.scrollHeight)));
   await page.waitForTimeout(150);
   const stickyTop = await page.locator("#site-header").evaluate((node) => node.getBoundingClientRect().top);
-  assert.ok(Math.abs(stickyTop) <= 2, "sticky header should remain visible; top=" + stickyTop);
+  const ancestorReport = await page.locator("#site-header").evaluate((node) => { const out=[]; for(let el=node;el;el=el.parentElement){const s=getComputedStyle(el);out.push({tag:el.tagName,id:el.id,cls:typeof el.className==="string"?el.className:"",position:s.position,overflowX:s.overflowX,overflowY:s.overflowY,height:Math.round(el.getBoundingClientRect().height)});} return out; });
+  assert.ok(Math.abs(stickyTop) <= 2, "sticky header should remain visible; top=" + stickyTop + "; ancestors=" + JSON.stringify(ancestorReport));
 
   // Theme must persist through app renders and a page reload.
   await page.locator("#theme-trigger").click();
@@ -41,13 +42,13 @@ try {
   await page.locator("#theme-trigger").click();
   assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
 
-  // All static section links in the desktop header/footer must navigate to live views.
-  const routes = await page.locator("footer [data-route]").evaluateAll((buttons) =>
+  // Exercise every persistent top-level navigation link without depending on a route-local footer.
+  const routes = await page.locator("#site-header .site-nav [data-route]").evaluateAll((buttons) =>
     [...new Set(buttons.map((node) => node.getAttribute("data-route")).filter(Boolean))]
   );
   assert.ok(routes.length >= 15, "expected broad route navigation, found " + routes.length);
   for (const route of routes) {
-    const button = page.locator('footer [data-route="' + route + '"]').first();
+    const button = page.locator('#site-header .site-nav [data-route="' + route + '"]').first();
     await button.scrollIntoViewIfNeeded();
     await button.click();
     await page.waitForFunction((expected) => location.hash === "#/" + expected, route);
