@@ -42,13 +42,13 @@ try {
   await page.locator("#theme-trigger").click();
   assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
 
-  // Exercise every persistent top-level navigation link without depending on a route-local footer.
-  const routes = await page.locator("#site-header .site-nav [data-route]").evaluateAll((buttons) =>
+  // Exercise all persistent footer navigation links; this footer is outside the re-rendered workspace root.
+  const routes = await page.locator("footer [data-route]").evaluateAll((buttons) =>
     [...new Set(buttons.map((node) => node.getAttribute("data-route")).filter(Boolean))]
   );
   assert.ok(routes.length >= 15, "expected broad route navigation, found " + routes.length);
   for (const route of routes) {
-    const button = page.locator('#site-header .site-nav [data-route="' + route + '"]').first();
+    const button = page.locator('footer [data-route="' + route + '"]').first();
     await button.scrollIntoViewIfNeeded();
     await button.click();
     await page.waitForFunction((expected) => location.hash === "#/" + expected, route);
