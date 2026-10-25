@@ -23,7 +23,7 @@ STATIC_DIRECTORIES = ("assets",)
 def build(output: Path) -> int:
     destination = output if output.is_absolute() else ROOT / output
     destination = destination.resolve()
-    if destination == ROOT or ROOT not in destination.parents:
+    if destination == ROOT or destination in ROOT.parents:
         print("FAIL: output must be a child directory of the repository root", file=sys.stderr)
         return 2
     missing = [name for name in STATIC_FILES if not (ROOT / name).is_file()]
