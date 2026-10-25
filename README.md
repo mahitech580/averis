@@ -995,3 +995,6 @@ Release v34: updated the static asset/service-worker version to force the sticky
 
 
 Sticky-header fix validation: the header is now viewport-fixed and uses a measured CSS variable to keep page content below it at desktop and mobile breakpoints. This avoids CSS sticky scroll-ancestor edge cases while guaranteeing it remains visible during long page scrolls and route transitions.
+
+
+Release v35 updates the service-worker and HTML asset references together so browsers do not keep a stale stylesheet or JavaScript bundle after the viewport-fixed header repair.
