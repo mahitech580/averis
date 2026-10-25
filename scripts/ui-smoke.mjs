@@ -20,6 +20,18 @@ try {
   const initialRouteContent = await page.locator("#workspace-root").innerText();
   assert.ok(initialRouteContent.trim().length > 80, "main route should render useful content");
 
+  const primaryLabels = (await page.locator(".site-nav > button[data-route]").allTextContents()).map((label) => label.trim());
+  assert.deepEqual(primaryLabels, ["Website Overview", "People", "Journeys", "Workflow", "Capacity"], "only five primary items should be visible");
+  assert.equal(await page.locator("#site-nav-menu button[data-route]").count(), 4, "secondary destinations should be grouped under More");
+  assert.equal(await page.locator("#command-trigger").count(), 0, "the header search button should be removed");
+  await page.locator("#site-more-toggle").click();
+  assert.equal(await page.locator("#site-more-toggle").getAttribute("aria-expanded"), "true", "More menu should open accessibly");
+  await page.locator('#site-nav-menu button[data-route="insights"]').click();
+  await page.waitForFunction(() => location.hash === "#/insights");
+  assert.equal(await page.locator("#site-more-toggle").getAttribute("aria-expanded"), "false", "More menu should close after navigation");
+  await page.evaluate(() => { location.hash = "/today"; });
+  await page.waitForFunction(() => location.hash === "#/today");
+
   // Verify the navigation bar stays at the top of the viewport during scroll.
   const headerStyle = await page.locator("#site-header").evaluate((node) => ({
     position: getComputedStyle(node).position,
@@ -36,6 +48,8 @@ try {
   // Theme must persist through app renders and a page reload.
   await page.locator("#theme-trigger").click();
   assert.equal(await page.locator("html").getAttribute("data-theme"), "light");
+  const landingLeadColor = await page.locator("#workspace-root .landing-lead").evaluate((node) => getComputedStyle(node).color);
+  assert.equal(landingLeadColor, "rgb(66, 87, 109)", "light-mode landing copy should use readable dark text");
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.locator("#site-header").waitFor({ state: "visible" });
   assert.equal(await page.locator("html").getAttribute("data-theme"), "light", "theme should survive reload");
@@ -63,7 +77,7 @@ try {
     assert.ok(contentLength > 30, 'route "' + route + '" should render content');
   }
 
-  // Confirm first-party artwork is loadable rather than relying on third-party photo hotlinks.
+  // Restored healthcare photos fall back to bundled local SVG artwork if a host blocks hotlinking.
   await page.evaluate(() => { location.hash = "/today"; });
   await page.waitForFunction(() => location.hash === "#/today");
   await page.waitForTimeout(250);
@@ -106,7 +120,8 @@ try {
   );
 
   assert.deepEqual(pageErrors, [], "uncaught browser exceptions: " + pageErrors.join(" | "));
-  console.log("OK: sticky scroll, theme persistence, " + routes.length + " navigation routes, local imagery, offline demo, signup, and 390px mobile width.");
+  assert.equal(await page.locator("#site-nav-menu button[data-route]").count(), 4, "secondary navigation remains available");
+  console.log("OK: sticky scroll, five primary links + More submenu, removed header search, light-theme contrast, photo fallbacks, " + routes.length + " navigation routes, offline demo, signup, and 390px mobile width.");
 } finally {
   await browser.close();
 }
