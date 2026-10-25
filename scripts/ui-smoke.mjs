@@ -38,10 +38,10 @@ try {
   await page.locator('#workspace-root [data-action="open-register"]').first().click();
   await page.waitForFunction(() => location.hash === "#/register");
   assert.equal(await page.locator('form[data-auth-form="register"]').count(), 1, "signup form should render");
-  await page.locator('form[data-auth-form="register"] [data-action="open-login"]').click();
+  await page.locator('#workspace-root [data-action="open-login"]').click();
   await page.waitForFunction(() => location.hash === "#/login");
   assert.equal(await page.locator('form[data-auth-form="login"]').count(), 1, "login form should render");
-  await page.locator('form[data-auth-form="login"] [data-action="open-register"]').click();
+  await page.locator('#workspace-root [data-action="open-register"]').click();
   await page.waitForFunction(() => location.hash === "#/register");
   await page.evaluate(() => { location.hash = "/today"; });
   await page.waitForFunction(() => location.hash === "#/today");
