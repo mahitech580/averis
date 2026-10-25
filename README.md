@@ -986,3 +986,6 @@ CI builds a clean `dist/` allowlist containing only the HTML app shell, versione
 ### API regression suite
 
 The release workflow starts FastAPI against a fresh temporary SQLite database and runs the checked-in Postman collection with Newman. It exercises a server-created isolated demo, session authentication, all 15 ERP modules, summary/search, create/update/delete, workspace revisions, organization, audit feed, logout and rejection of expired access. The suite uses synthetic data and is isolated from the dedicated Supabase database.
+
+
+The Chromium test revealed the source of sticky-header drift: hidden horizontal overflow on the root/body created a non-viewport scroll ancestor. The final header fix uses `overflow-x: clip` at the document root so horizontal clipping remains without converting the vertical scroll container; the browser smoke test guards the sticky behavior.

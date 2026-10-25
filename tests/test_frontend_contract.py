@@ -16,6 +16,7 @@ def test_sticky_header_is_not_disabled_at_short_viewport_heights():
     assert re.search(r"\.site-header\s*\{[^}]*position:\s*sticky[^}]*top:\s*0", css)
     assert ".website-shell .site-header{position:sticky;top:0" in css
     assert "@media(max-height:560px) and (min-width:821px)" not in css
+    assert re.search(r"html\s*,\s*body\s*\{[^}]*overflow-x:\s*clip", css)
 
 
 def test_light_dark_theme_is_persistent_and_available_in_both_controls():

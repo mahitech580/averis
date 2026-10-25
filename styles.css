@@ -1630,3 +1630,12 @@ html[data-theme="light"] .site-footer .footer-column button:hover{color:#087f78}
 html[data-theme="light"] .section-kicker{color:#087f78}
 html[data-theme="light"] .button:focus-visible,
 html[data-theme="light"] a:focus-visible{outline-color:#087f78}
+
+
+/* Sticky-header repair: hidden horizontal overflow on root/body creates a
+   non-viewport scroll ancestor. Clip preserves horizontal clipping without
+   turning the document's primary vertical scroll into a nested scrollport. */
+html,
+body{
+  overflow-x:clip;
+}
