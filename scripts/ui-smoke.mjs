@@ -25,13 +25,13 @@ try {
     position: getComputedStyle(node).position,
     top: getComputedStyle(node).top,
   }));
-  assert.equal(headerStyle.position, "sticky", "site header must be sticky");
-  assert.equal(headerStyle.top, "0px", "sticky header must pin to the top edge");
+  assert.equal(headerStyle.position, "fixed", "site header must be fixed to the viewport");
+  assert.equal(headerStyle.top, "0px", "fixed header must pin to the top edge");
   await page.evaluate(() => window.scrollTo(0, Math.min(900, document.documentElement.scrollHeight)));
   await page.waitForTimeout(150);
   const stickyTop = await page.locator("#site-header").evaluate((node) => node.getBoundingClientRect().top);
   const ancestorReport = await page.locator("#site-header").evaluate((node) => { const out=[]; for(let el=node;el;el=el.parentElement){const s=getComputedStyle(el);out.push({tag:el.tagName,id:el.id,cls:typeof el.className==="string"?el.className:"",position:s.position,overflowX:s.overflowX,overflowY:s.overflowY,height:Math.round(el.getBoundingClientRect().height)});} return out; });
-  assert.ok(Math.abs(stickyTop) <= 2, "sticky header should remain visible; top=" + stickyTop + "; ancestors=" + JSON.stringify(ancestorReport));
+  assert.ok(Math.abs(stickyTop) <= 2, "fixed header should remain visible; top=" + stickyTop + "; ancestors=" + JSON.stringify(ancestorReport));
 
   // Theme must persist through app renders and a page reload.
   await page.locator("#theme-trigger").click();

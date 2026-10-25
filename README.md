@@ -992,3 +992,6 @@ The Chromium test revealed the source of sticky-header drift: hidden horizontal 
 
 
 Release v34: updated the static asset/service-worker version to force the sticky-header fix into existing browsers; the Chromium smoke test exercises routes from the persistent header and now reports ancestor layout/overflow details if sticky behavior regresses.
+
+
+Sticky-header fix validation: the header is now viewport-fixed and uses a measured CSS variable to keep page content below it at desktop and mobile breakpoints. This avoids CSS sticky scroll-ancestor edge cases while guaranteeing it remains visible during long page scrolls and route transitions.

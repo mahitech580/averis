@@ -13,9 +13,8 @@ def read(relative: str) -> str:
 
 def test_sticky_header_is_not_disabled_at_short_viewport_heights():
     css = read("styles.css")
-    assert re.search(r"\.site-header\s*\{[^}]*position:\s*sticky[^}]*top:\s*0", css)
-    assert ".website-shell .site-header{position:sticky;top:0" in css
-    assert "@media(max-height:560px) and (min-width:821px)" not in css
+    assert re.search(r"#site-header\.site-header\s*\{[^}]*position:\s*fixed!important[^}]*inset:\s*0 0 auto 0", css, re.S)
+    assert "function syncHeaderHeight()" in read("app.js")
     assert re.search(r"html\s*,\s*body\s*\{[^}]*overflow-x:\s*clip", css)
 
 

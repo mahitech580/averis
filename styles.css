@@ -1639,3 +1639,18 @@ html,
 body{
   overflow-x:clip;
 }
+
+
+/* Final navigation behavior: fixed viewport header works across all nested overflow contexts. */
+#site-header.site-header{
+  position:fixed!important;
+  inset:0 0 auto 0;
+  width:100%;
+  max-width:none;
+  z-index:100;
+  box-sizing:border-box;
+}
+#workspace-root{
+  padding-top:calc(var(--site-header-height, 82px) + 28px)!important;
+}
+html{scroll-padding-top:calc(var(--site-header-height, 82px) + 12px)}
