@@ -1865,3 +1865,32 @@ html[data-theme="light"]{color-scheme:dark!important}
 .auth-screen{background-image:linear-gradient(135deg,rgba(2,8,16,.25),rgba(2,8,16,.50)),url("https://www.ihhhealthcare.com/images/default-source/ihh/occ-2.jpg?sfvrsn=2801dfb4_1"),url("./assets/healthcare-scene.svg");background-size:cover;background-position:center}
 .auth-visual-copy{background:linear-gradient(180deg,transparent,rgba(3,9,17,.68));border-radius:14px;padding:20px 16px 10px}
 html[data-theme="dark"] .auth-card{background:rgba(4,12,22,.88);backdrop-filter:blur(20px)}
+
+
+/* RELEASE v40 — background photos should be atmosphere, not the main focus. */
+.website-section-bg>.section-overlay{
+  background:linear-gradient(180deg,rgba(3,9,17,.97),rgba(3,9,17,.95) 48%,rgba(3,9,17,.98)),
+    radial-gradient(circle at 50% 35%,rgba(33,79,104,.05),transparent 55%)!important;
+}
+.capability-card:before,
+.process-card:before,
+.layer-card:before,
+.boundary-point:before,
+.landing-metrics>div:before{
+  opacity:.12!important;
+}
+.site-footer{
+  background-image:linear-gradient(180deg,rgba(4,11,20,.97),rgba(3,8,15,.985)),
+  url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif"),
+  url("./assets/operational-pulse.svg")!important;
+}
+.auth-screen{
+  background-image:linear-gradient(135deg,rgba(2,8,16,.97),rgba(2,8,16,.985)),
+  url("https://www.ihhhealthcare.com/images/default-source/ihh/occ-2.jpg?sfvrsn=2801dfb4_1"),
+  url("./assets/healthcare-scene.svg")!important;
+}
+/* Keep secondary operational backgrounds understated too. */
+.table-wrap,table,.journey,.message,.auth-card,.sidebar .simulation-badge,
+.person-card:before,.report:before,.small-stat:before,.network:before{
+  background-blend-mode:normal;
+}
