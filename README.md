@@ -914,3 +914,13 @@ Bootstrap 5 CSS is loaded only when the ERP Suite is opened, rather than blockin
 The ERP Suite includes 15 business modules and tenant-scoped CRUD/search APIs. FastAPI and SQLAlchemy are the central API and ORM; Argon2-backed account sessions, revisioned JSON workspace state, SQL JSON ERP records, audit events and reorder-priority logic are implemented. SQLite is the local default; MySQL and PostgreSQL are selectable via `DATABASE_URL`.
 
 The frontend uses HTML5, CSS3, JavaScript, responsive layouts and Bootstrap 5 inside ERP screens. Companion demos show Flask/Jinja, Django templates, Streamlit analytics with Pandas, NumPy, Matplotlib and scikit-learn, plus an optional TensorFlow toy model on generated data. Developer assets include `database/schema.sql`, a Postman collection, Docker, and CI checks. The companion apps call the same FastAPI API and are not separately deployed.
+
+
+## ERP product-design references
+
+- [ERPNext documentation](https://docs.erpnext.com/index) — Accounting, HR, CRM, Manufacturing, Order Management and Asset Management.
+- [Odoo open-source app suite](https://github.com/odoo/odoo) — CRM, Warehouse, Project Management, Billing & Accounting, HR, Marketing and Manufacturing.
+- [Netlify rewrites and API proxies](https://docs.netlify.com/manage/routing/redirects/rewrites-proxies/) — same-origin /api proxy behavior.
+- [Render free-tier limitations](https://render.com/docs/free) — free compute/database resources are suitable for testing, not reliable long-term production storage.
+
+Optional adapters in frameworks/optional_archives.py demonstrate MongoDB audit archiving and S3 JSON backup uploads. They are opt-in; SQL remains the source of truth.
