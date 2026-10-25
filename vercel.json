@@ -1,7 +1,7 @@
 {
   "buildCommand": "node --check app.js && python3 scripts/validate_site.py && python3 scripts/build_pages.py --output dist",
   "outputDirectory": "dist",
-  "framework": "other",
+  "framework": null,
   "rewrites": [
     {
       "source": "/api/:path*",
@@ -18,5 +18,6 @@
         }
       ]
     }
-  ]
+  ],
+  "$schema": "https://openapi.vercel.sh/vercel.json"
 }
