@@ -893,3 +893,10 @@ The included Render Blueprint uses a free PostgreSQL plan for initial evaluation
 - [OWASP Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html) — secure cookie/session patterns.
 
 These references inform implementation patterns; they do not imply vendor affiliation or healthcare compliance.
+
+
+## Unified ERP suite
+
+The shared platform now includes business modules for Inventory/Stock, Suppliers, Procurement, Customers, Sales Orders, Invoices & Finance, HR & Employees, CRM Leads, Projects, Assets, Accounting Journals, Support Tickets, Manufacturing Orders and Quality Checks. Each module has a tenant-scoped CRUD REST API under \`/api/erp/{module}\`, search, validation, audit events and a dashboard summary endpoint at \`/api/erp/summary\`. MySQL, SQLite and PostgreSQL use the same SQLAlchemy models. The browser interface uses HTML5, responsive CSS, JavaScript, Bootstrap utilities, and JSON API calls.
+
+The repo also maintains separate small framework adapters for Flask, Django templates and Streamlit that consume the same FastAPI API; FastAPI remains the primary backend to avoid multiple authorities over ERP data. Postman request examples, Docker and pytest checks are included as engineering/learning assets. These companion adapters are not separately deployed unless configured.

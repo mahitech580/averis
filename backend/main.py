@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 from pwdlib import PasswordHash
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, create_engine, select, text
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint, create_engine, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship, sessionmaker
 
@@ -77,6 +77,21 @@ class AuditEvent(Base):
     action: Mapped[str]=mapped_column(String(80),nullable=False)
     details: Mapped[dict[str,Any]]=mapped_column(JSON,nullable=False,default=dict)
     created_at: Mapped[datetime]=mapped_column(DateTime,default=utcnow,nullable=False)
+
+
+class BusinessRecord(Base):
+    """Tenant-scoped JSON entity for the unified ERP domain."""
+    __tablename__ = "erp_business_records"
+    __table_args__ = (UniqueConstraint("organization_id", "collection", "record_key", name="uq_erp_org_collection_key"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    organization_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"), index=True, nullable=False)
+    collection: Mapped[str] = mapped_column(String(40), index=True, nullable=False)
+    record_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    created_by: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
+    updated_by: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
 
 COLLECTIONS={"people","tasks","appointments","resources","workforce","messages","incidents","diagnostics","pharmacy","finance","reports","audit"}
 PREFERENCES={"compact","focus","notifications","theme"}
@@ -284,3 +299,240 @@ def put_workspace(payload:WorkspaceInput,db:Session=Depends(get_db),user:User=De
 def activity(limit:int=30,db:Session=Depends(get_db),user:User=Depends(current_user)):
     rows=db.scalars(select(AuditEvent).where(AuditEvent.organization_id==user.organization_id).order_by(AuditEvent.created_at.desc()).limit(max(1,min(limit,100)))).all()
     return {"items":[{"id":r.id,"action":r.action,"actor_id":r.actor_id,"details":r.details,"created_at":iso(r.created_at)} for r in rows]}
+
+
+# ERP module catalogue: one authenticated REST API for every department.
+ERP_FIELDS: dict[str, dict[str, str]] = {
+    "products": {"name":"text","sku":"text","category":"text","unit":"text","quantity":"number","reorder_level":"number","unit_cost":"number","selling_price":"number","location":"text","status":"text"},
+    "suppliers": {"name":"text","company":"text","email":"text","phone":"text","city":"text","payment_terms":"text","status":"text"},
+    "purchase_orders": {"po_number":"text","supplier":"text","order_date":"date","expected_date":"date","items_count":"number","total":"number","status":"text"},
+    "customers": {"name":"text","company":"text","email":"text","phone":"text","segment":"text","city":"text","lifetime_value":"number","status":"text"},
+    "sales_orders": {"so_number":"text","customer":"text","order_date":"date","due_date":"date","items_count":"number","total":"number","status":"text"},
+    "invoices": {"invoice_number":"text","party":"text","direction":"text","issue_date":"date","due_date":"date","amount":"number","paid_amount":"number","status":"text"},
+    "employees": {"name":"text","email":"text","department":"text","job_title":"text","manager":"text","employment_type":"text","start_date":"date","salary":"number","status":"text"},
+    "leads": {"name":"text","company":"text","email":"text","source":"text","owner":"text","stage":"text","value":"number","next_activity":"date"},
+    "projects": {"name":"text","client":"text","owner":"text","start_date":"date","due_date":"date","budget":"number","status":"text","progress":"number"},
+    "assets": {"name":"text","asset_tag":"text","category":"text","assigned_to":"text","purchase_date":"date","value":"number","condition":"text","status":"text"},
+    "journal_entries": {"entry_number":"text","date":"date","description":"text","debit_account":"text","credit_account":"text","amount":"number","status":"text"},
+    "support_tickets": {"subject":"text","customer":"text","priority":"text","assignee":"text","created_date":"date","status":"text"},
+    "production_orders": {"order_number":"text","product":"text","quantity":"number","due_date":"date","work_center":"text","status":"text"},
+    "stock_movements": {"movement_date":"date","sku":"text","product":"text","movement_type":"text","quantity":"number","reference":"text"},
+    "quality_checks": {"reference":"text","item":"text","check_type":"text","result":"text","inspector":"text","check_date":"date","status":"text"},
+}
+ERP_LABELS = {
+    "products":"Inventory", "suppliers":"Suppliers", "purchase_orders":"Purchasing",
+    "customers":"Customers", "sales_orders":"Sales", "invoices":"Invoices & Finance",
+    "employees":"HR & Employees", "leads":"CRM", "projects":"Projects",
+    "assets":"Assets", "journal_entries":"Accounting", "support_tickets":"Support",
+    "production_orders":"Manufacturing", "stock_movements":"Stock Ledger", "quality_checks":"Quality",
+}
+ERP_REQUIRED = {
+    "products":["name","sku"], "suppliers":["name"], "purchase_orders":["po_number","supplier"],
+    "customers":["name"], "sales_orders":["so_number","customer"], "invoices":["invoice_number","party","amount"],
+    "employees":["name","email"], "leads":["name"], "projects":["name"], "assets":["name","asset_tag"],
+    "journal_entries":["entry_number","date","amount"], "support_tickets":["subject"],
+    "production_orders":["order_number","product","quantity"], "stock_movements":["movement_date","sku","quantity"],
+    "quality_checks":["reference","item","result"],
+}
+ERP_PREFIX = {
+    "products":"PRD", "suppliers":"SUP", "purchase_orders":"PO", "customers":"CUS",
+    "sales_orders":"SO", "invoices":"INV", "employees":"EMP", "leads":"LEAD",
+    "projects":"PROJ", "assets":"AST", "journal_entries":"JRN", "support_tickets":"TKT",
+    "production_orders":"MFG", "stock_movements":"MOV", "quality_checks":"QC",
+}
+
+def validate_erp_collection(collection: str) -> dict[str, str]:
+    fields = ERP_FIELDS.get(collection)
+    if fields is None:
+        raise HTTPException(404, "ERP module not found.")
+    return fields
+
+def clean_erp_payload(collection: str, raw: dict[str, Any], record_key: str | None = None) -> dict[str, Any]:
+    fields = validate_erp_collection(collection)
+    unknown = sorted(set(raw) - set(fields) - {"id", "created_at", "updated_at"})
+    if unknown:
+        raise HTTPException(422, "Unsupported field(s): " + ", ".join(unknown))
+    cleaned: dict[str, Any] = {}
+    for key, kind in fields.items():
+        if key not in raw:
+            continue
+        value = raw[key]
+        if value is None or (isinstance(value, str) and not value.strip()):
+            cleaned[key] = None if kind == "number" else ""
+            continue
+        if kind == "number":
+            if isinstance(value, bool):
+                raise HTTPException(422, f"{key} must be numeric.")
+            try:
+                number = float(value)
+            except (TypeError, ValueError) as exc:
+                raise HTTPException(422, f"{key} must be numeric.") from exc
+            if not __import__("math").isfinite(number):
+                raise HTTPException(422, f"{key} must be finite.")
+            if number < 0 and key not in {"progress"}:
+                raise HTTPException(422, f"{key} cannot be negative.")
+            if key in {"quantity", "reorder_level", "items_count", "progress"} and not number.is_integer():
+                raise HTTPException(422, f"{key} must be a whole number.")
+            if key == "progress" and number > 100:
+                raise HTTPException(422, "progress must be between 0 and 100.")
+            cleaned[key] = int(number) if number.is_integer() else number
+        else:
+            if not isinstance(value, str):
+                raise HTTPException(422, f"{key} must be text.")
+            value = value.strip()
+            if len(value) > 500:
+                raise HTTPException(422, f"{key} exceeds 500 characters.")
+            cleaned[key] = value
+    missing = [field for field in ERP_REQUIRED[collection] if not str(cleaned.get(field, "")).strip()]
+    if missing:
+        raise HTTPException(422, "Required field(s): " + ", ".join(missing))
+    if collection == "products" and "sku" in cleaned:
+        cleaned["sku"] = cleaned["sku"].upper()
+    if record_key:
+        cleaned["id"] = record_key
+    return cleaned
+
+def public_erp_record(row: BusinessRecord) -> dict[str, Any]:
+    payload = dict(row.payload)
+    payload["id"] = row.record_key
+    payload["created_at"] = iso(row.created_at)
+    payload["updated_at"] = iso(row.updated_at)
+    return payload
+
+@app.get("/api/erp/modules")
+def erp_modules(user: User = Depends(current_user)):
+    return {"modules":[{"key":key,"label":ERP_LABELS[key],"fields":ERP_FIELDS[key],"required":ERP_REQUIRED[key]} for key in ERP_FIELDS]}
+
+@app.get("/api/erp/summary")
+def erp_summary(db: Session = Depends(get_db), user: User = Depends(current_user)):
+    counts = {}
+    for collection in ERP_FIELDS:
+        counts[collection] = db.scalar(select(BusinessRecord.id).where(
+            BusinessRecord.organization_id == user.organization_id,
+            BusinessRecord.collection == collection
+        ).limit(10000).with_only_columns(BusinessRecord.id).order_by(None).subquery().select()) if False else db.query(BusinessRecord.id).filter(
+            BusinessRecord.organization_id == user.organization_id,
+            BusinessRecord.collection == collection
+        ).count()
+    products = db.scalars(select(BusinessRecord).where(
+        BusinessRecord.organization_id == user.organization_id,
+        BusinessRecord.collection == "products"
+    )).all()
+    low_stock = sum(1 for row in products if int(row.payload.get("quantity") or 0) <= int(row.payload.get("reorder_level") or 0))
+    invoices = db.scalars(select(BusinessRecord).where(
+        BusinessRecord.organization_id == user.organization_id,
+        BusinessRecord.collection == "invoices"
+    )).all()
+    receivables = 0.0
+    payables = 0.0
+    for row in invoices:
+        payload = row.payload
+        outstanding = max(0.0, float(payload.get("amount") or 0) - float(payload.get("paid_amount") or 0))
+        if str(payload.get("status","")).lower() not in {"paid","void","cancelled"}:
+            if str(payload.get("direction","receivable")).lower() in {"payable","outgoing","purchase"}:
+                payables += outstanding
+            else:
+                receivables += outstanding
+    return {
+        "counts": counts,
+        "low_stock": low_stock,
+        "outstanding_receivables": round(receivables, 2),
+        "outstanding_payables": round(payables, 2),
+        "generated_at": iso(utcnow()),
+        "synthetic_data_only": True,
+    }
+
+@app.get("/api/erp/{collection}")
+def list_erp_records(
+    collection: str,
+    q: str = "",
+    status_filter: str = "",
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+):
+    validate_erp_collection(collection)
+    bounded = max(1, min(limit, 500))
+    rows = db.scalars(select(BusinessRecord).where(
+        BusinessRecord.organization_id == user.organization_id,
+        BusinessRecord.collection == collection
+    ).order_by(BusinessRecord.updated_at.desc()).limit(1000)).all()
+    query = q.strip().lower()
+    items = [public_erp_record(row) for row in rows]
+    if query:
+        items = [item for item in items if query in json.dumps(item, ensure_ascii=False, default=str).lower()]
+    if status_filter:
+        items = [item for item in items if str(item.get("status","")).lower() == status_filter.strip().lower()]
+    return {"items": items[:bounded], "count": len(items), "collection": collection, "limit": bounded}
+
+@app.post("/api/erp/{collection}", status_code=201)
+def create_erp_record(
+    collection: str,
+    payload: dict[str, Any],
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+):
+    validate_erp_collection(collection)
+    clean = clean_erp_payload(collection, payload)
+    now = utcnow()
+    key = ERP_PREFIX[collection] + "-" + uuid.uuid4().hex[:10].upper()
+    clean["id"] = key
+    row = BusinessRecord(
+        organization_id=user.organization_id, collection=collection, record_key=key,
+        payload=clean, created_at=now, updated_at=now, created_by=user.id, updated_by=user.id
+    )
+    db.add(row)
+    audit(db, user.organization_id, user.id, "erp.record_created", {"collection": collection, "record_key": key})
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(409, "A record with this key already exists.") from exc
+    db.refresh(row)
+    return {"item": public_erp_record(row)}
+
+@app.put("/api/erp/{collection}/{record_key}")
+def update_erp_record(
+    collection: str,
+    record_key: str,
+    payload: dict[str, Any],
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+):
+    validate_erp_collection(collection)
+    row = db.scalar(select(BusinessRecord).where(
+        BusinessRecord.organization_id == user.organization_id,
+        BusinessRecord.collection == collection,
+        BusinessRecord.record_key == record_key
+    ))
+    if row is None:
+        raise HTTPException(404, "ERP record not found.")
+    clean = clean_erp_payload(collection, payload, record_key=record_key)
+    row.payload = clean
+    row.updated_at = utcnow()
+    row.updated_by = user.id
+    db.add(row)
+    audit(db, user.organization_id, user.id, "erp.record_updated", {"collection": collection, "record_key": record_key})
+    db.commit()
+    db.refresh(row)
+    return {"item": public_erp_record(row)}
+
+@app.delete("/api/erp/{collection}/{record_key}")
+def delete_erp_record(
+    collection: str,
+    record_key: str,
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+):
+    validate_erp_collection(collection)
+    row = db.scalar(select(BusinessRecord).where(
+        BusinessRecord.organization_id == user.organization_id,
+        BusinessRecord.collection == collection,
+        BusinessRecord.record_key == record_key
+    ))
+    if row is None:
+        raise HTTPException(404, "ERP record not found.")
+    db.delete(row)
+    audit(db, user.organization_id, user.id, "erp.record_deleted", {"collection": collection, "record_key": record_key})
+    db.commit()
+    return {"ok": True, "id": record_key, "collection": collection}
