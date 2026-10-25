@@ -348,8 +348,8 @@ ERP_PREFIX = {
 
 # Public demo is isolated per visitor: no shared credentials, real patient data, or cross-visitor edits.
 _DEMO_WINDOW_SECONDS = 3600
-_DEMO_PER_IP_LIMIT = 8
-_DEMO_GLOBAL_LIMIT = 100
+_DEMO_PER_IP_LIMIT = 5
+_DEMO_GLOBAL_LIMIT = 30
 _demo_attempts: dict[str, list[float]] = {}
 _demo_all_attempts: list[float] = []
 
@@ -476,10 +476,10 @@ def _demo_erp_payload(collection: str, i: int, today: date) -> dict[str, Any]:
     return data[collection]
 
 _DEMO_ROW_COUNTS = {
-    "products": 12, "suppliers": 6, "purchase_orders": 6, "customers": 10,
-    "sales_orders": 8, "invoices": 12, "employees": 8, "leads": 8,
-    "projects": 6, "assets": 6, "journal_entries": 8, "support_tickets": 8,
-    "production_orders": 6, "stock_movements": 12, "quality_checks": 8,
+    "products": 25, "suppliers": 12, "purchase_orders": 18, "customers": 30,
+    "sales_orders": 24, "invoices": 30, "employees": 18, "leads": 18,
+    "projects": 12, "assets": 12, "journal_entries": 24, "support_tickets": 20,
+    "production_orders": 12, "stock_movements": 40, "quality_checks": 18,
 }
 
 @app.post("/api/auth/demo")

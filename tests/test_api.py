@@ -165,19 +165,21 @@ def test_isolated_cloud_demo_seeds_all_erp_modules_and_is_tenant_scoped(client):
     assert demo_a.status_code == 200, demo_a.text
     body_a = demo_a.json()
     assert body_a["demo_workspace"] is True
-    assert body_a["seeded_erp_records"] >= 100
+    assert body_a["seeded_erp_records"] >= 300
     assert client.get("/api/auth/me").json()["user"]["role"] == "owner"
     counts_a = client.get("/api/erp/summary").json()["counts"]
     assert len(counts_a) == 15
     assert all(count > 0 for count in counts_a.values())
-    assert client.get("/api/erp/products").json()["count"] == 12
+    products_a = client.get("/api/erp/products").json()["items"]
+    assert len(products_a) == 25
+    product_a_id = products_a[0]["id"]
 
     client.post("/api/auth/logout")
     demo_b = client.post("/api/auth/demo", json={})
     assert demo_b.status_code == 200, demo_b.text
     assert demo_b.json()["organization"]["id"] != body_a["organization"]["id"]
-    assert client.get("/api/erp/products").json()["count"] == 12
-    assert client.put("/api/erp/products/" + client.get("/api/erp/products").json()["items"][0]["id"], json={"name": "wrong tenant"}).status_code == 200
+    assert client.get("/api/erp/products").json()["count"] == 25
+    assert client.put(f"/api/erp/products/{product_a_id}", json={"name": "Cross-tenant edit", "sku": "AVR-DEMO-0001"}).status_code == 404
 
 
 def test_demo_endpoint_is_available_without_account_and_marks_session_cookie_secure_in_production(monkeypatch, client):

@@ -951,7 +951,7 @@ The Supabase schema changes are also checked into `database/migrations/` with th
 
 - Theme state is respected by every render. Light/dark mode is available in Settings and from the sticky site header.
 - All auth hero imagery is now local SVG artwork rather than fragile third-party photo URLs; the service worker caches release-matched assets.
-- The API's public demo action creates a dedicated synthetic tenant per run, seeds 126 ERP records across all 15 modules, and never returns a reusable password. Demo creation has per-network and global rolling-window limits.
+- The API's public demo action creates a dedicated synthetic tenant per run, seeds 313 ERP records across all 15 modules, and never returns a reusable password. Demo creation has per-network and global rolling-window limits.
 - Production cookies use Secure/HttpOnly/SameSite=None for browser-to-API flows; frontend fetch sends cookies with \`credentials: include\`. Netlify proxies \`/api/*\` to the Render API to keep the primary deployment on one origin.
 - Postman collection now checks health, private demo creation, session identity, 15 module catalogue, summary, ERP CRUD, search, snapshot versioning, organization, audit events and logout.
 - Accessibility includes visible focus outlines, reduced-motion support, skip navigation and small-height viewport adjustments. Prefer a same-origin API proxy for reliable browser session cookies.
