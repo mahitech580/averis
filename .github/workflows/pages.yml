@@ -25,7 +25,7 @@ jobs:
       - name: Validate JavaScript
         run: node --check app.js
       - name: Validate Python syntax
-        run: python -c "import ast; from pathlib import Path; ast.parse(Path('generate_data.py').read_text(encoding='utf-8'))"
+        run: python -m compileall -q generate_data.py backend frameworks tests
       - name: Validate static site references and cache versions
         run: python scripts/validate_site.py
       - name: Test FastAPI backend

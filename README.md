@@ -907,3 +907,10 @@ The repo also maintains separate small framework adapters for Flask, Django temp
 The ERP Suite route now includes an interactive dashboard plus 15 module workspaces: Inventory, Suppliers, Purchasing, Customers, Sales, Invoices & Finance, HR & Employees, CRM, Projects, Assets, Accounting, Support, Manufacturing, Stock Ledger and Quality. Each module has search, create, edit, delete, and per-module JSON export. When the API is connected, these actions use the tenant-scoped FastAPI CRUD routes; the offline preview uses a separate browser-local demo dataset.
 
 Bootstrap 5 CSS is loaded only when the ERP Suite is opened, rather than blocking the initial site load. The suite uses responsive tables, forms, status indicators, and module cards.
+
+
+## Full-stack ERP stack
+
+The ERP Suite includes 15 business modules and tenant-scoped CRUD/search APIs. FastAPI and SQLAlchemy are the central API and ORM; Argon2-backed account sessions, revisioned JSON workspace state, SQL JSON ERP records, audit events and reorder-priority logic are implemented. SQLite is the local default; MySQL and PostgreSQL are selectable via `DATABASE_URL`.
+
+The frontend uses HTML5, CSS3, JavaScript, responsive layouts and Bootstrap 5 inside ERP screens. Companion demos show Flask/Jinja, Django templates, Streamlit analytics with Pandas, NumPy, Matplotlib and scikit-learn, plus an optional TensorFlow toy model on generated data. Developer assets include `database/schema.sql`, a Postman collection, Docker, and CI checks. The companion apps call the same FastAPI API and are not separately deployed.

@@ -1,0 +1,5 @@
+-- Logical SQL schema reference. Complete schema is created by SQLAlchemy models.
+CREATE TABLE organizations (id VARCHAR(36) PRIMARY KEY, name VARCHAR(120) NOT NULL, slug VARCHAR(160) NOT NULL UNIQUE, invite_code VARCHAR(48) NOT NULL UNIQUE, created_at TIMESTAMP NOT NULL);
+CREATE TABLE users (id VARCHAR(36) PRIMARY KEY, organization_id VARCHAR(36) NOT NULL REFERENCES organizations(id), full_name VARCHAR(100) NOT NULL, email VARCHAR(254) NOT NULL UNIQUE, password_hash VARCHAR(512) NOT NULL, role VARCHAR(20) NOT NULL, is_active BOOLEAN NOT NULL, created_at TIMESTAMP NOT NULL);
+CREATE TABLE erp_business_records (id VARCHAR(36) PRIMARY KEY, organization_id VARCHAR(36) NOT NULL REFERENCES organizations(id), collection VARCHAR(40) NOT NULL, record_key VARCHAR(80) NOT NULL, payload JSON NOT NULL, created_at TIMESTAMP NOT NULL, updated_at TIMESTAMP NOT NULL, created_by VARCHAR(36) NOT NULL REFERENCES users(id), updated_by VARCHAR(36) NOT NULL REFERENCES users(id), CONSTRAINT uq_erp_org_collection_key UNIQUE (organization_id, collection, record_key));
+CREATE INDEX idx_erp_records_org_collection ON erp_business_records(organization_id, collection);

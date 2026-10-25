@@ -1,0 +1,127 @@
+{
+  "info": {
+    "name": "AVERIS ERP API",
+    "description": "Smoke tests for local or hosted AVERIS API. Use synthetic data only.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "email",
+      "value": "erp-owner@example.test"
+    },
+    {
+      "key": "password",
+      "value": "ThisIsATestPassword123!"
+    },
+    {
+      "key": "organizationName",
+      "value": "Demo ERP Company"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/health"
+      }
+    },
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"full_name\":\"ERP Owner\",\"email\":\"{{email}}\",\"password\":\"{{password}}\",\"organization_name\":\"{{organizationName}}\"}"
+        },
+        "url": "{{baseUrl}}/api/auth/register"
+      }
+    },
+    {
+      "name": "ERP modules",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/erp/modules"
+      }
+    },
+    {
+      "name": "Create product",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\":\"USB-C Dock\",\"sku\":\"DOCK-TEST\",\"quantity\":14,\"reorder_level\":5,\"selling_price\":65,\"status\":\"Active\"}"
+        },
+        "url": "{{baseUrl}}/api/erp/products"
+      }
+    },
+    {
+      "name": "Global search",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/erp/search?q=DOCK"
+      }
+    },
+    {
+      "name": "Summary",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/erp/summary"
+      }
+    },
+    {
+      "name": "Products",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/erp/products?limit=100"
+      }
+    },
+    {
+      "name": "Organization",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/organization"
+      }
+    },
+    {
+      "name": "Activity",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/activity?limit=30"
+      }
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": "{{baseUrl}}/api/auth/logout"
+      }
+    }
+  ]
+}
