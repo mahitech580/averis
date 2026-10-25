@@ -900,3 +900,10 @@ These references inform implementation patterns; they do not imply vendor affili
 The shared platform now includes business modules for Inventory/Stock, Suppliers, Procurement, Customers, Sales Orders, Invoices & Finance, HR & Employees, CRM Leads, Projects, Assets, Accounting Journals, Support Tickets, Manufacturing Orders and Quality Checks. Each module has a tenant-scoped CRUD REST API under \`/api/erp/{module}\`, search, validation, audit events and a dashboard summary endpoint at \`/api/erp/summary\`. MySQL, SQLite and PostgreSQL use the same SQLAlchemy models. The browser interface uses HTML5, responsive CSS, JavaScript, Bootstrap utilities, and JSON API calls.
 
 The repo also maintains separate small framework adapters for Flask, Django templates and Streamlit that consume the same FastAPI API; FastAPI remains the primary backend to avoid multiple authorities over ERP data. Postman request examples, Docker and pytest checks are included as engineering/learning assets. These companion adapters are not separately deployed unless configured.
+
+
+## ERP modules and UI
+
+The ERP Suite route now includes an interactive dashboard plus 15 module workspaces: Inventory, Suppliers, Purchasing, Customers, Sales, Invoices & Finance, HR & Employees, CRM, Projects, Assets, Accounting, Support, Manufacturing, Stock Ledger and Quality. Each module has search, create, edit, delete, and per-module JSON export. When the API is connected, these actions use the tenant-scoped FastAPI CRUD routes; the offline preview uses a separate browser-local demo dataset.
+
+Bootstrap 5 CSS is loaded only when the ERP Suite is opened, rather than blocking the initial site load. The suite uses responsive tables, forms, status indicators, and module cards.
