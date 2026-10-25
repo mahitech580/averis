@@ -26,6 +26,14 @@
     {
       "source": "/api/:path*",
       "destination": "https://averis-platform-api-mahi.onrender.com/api/:path*"
+    },
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
