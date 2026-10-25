@@ -109,3 +109,27 @@ def test_all_15_erp_collections_are_seeded_for_cloud_demo():
     counts = {key: int(value) for key, value in re.findall(r'"([a-z_]+)"\s*:\s*(\d+)', block.group(1))}
     assert len(counts) == 15
     assert sum(counts.values()) == 313
+
+
+def test_static_publish_artifact_contains_only_frontend_assets(tmp_path):
+    import subprocess
+    import sys
+
+    output = tmp_path / "averis-site"
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "build_pages.py"), "--output", str(output)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert (output / "index.html").is_file()
+    assert (output / "app.js").is_file()
+    assert (output / "styles.css").is_file()
+    assert (output / "sw.js").is_file()
+    assert (output / ".nojekyll").is_file()
+    assert (output / "assets" / "averis-orbit.svg").is_file()
+    for private_dir in ("backend", "database", "frameworks", "postman", "tests", "scripts", ".github", "node_modules"):
+        assert not (output / private_dir).exists(), private_dir + " must not be published"
+    assert not list(output.rglob("*.db"))

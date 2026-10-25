@@ -6,6 +6,6 @@
 "display":"standalone",
 "background_color":"#050b14",
 "theme_color":"#47f2b5",
-"description":"Synthetic healthcare coordination and operational intelligence portfolio simulation.",
+"description":"Synthetic operations ERP demo covering inventory, procurement, sales, finance, people, projects, manufacturing, quality and analytics. Sample records only.",
 "icons":[{"src":"./assets/averis-orbit.svg","sizes":"any","type":"image/svg+xml"}]
 }

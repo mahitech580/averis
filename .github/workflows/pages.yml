@@ -32,10 +32,24 @@ jobs:
         run: |
           python -m pip install -r backend/requirements.txt
           DATABASE_URL=sqlite:///./ci_averis.db APP_ENV=test python -m pytest -q
+      - name: Install isolated API and browser test tools
+        run: |
+          mkdir -p /tmp/averis-ci-tools
+          npm --prefix /tmp/averis-ci-tools install --no-save --no-package-lock playwright@1.64.1 newman@6.2.1
+          cp scripts/ui-smoke.mjs /tmp/averis-ci-tools/ui-smoke.mjs
+          /tmp/averis-ci-tools/node_modules/.bin/playwright install --with-deps chromium
+      - name: Run Postman API integration collection
+        run: |
+          APP_ENV=test DATABASE_URL=sqlite:////tmp/averis-ci-tools/postman_averis.db python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 > /tmp/averis-ci-tools/api.log 2>&1 &
+          API_PID=$!
+          trap 'kill "$API_PID" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          /tmp/averis-ci-tools/node_modules/.bin/newman run postman/AVERIS-ERP.postman_collection.json --bail --timeout-request 20000
       - name: Browser UI smoke tests (Chromium)
         run: |
-          npm install --no-save --no-package-lock playwright@1.64.1
-          npx playwright install --with-deps chromium
           python -m http.server 4173 --bind 127.0.0.1 > /tmp/averis-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
@@ -43,13 +57,15 @@ jobs:
             if curl -fsS http://127.0.0.1:4173/index.html >/dev/null; then break; fi
             sleep 1
           done
-          node scripts/ui-smoke.mjs
+          node /tmp/averis-ci-tools/ui-smoke.mjs
+      - name: Build clean static-only publish artifact
+        run: python scripts/build_pages.py --output dist
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: dist
       - name: Deploy Pages
         id: deployment
         uses: actions/deploy-pages@v4
@@ -61,4 +77,4 @@ jobs:
             echo "NETLIFY_AUTH_TOKEN is not configured; Netlify deploy skipped."
             exit 0
           fi
-          npx --yes netlify-cli deploy --prod --dir . --site b67c38c4-93c9-4f01-b175-b75e00d0675c
+          npx --yes netlify-cli deploy --prod --dir dist --site b67c38c4-93c9-4f01-b175-b75e00d0675c

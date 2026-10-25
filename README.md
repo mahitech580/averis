@@ -977,3 +977,12 @@ All CSS background-image references now use repository-local SVGs instead of thi
 ### Browser-level release gate
 
 The main GitHub Actions workflow runs a pinned Chromium/Playwright smoke test against a local static server. It scrolls the sticky header, toggles light/dark and reloads, visits every footer navigation route, checks visible local imagery, opens the offline demo and completes the synthetic signup flow, checks the narrow mobile viewport for horizontal document overflow, and fails on uncaught browser exceptions. This complements the FastAPI pytest suite and Postman API collection.
+
+
+### Safer static publishing
+
+CI builds a clean `dist/` allowlist containing only the HTML app shell, versioned JavaScript/CSS, service worker, web manifest, local SVG assets, Netlify headers/redirect rules, and a `.nojekyll` marker. GitHub Pages and Netlify publish that output instead of the repository root, keeping backend code, migrations, tests, tooling and temporary SQLite test files out of the public site artifact. The build allowlist itself is covered by pytest.
+
+### API regression suite
+
+The release workflow starts FastAPI against a fresh temporary SQLite database and runs the checked-in Postman collection with Newman. It exercises a server-created isolated demo, session authentication, all 15 ERP modules, summary/search, create/update/delete, workspace revisions, organization, audit feed, logout and rejection of expired access. The suite uses synthetic data and is isolated from the dedicated Supabase database.
