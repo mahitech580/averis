@@ -190,3 +190,17 @@ def test_demo_endpoint_is_available_without_account_and_marks_session_cookie_sec
     assert "httponly" in cookie
     assert "secure" in cookie
     assert "samesite=none" in cookie
+
+
+def test_local_static_preview_origin_can_preflight_api(client):
+    response = client.options(
+        "/api/health",
+        headers={
+            "Origin": "http://127.0.0.1:4173",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers.get("access-control-allow-origin") == "http://127.0.0.1:4173"
+    assert "POST" in response.headers.get("access-control-allow-methods", "")

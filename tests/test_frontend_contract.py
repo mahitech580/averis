@@ -139,3 +139,9 @@ def test_netlify_build_uses_the_clean_static_distribution():
     netlify = read("netlify.toml")
     assert re.search(r'(?m)^\s*publish\s*=\s*"dist"\s*$', netlify)
     assert "python scripts/build_pages.py --output dist" in netlify
+
+
+def test_local_preview_automatically_targets_fastapi():
+    app = read("app.js")
+    assert '["localhost","127.0.0.1"].includes(location.hostname)' in app
+    assert '"http://127.0.0.1:8000/api"' in app
