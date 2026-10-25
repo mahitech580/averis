@@ -50,8 +50,8 @@ def test_images_are_local_and_css_has_no_external_background_requests():
         assert host not in html
         assert host not in app
         assert host not in css
-    assert 'href="./styles.css?v=36"' in html
-    assert 'src="./app.js?v=36"' in html
+    assert 'href="./styles.css?v=37"' in html
+    assert 'src="./app.js?v=37"' in html
 
 
 def test_service_worker_and_html_use_one_asset_version():
@@ -60,11 +60,11 @@ def test_service_worker_and_html_use_one_asset_version():
     css_v = re.findall(r"styles\.css\?v=(\d+)", html)
     js_v = re.findall(r"app\.js\?v=(\d+)", html)
     cache = re.search(r"const CACHE=['\"]averis-by-mahi-v(\d+)['\"]", sw)
-    assert css_v == ["36"]
-    assert js_v == ["36"]
-    assert cache and cache.group(1) == "36"
+    assert css_v == ["37"]
+    assert js_v == ["37"]
+    assert cache and cache.group(1) == "37"
     for name in ("styles.css", "app.js"):
-        assert f"./{name}?v=36" in sw
+        assert f"./{name}?v=37" in sw
 
 
 def test_anchor_navigation_does_not_swallow_links():
