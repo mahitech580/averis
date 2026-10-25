@@ -882,7 +882,7 @@ The Netlify frontend is configured to proxy \`/api/*\` to a Render FastAPI servi
 
 Run the backend locally with the instructions in [backend/README.md](backend/README.md). SQLite is the local default; MySQL via \`mysql+pymysql://...\` and PostgreSQL via \`postgresql+psycopg://...\` are supported through \`DATABASE_URL\`. API health and docs are available at \`/api/health\` and \`/api/docs\` when the Render service is deployed.
 
-The included Render Blueprint uses a free PostgreSQL plan for initial evaluation. Free database plans are temporary; select a persistent plan before relying on the service long term.
+The Render Blueprint now asks for an external DATABASE_URL rather than trying to create a second free Render PostgreSQL database. Create a dedicated database for Averis and provide its PostgreSQL connection string when applying the Blueprint. Do not reuse the connection string from another project. Free Render web services can sleep when inactive, so use a suitable compute plan for production responsiveness.
 
 ### Product and engineering references
 
@@ -924,3 +924,8 @@ The frontend uses HTML5, CSS3, JavaScript, responsive layouts and Bootstrap 5 in
 - [Render free-tier limitations](https://render.com/docs/free) — free compute/database resources are suitable for testing, not reliable long-term production storage.
 
 Optional adapters in frameworks/optional_archives.py demonstrate MongoDB audit archiving and S3 JSON backup uploads. They are opt-in; SQL remains the source of truth.
+
+
+## Hosting and deployment wiring
+
+The Render Blueprint provisions the API service and prompts for a dedicated external PostgreSQL DATABASE_URL. The Netlify frontend uses the same-origin /api proxy to the Render host. A GitHub Actions Netlify deployment step is optional and runs only if the NETLIFY_AUTH_TOKEN repository secret is configured; GitHub Pages deploys independently from main.

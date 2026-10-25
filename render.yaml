@@ -13,18 +13,8 @@ services:
       - key: APP_ENV
         value: production
       - key: DATABASE_URL
-        fromDatabase:
-          name: averis-db-mahi
-          property: connectionString
+        sync: false
       - key: ALLOWED_ORIGINS
         value: https://averis-saas.netlify.app,https://mahitech580.github.io
-databases:
-  - name: averis-db-mahi
-    databaseName: averis_db
-    user: averis_user
-    plan: free
-    region: singapore
-    postgresMajorVersion: "18"
-    diskSizeGB: 1
 previews:
   generation: off

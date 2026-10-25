@@ -1,0 +1,6 @@
+[build]
+  publish = "."
+  command = "node --check app.js && python scripts/validate_site.py"
+
+[build.environment]
+  PYTHON_VERSION = "3.12"

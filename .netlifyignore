@@ -1,0 +1,16 @@
+.git/**
+.github/**
+backend/**
+frameworks/**
+tests/**
+postman/**
+database/**
+scripts/**
+__pycache__/**
+*.py[cod]
+*.db
+.env*
+requirements*.txt
+render.yaml
+Dockerfile
+README.md
