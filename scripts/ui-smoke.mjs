@@ -92,6 +92,8 @@ try {
   for (const selector of [".hero-bg", ".capabilities-bg", ".process-bg", ".feature-bg", ".layers-bg", ".showcase-bg", ".boundary-bg", ".cta-bg"]) {
     const backgroundImage = await page.locator("#workspace-root " + selector).evaluate((node) => getComputedStyle(node).backgroundImage);
     assert.ok(backgroundImage.includes("https://"), "section must include a photo background: " + selector);
+    const overlayImage = await page.locator("#workspace-root " + selector + " > .section-overlay").evaluate((node) => getComputedStyle(node).backgroundImage);
+    assert.ok(overlayImage.includes("0.97") || overlayImage.includes("0.95") || overlayImage.includes("0.98"), "section photo must stay very subtle behind content: " + selector);
   }
   const footerPhoto = await page.locator("footer.site-footer").evaluate((node) => getComputedStyle(node).backgroundImage);
   assert.ok(footerPhoto.includes("https://"), "footer must include a photo background");
@@ -101,6 +103,7 @@ try {
     assert.ok(count > 0, "expected card group " + selector);
     const image = await page.locator("#workspace-root " + selector).first().evaluate((node) => getComputedStyle(node, "::before").backgroundImage);
     assert.ok(image.includes("https://"), "cards should have photo overlays: " + selector);
+    assert.equal(await page.locator("#workspace-root " + selector).first().evaluate((node) => getComputedStyle(node, "::before").opacity), "0.12", "card background image should remain very faint: " + selector);
   }
 
   // Exercise all persistent footer navigation links; this footer is outside the re-rendered workspace root.
