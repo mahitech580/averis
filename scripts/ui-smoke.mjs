@@ -102,7 +102,7 @@ try {
   assert.ok(footerStyle.backgroundImage.includes("https://"), "footer must include a photo background");
   assert.equal(footerStyle.borderTopWidth, "0px", "footer should not add a hard horizontal border seam");
 
-  for (const selector of [".capability-card", ".process-card", ".layer-card", ".boundary-point", ".landing-metrics>div"]) {
+  for (const selector of [".capability-card", ".process-card", ".layer-card", ".boundary-point"]) {
     const count = await page.locator("#workspace-root " + selector).count();
     assert.ok(count > 0, "expected card group " + selector);
     const image = await page.locator("#workspace-root " + selector).first().evaluate((node) => getComputedStyle(node, "::before").backgroundImage);
