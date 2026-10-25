@@ -1740,7 +1740,7 @@ html[data-theme="light"]{color-scheme:dark!important}
 .site-header .theme-trigger,#theme-trigger{display:none!important}
 .website-section-bg{background-position:center;background-size:cover;background-repeat:no-repeat}
 .website-section-bg>.section-overlay{
-  background:linear-gradient(180deg,rgba(3,9,17,.78),rgba(3,9,17,.63) 48%,rgba(3,9,17,.86)),
+  background:linear-gradient(180deg,rgba(3,9,17,.68),rgba(3,9,17,.48) 48%,rgba(3,9,17,.78)),
     radial-gradient(circle at 50% 35%,rgba(33,79,104,.16),transparent 55%);
 }
 .hero-bg{background-image:url("https://www.ihhhealthcare.com/images/default-source/ihh/occ-2.jpg?sfvrsn=2801dfb4_1"),url("./assets/healthcare-scene.svg")}
@@ -1765,103 +1765,103 @@ html[data-theme="light"]{color-scheme:dark!important}
   opacity:1;
 }
 .capability-card:before{
-  background-image:linear-gradient(145deg,rgba(3,10,18,.84),rgba(3,10,18,.72)),
+  background-image:linear-gradient(145deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960"),url("./assets/operations.svg");
 }
 .capability-card:nth-child(2):before{
-  background-image:linear-gradient(145deg,rgba(3,10,18,.84),rgba(3,10,18,.72)),
+  background-image:linear-gradient(145deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://res.cloudinary.com/casden-edito/images/c_scale%2Cw_2048%2Ch_1442%2Cdpr_2/f_auto%2Cq_auto/v1699015961/prod/recrutement-FPH/recrutement-FPH.jpg?_i=AA"),url("./assets/care-team.svg");
 }
 .capability-card:nth-child(3):before{
-  background-image:linear-gradient(145deg,rgba(3,10,18,.85),rgba(3,10,18,.70)),
+  background-image:linear-gradient(145deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif"),url("./assets/operational-pulse.svg");
 }
 .capability-card:nth-child(4):before{
-  background-image:linear-gradient(145deg,rgba(3,10,18,.84),rgba(3,10,18,.71)),
+  background-image:linear-gradient(145deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://www.hfmmagazine.com/sites/default/files/hfmmagazine/ext/resources/images/2018/magazine/jan_feb/0118_SpecialReport_Sidebar_NerveCenter_700x468.jpg"),url("./assets/operations.svg");
 }
 .capability-card:nth-child(5):before{
-  background-image:linear-gradient(145deg,rgba(3,10,18,.84),rgba(3,10,18,.71)),
+  background-image:linear-gradient(145deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://healthtechmagazine.net/sites/healthtechmagazine.net/files/styles/flexslider_full/public/2020-02/HT_Q120_Feat-Hennick-slide3-2.jpg?itok=GF9w27yz"),url("./assets/healthcare-scene.svg");
 }
 .capability-card:nth-child(6):before{
-  background-image:linear-gradient(145deg,rgba(3,10,18,.86),rgba(3,10,18,.70)),
+  background-image:linear-gradient(145deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://d2o532ht0hlr4u.cloudfront.net/_next/image?q=75&url=https%3A%2F%2Fdata.openasset.com%2F32707b49%2F2795990d012f22ab865c88cbe90876fa%2F100410_04_NYU_ED_N3_tif%2F100410_04_NYU_ED_N3_screenview.jpg&w=3840"),url("./assets/care-network.svg");
 }
 .capability-card>*{position:relative;z-index:1}
 .process-card:before{
-  background-image:linear-gradient(150deg,rgba(3,10,18,.83),rgba(3,10,18,.68)),
+  background-image:linear-gradient(150deg,rgba(3,10,18,.65),rgba(3,10,18,.48)),
   url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif"),url("./assets/healthcare-scene.svg");
 }
 .process-card:nth-child(2):before{
-  background-image:linear-gradient(150deg,rgba(3,10,18,.84),rgba(3,10,18,.70)),
+  background-image:linear-gradient(150deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://res.cloudinary.com/casden-edito/images/c_scale%2Cw_2048%2Ch_1442%2Cdpr_2/f_auto%2Cq_auto/v1699015961/prod/recrutement-FPH/recrutement-FPH.jpg?_i=AA"),url("./assets/care-team.svg");
 }
 .process-card:nth-child(3):before{
-  background-image:linear-gradient(150deg,rgba(3,10,18,.84),rgba(3,10,18,.70)),
+  background-image:linear-gradient(150deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960"),url("./assets/operations.svg");
 }
 .process-card>:not(.process-number){position:relative;z-index:1}
 .layer-card:before{
-  background-image:linear-gradient(110deg,rgba(3,10,18,.86),rgba(3,10,18,.66)),
+  background-image:linear-gradient(110deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960"),url("./assets/operations.svg");
 }
 .layer-card:nth-child(2):before,.layer-card:nth-child(6):before{
-  background-image:linear-gradient(110deg,rgba(3,10,18,.86),rgba(3,10,18,.66)),
+  background-image:linear-gradient(110deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://res.cloudinary.com/casden-edito/images/c_scale%2Cw_2048%2Ch_1442%2Cdpr_2/f_auto%2Cq_auto/v1699015961/prod/recrutement-FPH/recrutement-FPH.jpg?_i=AA"),url("./assets/care-team.svg");
 }
 .layer-card:nth-child(3):before,.layer-card:nth-child(7):before{
-  background-image:linear-gradient(110deg,rgba(3,10,18,.86),rgba(3,10,18,.66)),
+  background-image:linear-gradient(110deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://healthtechmagazine.net/sites/healthtechmagazine.net/files/styles/flexslider_full/public/2020-02/HT_Q120_Feat-Hennick-slide3-2.jpg?itok=GF9w27yz"),url("./assets/healthcare-scene.svg");
 }
 .layer-card:nth-child(4):before{
-  background-image:linear-gradient(110deg,rgba(3,10,18,.86),rgba(3,10,18,.66)),
+  background-image:linear-gradient(110deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://www.yahata.saiseikai.or.jp/storage/uploads/block/202501/20250115_200254.webp"),url("./assets/operational-pulse.svg");
 }
 .layer-card:nth-child(5):before,.layer-card:nth-child(8):before{
-  background-image:linear-gradient(110deg,rgba(3,10,18,.86),rgba(3,10,18,.66)),
+  background-image:linear-gradient(110deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif"),url("./assets/operational-pulse.svg");
 }
 .layer-card>*{position:relative;z-index:1}
 .boundary-point:before{
-  background-image:linear-gradient(145deg,rgba(3,10,18,.86),rgba(3,10,18,.70)),
+  background-image:linear-gradient(145deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://www.hfmmagazine.com/sites/default/files/hfmmagazine/ext/resources/images/2018/magazine/jan_feb/0118_SpecialReport_Sidebar_NerveCenter_700x468.jpg"),url("./assets/operations.svg");
 }
 .boundary-point:nth-child(2):before{
-  background-image:linear-gradient(145deg,rgba(3,10,18,.86),rgba(3,10,18,.70)),
+  background-image:linear-gradient(145deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://res.cloudinary.com/casden-edito/images/c_scale%2Cw_2048%2Ch_1442%2Cdpr_2/f_auto%2Cq_auto/v1699015961/prod/recrutement-FPH/recrutement-FPH.jpg?_i=AA"),url("./assets/care-team.svg");
 }
 .boundary-point:nth-child(3):before{
-  background-image:linear-gradient(145deg,rgba(3,10,18,.86),rgba(3,10,18,.70)),
+  background-image:linear-gradient(145deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://healthtechmagazine.net/sites/healthtechmagazine.net/files/styles/flexslider_full/public/2020-02/HT_Q120_Feat-Hennick-slide3-2.jpg?itok=GF9w27yz"),url("./assets/healthcare-scene.svg");
 }
 .boundary-point:nth-child(4):before{
-  background-image:linear-gradient(145deg,rgba(3,10,18,.86),rgba(3,10,18,.70)),
+  background-image:linear-gradient(145deg,rgba(3,10,18,.48),rgba(3,10,18,.48)),
   url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif"),url("./assets/operational-pulse.svg");
 }
 .boundary-point>*{position:relative;z-index:1}
 .landing-metrics>div:before{
-  background-image:linear-gradient(145deg,rgba(3,10,18,.80),rgba(3,10,18,.76)),
+  background-image:linear-gradient(145deg,rgba(3,10,18,.65),rgba(3,10,18,.56)),
   url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif"),url("./assets/operational-pulse.svg");
 }
 .landing-metrics>div:nth-child(2):before{
-  background-image:linear-gradient(145deg,rgba(3,10,18,.80),rgba(3,10,18,.76)),
+  background-image:linear-gradient(145deg,rgba(3,10,18,.65),rgba(3,10,18,.56)),
   url("https://res.cloudinary.com/casden-edito/images/c_scale%2Cw_2048%2Ch_1442%2Cdpr_2/f_auto%2Cq_auto/v1699015961/prod/recrutement-FPH/recrutement-FPH.jpg?_i=AA"),url("./assets/care-team.svg");
 }
 .landing-metrics>div:nth-child(3):before{
-  background-image:linear-gradient(145deg,rgba(3,10,18,.80),rgba(3,10,18,.76)),
+  background-image:linear-gradient(145deg,rgba(3,10,18,.65),rgba(3,10,18,.56)),
   url("https://www.hopkinsmedicine.org/-/media/radiology/location-sliders/bethesda-imaging-equip-1.jpg?h=500&hash=D2C50F66AFD899814CF9A9C301BD40C8&iar=0&w=960"),url("./assets/operations.svg");
 }
 .landing-metrics>div:nth-child(4):before{
-  background-image:linear-gradient(145deg,rgba(3,10,18,.80),rgba(3,10,18,.76)),
+  background-image:linear-gradient(145deg,rgba(3,10,18,.65),rgba(3,10,18,.56)),
   url("https://healthtechmagazine.net/sites/healthtechmagazine.net/files/styles/flexslider_full/public/2020-02/HT_Q120_Feat-Hennick-slide3-2.jpg?itok=GF9w27yz"),url("./assets/healthcare-scene.svg");
 }
 .landing-metrics>div>*{position:relative;z-index:1}
 .site-footer{
-  background-image:linear-gradient(180deg,rgba(4,11,20,.89),rgba(3,8,15,.97)),
+  background-image:linear-gradient(180deg,rgba(4,11,20,.80),rgba(3,8,15,.88)),
   url("https://arizent.brightspotcdn.com/dims4/default/3e3fd02/2147483647/strip/true/crop/3456x3456%2B864%2B0/resize/1200x1200%21/quality/90/?url=https%3A%2F%2Fsource-media-brightspot.s3.amazonaws.com%2Fbc%2F32%2F1d6f63e142eb9296b3f6c14892a0%2Fcapacity-command-center.jpg.tif"),url("./assets/operational-pulse.svg");
   background-position:center;background-size:cover;background-repeat:no-repeat;
 }
 .auth-screen{background-image:linear-gradient(135deg,rgba(2,8,16,.25),rgba(2,8,16,.50)),url("https://www.ihhhealthcare.com/images/default-source/ihh/occ-2.jpg?sfvrsn=2801dfb4_1"),url("./assets/healthcare-scene.svg");background-size:cover;background-position:center}
-.auth-visual-copy{background:linear-gradient(180deg,transparent,rgba(3,9,17,.78));border-radius:14px;padding:20px 16px 10px}
+.auth-visual-copy{background:linear-gradient(180deg,transparent,rgba(3,9,17,.68));border-radius:14px;padding:20px 16px 10px}
 html[data-theme="dark"] .auth-card{background:rgba(4,12,22,.88);backdrop-filter:blur(20px)}
