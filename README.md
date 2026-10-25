@@ -1004,3 +1004,6 @@ The Chromium route sweep now authenticates through the browser-local demo before
 
 
 The browser signup smoke test asserts the serialized local account/profile record rather than looking for a profile label that is not part of the site header, verifying the actual persistence contract of offline signup.
+
+
+Release v36: the sign-in screen exposes both the isolated cloud-demo launcher and a browser-only demo at the same time, so a cloud API issue does not hide demo access. The browser smoke test explicitly opens the login route before clicking the offline-demo control, independent of saved browser sessions. Asset version and service-worker cache were advanced together.

@@ -43,6 +43,8 @@ try {
   assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
 
   // Enter the offline demo first so route checks test real protected screens, not login redirects.
+  await page.evaluate(() => { location.hash = "/login"; });
+  await page.waitForFunction(() => location.hash === "#/login");
   await page.locator('[data-action="login-demo"]').click();
   await page.waitForFunction(() => location.hash === "#/today");
   assert.ok((await page.locator("#workspace-root").innerText()).length > 30, "offline demo should open before route coverage");

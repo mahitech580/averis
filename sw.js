@@ -1,5 +1,5 @@
-const CACHE='averis-by-mahi-v35';
-const CORE=['./','./index.html','./styles.css?v=35','./app.js?v=35','./manifest.json','./assets/averis-orbit.svg','./assets/care-network.svg','./assets/operational-pulse.svg','./assets/healthcare-scene.svg','./assets/care-team.svg','./assets/people.svg','./assets/operations.svg','./assets/welcome.svg'];
+const CACHE='averis-by-mahi-v36';
+const CORE=['./','./index.html','./styles.css?v=36','./app.js?v=36','./manifest.json','./assets/averis-orbit.svg','./assets/care-network.svg','./assets/operational-pulse.svg','./assets/healthcare-scene.svg','./assets/care-team.svg','./assets/people.svg','./assets/operations.svg','./assets/welcome.svg'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
