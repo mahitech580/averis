@@ -1,0 +1,22 @@
+{
+  "buildCommand": "node --check app.js && python3 scripts/validate_site.py && python3 scripts/build_pages.py --output dist",
+  "outputDirectory": "dist",
+  "framework": "other",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://averis-platform-api-mahi.onrender.com/api/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, stale-while-revalidate=86400"
+        }
+      ]
+    }
+  ]
+}
