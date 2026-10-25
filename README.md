@@ -936,3 +936,12 @@ The Render Blueprint provisions the API service and prompts for a dedicated exte
 A dedicated Supabase project was created for AVERIS in the Mumbai region. Its core tables are provisioned with row-level security enabled; direct public/anonymous table grants are revoked, and the application accesses SQL through the FastAPI server. Render uses a separate \`DATABASE_URL\` secret. For Render's IPv4 network, open the Supabase dashboard → **Connect** → choose the **Session pooler** string, then enter it as \`DATABASE_URL\` while applying the Render Blueprint. Never commit the password or paste it into public source. The Render Blueprint intentionally does not create or reuse another project's database.
 
 Open the [Supabase dashboard for averis-erp-prod](https://supabase.com/dashboard/project/zspustvmjtdsnfkprbvv) and the [Render Blueprint setup](https://dashboard.render.com/blueprint/new?repo=https://github.com/mahitech580/averis). The API is not live until that dedicated connection string is supplied and the Render deploy passes its health check.
+
+
+### Reproducible database migrations
+
+The Supabase schema changes are also checked into `database/migrations/` with their applied version timestamps. `database/schema.sql` is a clean final-state reference; the timestamped files preserve the applied change order. All six tables use RLS, and `anon`/`authenticated` have no direct table grants plus explicit deny policies. The FastAPI application uses the server-side PostgreSQL connection and applies tenant isolation in the API.
+
+**Finish the Render connection:** open [Supabase Connect settings](https://supabase.com/dashboard/project/zspustvmjtdsnfkprbvv), copy the *Session pooler* connection string (Render uses IPv4), then open the [Render Blueprint](https://dashboard.render.com/blueprint/new?repo=https://github.com/mahitech580/averis) and supply that string for `DATABASE_URL`. Then apply the Blueprint and wait for `/api/health` to pass. Do not paste database passwords into source files or GitHub commits.
+
+**Finish the Netlify update:** create a Netlify personal access token and add it as the `NETLIFY_AUTH_TOKEN` repository secret under GitHub → Settings → Secrets and variables → Actions. The next main-branch CI run will deploy the latest static site to Netlify. Without this secret, the workflow deliberately skips the Netlify publish step.
