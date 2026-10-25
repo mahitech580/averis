@@ -139,3 +139,22 @@ def test_allowed_origin_can_preflight_erp_delete(client):
     )
     assert response.status_code == 200
     assert "DELETE" in response.headers.get("access-control-allow-methods", "")
+
+
+def test_production_mode_rejects_ephemeral_sqlite_database():
+    import os
+    import subprocess
+    import sys
+
+    env = os.environ.copy()
+    env["APP_ENV"] = "production"
+    env["DATABASE_URL"] = "sqlite:///./ephemeral.db"
+    result = subprocess.run(
+        [sys.executable, "-c", "import backend.main"],
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    assert result.returncode != 0
+    assert "requires a persistent DATABASE_URL" in result.stderr

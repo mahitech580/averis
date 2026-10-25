@@ -19,6 +19,8 @@ SESSION_TTL=604800
 MAX_BYTES=1_500_000
 PASSWORD_HASHER=PasswordHash.recommended()
 raw_url=os.getenv("DATABASE_URL","sqlite:///./averis.db").strip()
+if APP_ENV=="production" and raw_url.startswith("sqlite"):
+    raise RuntimeError("APP_ENV=production requires a persistent DATABASE_URL; SQLite on ephemeral hosting is unsafe.")
 if raw_url.startswith("postgres://"): DB_URL=raw_url.replace("postgres://","postgresql+psycopg://",1)
 elif raw_url.startswith("postgresql://"): DB_URL=raw_url.replace("postgresql://","postgresql+psycopg://",1)
 elif raw_url.startswith("mysql://"): DB_URL=raw_url.replace("mysql://","mysql+pymysql://",1)
