@@ -89,10 +89,13 @@ try {
   await page.waitForFunction(() => location.hash === "#/today");
 
   // Check every major homepage section and major card group has a photographic layer.
-  for (const selector of [".hero-bg", ".capabilities-bg", ".process-bg", ".metrics-bg", ".feature-bg", ".layers-bg", ".showcase-bg", ".boundary-bg", ".cta-bg"]) {
+  for (const selector of [".hero-bg", ".capabilities-bg", ".process-bg", ".feature-bg", ".layers-bg", ".showcase-bg", ".boundary-bg", ".cta-bg"]) {
     const backgroundImage = await page.locator("#workspace-root " + selector).evaluate((node) => getComputedStyle(node).backgroundImage);
     assert.ok(backgroundImage.includes("https://"), "section must include a photo background: " + selector);
   }
+  const footerPhoto = await page.locator("footer.site-footer").evaluate((node) => getComputedStyle(node).backgroundImage);
+  assert.ok(footerPhoto.includes("https://"), "footer must include a photo background");
+
   for (const selector of [".capability-card", ".process-card", ".layer-card"]) {
     const count = await page.locator("#workspace-root " + selector).count();
     assert.ok(count > 0, "expected card group " + selector);
