@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 from pwdlib import PasswordHash
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint, create_engine, select, text
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint, create_engine, select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship, sessionmaker
 from backend.services.prioritization import prioritize_inventory
@@ -302,15 +302,68 @@ def get_workspace(db:Session=Depends(get_db),user:User=Depends(current_user)):
 @app.put("/api/workspace")
 def put_workspace(payload:WorkspaceInput,db:Session=Depends(get_db),user:User=Depends(current_user)):
     data=sanitize_workspace(payload.data)
-    row=db.get(WorkspaceSnapshot,user.organization_id)
-    current=row.revision if row else 0
-    if payload.revision!=current:
-        return JSONResponse(status_code=409,content={"detail":"Workspace changed in another session.","data":row.data if row else None,"revision":current,"updated_at":iso(row.updated_at) if row else None})
-    revision=current+1;now=utcnow()
-    if row is None: row=WorkspaceSnapshot(organization_id=user.organization_id,data=data,revision=revision,updated_at=now,updated_by=user.id)
-    else: row.data=data;row.revision=revision;row.updated_at=now;row.updated_by=user.id
-    db.add(row);audit(db,user.organization_id,user.id,"workspace.snapshot_saved",{"revision":revision,"collections":{k:len(v) for k,v in data.items() if isinstance(v,list)}});db.commit()
-    return {"data":data,"revision":revision,"updated_at":iso(now),"updated_by":user.id}
+    now=utcnow()
+    next_revision=payload.revision+1
+
+    # Compare-and-swap the revision in SQL so two concurrent writers cannot
+    # both read the same revision and silently overwrite one another.
+    changed=db.execute(
+        update(WorkspaceSnapshot)
+        .where(
+            WorkspaceSnapshot.organization_id==user.organization_id,
+            WorkspaceSnapshot.revision==payload.revision,
+        )
+        .values(data=data,revision=next_revision,updated_at=now,updated_by=user.id)
+    )
+    if changed.rowcount==1:
+        audit(db,user.organization_id,user.id,"workspace.snapshot_saved",{
+            "revision":next_revision,
+            "collections":{k:len(v) for k,v in data.items() if isinstance(v,list)},
+        })
+        db.commit()
+        return {"data":data,"revision":next_revision,"updated_at":iso(now),"updated_by":user.id}
+
+    db.rollback()
+    latest=db.get(WorkspaceSnapshot,user.organization_id)
+    if latest is not None:
+        return JSONResponse(status_code=409,content={
+            "detail":"Workspace changed in another session.",
+            "data":latest.data,
+            "revision":latest.revision,
+            "updated_at":iso(latest.updated_at),
+        })
+    if payload.revision!=0:
+        return JSONResponse(status_code=409,content={
+            "detail":"Workspace changed in another session.",
+            "data":None,"revision":0,"updated_at":None,
+        })
+
+    # Empty snapshots are inserted separately. If another writer wins the
+    # first insert, the PK/unique conflict is converted into the same 409
+    # contract instead of overwriting the winner.
+    snapshot=WorkspaceSnapshot(
+        organization_id=user.organization_id,data=data,revision=1,
+        updated_at=now,updated_by=user.id,
+    )
+    db.add(snapshot)
+    audit(db,user.organization_id,user.id,"workspace.snapshot_saved",{
+        "revision":1,
+        "collections":{k:len(v) for k,v in data.items() if isinstance(v,list)},
+    })
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        latest=db.get(WorkspaceSnapshot,user.organization_id)
+        if latest is not None:
+            return JSONResponse(status_code=409,content={
+                "detail":"Workspace changed in another session.",
+                "data":latest.data,
+                "revision":latest.revision,
+                "updated_at":iso(latest.updated_at),
+            })
+        raise
+    return {"data":data,"revision":1,"updated_at":iso(now),"updated_by":user.id}
 
 @app.get("/api/activity")
 def activity(limit:int=30,db:Session=Depends(get_db),user:User=Depends(current_user)):

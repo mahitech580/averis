@@ -39,6 +39,33 @@ def test_server_session_password_and_logout(client):
     assert accepted.status_code==200
     assert client.get("/api/auth/me").json()["user"]["email"]=="owner@example.test"
 
+
+def test_concurrent_workspace_writes_have_one_revision_winner(client):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+
+    register(client,"concurrent-owner@example.test","Concurrent Team")
+    token=client.cookies.get("averis_session")
+    assert token
+    barrier=Barrier(2)
+
+    def write_snapshot(label):
+        with TestClient(api.app) as parallel_client:
+            parallel_client.cookies.set("averis_session",token)
+            barrier.wait(timeout=5)
+            return parallel_client.put(
+                "/api/workspace",
+                json={"revision":0,"data":{"people":[{"id":label,"name":"Synthetic"}]}},
+            )
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        responses=list(pool.map(write_snapshot,["P-LEFT","P-RIGHT"]))
+
+    assert sorted(response.status_code for response in responses)==[200,409]
+    final=client.get("/api/workspace").json()
+    assert final["revision"]==1
+    assert final["data"]["people"][0]["id"] in {"P-LEFT","P-RIGHT"}
+
 def test_workspace_json_whitelist_and_revision_conflict(client):
     register(client,"owner@example.test")
     assert client.get("/api/workspace").json()["revision"]==0
