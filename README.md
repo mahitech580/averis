@@ -120,7 +120,7 @@ Postman collection: postman/AVERIS-ERP.postman_collection.json
 - The Edge Function uses its managed Supabase environment for server credentials. No database password or service-role key should be committed to source control or placed in browser code.
 - Render runs the isolated AI inference layer with `AI_ONLY=true`; do not add database credentials to that service.
 - Repository Pages publishing should use **Settings → Pages → Build and deployment → Source: GitHub Actions**. The workflow uses the protected GitHub Actions token and the `github-pages` deployment environment; it does not depend on a third-party frontend-host token.
-- After every release, the workflow checks the live page, core JS/CSS/service-worker/manifest responses, and `build-revision.txt` against the exact `main` commit. It also verifies the Supabase health contract and Pages-origin CORS allowlist.
+- After every release, the workflow byte-compares the live HTML, core JS/CSS/service-worker and manifest with the checked-out commit. It also checks `build-revision.txt` when the active Pages source serves that marker; absence of the marker is reported explicitly, while byte-for-byte checks remain the release gate. The workflow verifies the Supabase health contract and Pages-origin CORS allowlist.
 - Use synthetic/demo data only. Never enter real patient data or sensitive production information into a public demo.
 
 ## Operations dashboard

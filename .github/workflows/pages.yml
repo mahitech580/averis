@@ -205,6 +205,7 @@ jobs:
           import os
           import re
           from pathlib import Path
+          from urllib.error import HTTPError
           from urllib.parse import urljoin
           from urllib.request import Request, urlopen
 
@@ -249,10 +250,19 @@ jobs:
           if not cache_match or cache_match.group(1) != expected_version:
               raise RuntimeError("Published service-worker cache version does not match the HTML assets.")
 
-          revision = fetch(urljoin(base, "build-revision.txt")).decode("utf-8", "replace").strip()
-          if revision != expected_revision:
+          try:
+              revision = fetch(urljoin(base, "build-revision.txt")).decode("utf-8", "replace").strip()
+          except HTTPError as exc:
+              if exc.code != 404:
+                  raise
+              revision = None
+              print("build-revision.txt is not served by the active Pages source; byte-for-byte checks of index.html, app.js, styles.css, sw.js and manifest.json already passed.")
+          if revision is not None and revision != expected_revision:
               raise RuntimeError(f"Published revision mismatch: expected {expected_revision}, live {revision}.")
+          if revision is not None:
+              print(f"Published build revision marker verified: {revision}.")
           for name, data in (("app.js", app_bytes), ("styles.css", css_bytes), ("sw.js", sw_bytes)):
               print(f"{name}: {len(data)} bytes sha256={hashlib.sha256(data).hexdigest()}")
-          print(f"GitHub Pages release verified: revision {revision}; core assets match source; asset version v{expected_version}.")
+          marker_status = revision if revision is not None else "not served; core files matched source bytes"
+          print(f"GitHub Pages core files verified: {marker_status}; asset version v{expected_version}.")
           PY
