@@ -114,6 +114,61 @@ def test_erp_catalog_create_search_update_delete_and_summary(client):
     assert client.delete(f"/api/erp/products/{row_id}").status_code==200
     assert client.get("/api/erp/products").json()["count"]==0
 
+
+
+def test_all_erp_collections_support_create_read_update_delete(client):
+    register(client,"all-modules@example.test","All Modules Team")
+    catalog=client.get("/api/erp/modules")
+    assert catalog.status_code==200
+    modules={item["key"] for item in catalog.json()["modules"]}
+    assert modules==set(api.ERP_FIELDS)==set(api.ERP_REQUIRED)==set(api.ERP_PREFIX)
+    assert len(modules)==15
+
+    for collection in sorted(modules):
+        payload={}
+        for key,kind in api.ERP_FIELDS[collection].items():
+            if kind=="number":
+                payload[key]=1
+            elif kind=="date":
+                payload[key]="2026-10-27"
+            elif kind=="email":
+                payload[key]=f"{collection}-first@example.test"
+            elif key=="sku":
+                payload[key]=f"{collection.upper()}-FIRST"
+            else:
+                payload[key]=f"{key}-{collection}-first"
+
+        for required in api.ERP_REQUIRED[collection]:
+            assert payload.get(required) not in (None,""), f"{collection} missing required fixture field {required}"
+
+        created=client.post(f"/api/erp/{collection}",json=payload)
+        assert created.status_code==201, f"{collection} create failed: {created.status_code} {created.text}"
+        record_key=created.json()["item"]["id"]
+        assert record_key
+
+        listed=client.get(f"/api/erp/{collection}?limit=10")
+        assert listed.status_code==200, f"{collection} list failed: {listed.text}"
+        assert listed.json()["count"]==1
+        assert listed.json()["items"][0]["id"]==record_key
+
+        change_key=next((key for key in api.ERP_REQUIRED[collection] if api.ERP_FIELDS[collection][key] in {"text","email"}),None)
+        if change_key is None:
+            change_key=next((key for key,kind in api.ERP_FIELDS[collection].items() if kind in {"text","email"}),None)
+        assert change_key, f"{collection} fixture needs a mutable textual field"
+        if api.ERP_FIELDS[collection][change_key]=="email":
+            payload[change_key]=f"{collection}-updated@example.test"
+        else:
+            payload[change_key]=f"{change_key}-{collection}-updated"
+
+        changed=client.put(f"/api/erp/{collection}/{record_key}",json=payload)
+        assert changed.status_code==200, f"{collection} update failed: {changed.status_code} {changed.text}"
+        assert changed.json()["item"][change_key]==payload[change_key]
+
+        removed=client.delete(f"/api/erp/{collection}/{record_key}")
+        assert removed.status_code==200, f"{collection} delete failed: {removed.status_code} {removed.text}"
+        assert client.get(f"/api/erp/{collection}").json()["count"]==0
+        assert client.delete(f"/api/erp/{collection}/{record_key}").status_code==404
+
 def test_erp_module_tenant_isolation_and_field_validation(client):
     register(client,"erp-a@example.test","Company A")
     created=client.post("/api/erp/customers",json={"name":"Acme Co","email":"buyer@example.test"})
