@@ -227,9 +227,9 @@ def test_operations_dashboard_uses_workspace_state_and_live_sync_contract():
     assert 'topButton?.addEventListener("click"' in app
     assert ".reveal-on-scroll.is-revealed" in css
     assert "prefers-reduced-motion:reduce" in css
-    assert "styles.css?v=58" in html
-    assert "app.js?v=58" in html
-    assert "averis-by-mahi-v58" in read("sw.js")
+    assert "styles.css?v=59" in html
+    assert "app.js?v=59" in html
+    assert "averis-by-mahi-v59" in read("sw.js")
 
 
 def test_dashboard_shows_operational_state_without_technology_marketing_copy():
@@ -252,6 +252,8 @@ def test_public_operations_dashboard_is_visible_without_authentication_but_priva
     app = read("app.js")
     assert 'if(!state.session.authenticated&&route!=="login"&&route!=="register"&&route!=="today")route="login";' in app
     assert 'document.body.classList.toggle("public-mode",!state.session.authenticated&&route==="today")' in app
+    assert 'route=cloud.initialRoute==="today"?"today":"login"' in app
+    assert 'cloud.initialRoute=parseHash()||"today";route=cloud.initialRoute==="today"?"today":"login"' in app
     assert 'const publicRoute' not in app
     assert 'data-action="open-register"' in app
     assert 'data-action="open-login"' in app
@@ -333,9 +335,9 @@ def test_service_worker_never_persists_local_or_supabase_api_responses():
     assert production_api_guard in sw
     assert "fetch(e.request,{cache:'no-store'})" in sw
     assert sw.index("if(localApi||productionApi)") < sw.index("const dynamic=")
-    assert "averis-by-mahi-v58" in sw
+    assert "averis-by-mahi-v59" in sw
     html = read("index.html")
-    assert "app.js?v=58" in html and "styles.css?v=58" in html
+    assert "app.js?v=59" in html and "styles.css?v=59" in html
 
 def test_operations_dashboard_layout_collapses_cleanly_on_tablet_and_mobile():
     css = read("styles.css")
