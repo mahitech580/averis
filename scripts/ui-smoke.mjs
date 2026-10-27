@@ -21,7 +21,7 @@ try {
   assert.ok(initialRouteContent.trim().length > 80, "main route should render useful content");
 
   const primaryLabels = (await page.locator(".site-nav > button[data-route]").allTextContents()).map((label) => label.trim());
-  assert.deepEqual(primaryLabels, ["Website Overview", "People", "Journeys", "Workflow", "Capacity"], "only five primary items should be visible");
+  assert.deepEqual(primaryLabels, ["Today", "People", "Journeys", "Workflow", "Capacity"], "only five primary items should be visible");
   assert.equal(await page.locator("#site-nav-menu button[data-route]").count(), 4, "secondary destinations should be grouped under More");
   assert.equal(await page.locator("#command-trigger").count(), 0, "the header search button should be removed");
   await page.locator("#site-more-toggle").click();
@@ -32,17 +32,16 @@ try {
   await page.evaluate(() => { location.hash = "/today"; });
   await page.waitForFunction(() => location.hash === "#/today");
 
-  // New visitors can get to signup/login from the homepage and switch between forms.
-  assert.ok(await page.locator('#workspace-root [data-action="open-register"]').count() >= 1, "overview should expose Create account");
-  assert.ok(await page.locator('#workspace-root [data-action="open-login"]').count() >= 1, "overview should expose Sign in");
-  await page.locator('#workspace-root [data-action="open-register"]').first().click();
-  await page.waitForFunction(() => location.hash === "#/register");
-  assert.equal(await page.locator('form[data-auth-form="register"]').count(), 1, "signup form should render");
-  await page.locator('#workspace-root [data-action="open-login"]').click();
+  // Sign-up and sign-in remain working routes without turning the dashboard into a marketing page.
+  await page.evaluate(() => { location.hash = "/login"; });
   await page.waitForFunction(() => location.hash === "#/login");
   assert.equal(await page.locator('form[data-auth-form="login"]').count(), 1, "login form should render");
   await page.locator('#workspace-root [data-action="open-register"]').click();
   await page.waitForFunction(() => location.hash === "#/register");
+  assert.equal(await page.locator('form[data-auth-form="register"]').count(), 1, "signup form should render");
+  await page.locator('#workspace-root [data-action="open-login"]').click();
+  await page.waitForFunction(() => location.hash === "#/login");
+  assert.equal(await page.locator('form[data-auth-form="login"]').count(), 1, "login form should render after switching");
   await page.evaluate(() => { location.hash = "/today"; });
   await page.waitForFunction(() => location.hash === "#/today");
 
@@ -85,83 +84,65 @@ try {
   await page.waitForFunction(() => location.hash === "#/today");
   assert.ok((await page.locator("#workspace-root").innerText()).length > 30, "offline demo should open before route coverage");
 
-  // Verify every landing-page card CTA redirects to its named destination route.
-  const landingActions = await page.locator(
-    "#workspace-root .capability-card [data-action], #workspace-root .process-card [data-action], " +
-    "#workspace-root .layer-card[data-action], #workspace-root .showcase-card[data-action], " +
-    "#workspace-root .landing-actions [data-action]"
-  ).evaluateAll((nodes) => {
-    const values = nodes.map((node) => node.getAttribute("data-action"))
-      .filter((value) => value && value.startsWith("go-"));
-    return [...new Set(values)];
-  });
-  assert.ok(landingActions.length >= 12, "expected links across capability/process/layer/showcase cards, got " + landingActions.length);
-  for (const action of landingActions) {
-    await page.evaluate(() => { if (location.hash !== "#/today") location.hash = "/today"; });
-    await page.waitForFunction(() => location.hash === "#/today");
-    await page.locator('#workspace-root [data-action="' + action + '"]').first().click();
-    const expectedRoute = action.slice(3);
-    await page.waitForFunction((expected) => location.hash === "#/" + expected, expectedRoute);
-    assert.ok((await page.locator("#workspace-root").innerText()).trim().length > 30, "card route should render: " + expectedRoute);
-  }
+  // Exercise the control-room dashboard with state-derived metrics and real workspace actions.
+  const dashboardText = await page.locator("#workspace-root").innerText();
+  assert.ok(dashboardText.includes("Operations overview"), "home should open the operations dashboard");
+  assert.ok(dashboardText.includes("Needs attention"), "dashboard should show its priority queue");
+  assert.ok(dashboardText.includes("Movement"), "dashboard should show schedule movement");
+  assert.ok(dashboardText.includes("Capacity pulse"), "dashboard should show resource load");
+  assert.ok(dashboardText.includes("Recent activity"), "dashboard should show change history");
+  assert.ok(dashboardText.includes("SYNTHETIC RECORDS"), "synthetic data boundary should remain visible");
+  assert.ok(!dashboardText.includes("HOW IT WORKS"), "home must not render technical marketing sections");
+  assert.ok(!dashboardText.includes("PostgreSQL + Python APIs"), "home must not describe its implementation");
+
+  assert.equal(await page.locator("#workspace-root .ops-kpi").count(), 4, "four operational summary metrics should render");
+  assert.ok(await page.locator("#workspace-root .ops-table tbody tr").count() > 0, "priority table should be populated");
+  assert.ok(await page.locator("#workspace-root .ops-schedule-row").count() > 0, "schedule should be populated");
+  assert.ok(await page.locator("#workspace-root .ops-resource-row").count() > 0, "capacity panel should be populated");
+  assert.ok(await page.locator("#workspace-root .ops-activity-row").count() > 0, "activity feed should show workspace events");
+  const quickLinksCount = await page.locator("#workspace-root .ops-quick-card").count();
+  assert.ok(quickLinksCount >= 6, "expected six workspace shortcuts");
+
+  await page.locator("#workspace-root .ops-table [data-open-task]").first().click();
+  assert.ok(await page.locator("#drawer.open").count(), "task inspection should open the detail drawer");
+  await page.locator("#drawer-close").click();
+  await page.locator("#workspace-root .ops-schedule-row").first().click();
+  assert.ok(await page.locator("#drawer.open").count(), "appointment inspection should open the detail drawer");
+  await page.locator("#drawer-close").click();
+
+  await page.locator('#workspace-root [data-action="go-queue"]').first().click();
+  await page.waitForFunction(() => location.hash === "#/queue");
+  assert.ok((await page.locator("#workspace-root").innerText()).includes("New task"), "queue route should expose work actions");
   await page.evaluate(() => { location.hash = "/today"; });
   await page.waitForFunction(() => location.hash === "#/today");
 
-  // Verify the requested editorial typography and one consistent page surface.
-  const heroHeading = page.locator("#workspace-root .overview-heading h1");
-  assert.ok((await heroHeading.innerText()).includes("CARE."), "public hero should show the new editorial headline");
-  assert.ok((await heroHeading.innerText()).includes("Operations,"), "hero should include the muted italic secondary line");
-  const heroGeometry = await page.locator("#workspace-root .overview-layout").evaluate((node) => {
-    const rect = (selector) => {
-      const box = node.querySelector(selector).getBoundingClientRect();
-      return { width: Math.round(box.width), left: Math.round(box.left), right: Math.round(box.right) };
-    };
-    return {
-      layout: Math.round(node.getBoundingClientRect().width),
-      heading: rect(".overview-heading"),
-      matter: rect(".overview-matter"),
-      visual: rect(".overview-visual"),
-    };
-  });
-  assert.ok(heroGeometry.layout > 900, "public hero grid must occupy the available desktop width: " + JSON.stringify(heroGeometry));
-  assert.ok(heroGeometry.heading.width >= 260, "hero heading must not collapse into a narrow vertical strip: " + JSON.stringify(heroGeometry));
-  assert.ok(heroGeometry.matter.width >= 300, "hero description must retain a readable desktop column: " + JSON.stringify(heroGeometry));
-  assert.ok(heroGeometry.visual.width >= 260, "hero visual must retain its own usable column: " + JSON.stringify(heroGeometry));
-  const headingStyle = await heroHeading.evaluate((node) => ({
-    fontFamily: getComputedStyle(node).fontFamily,
-    fontSize: getComputedStyle(node).fontSize,
-    lineHeight: getComputedStyle(node).lineHeight,
-    letterSpacing: getComputedStyle(node).letterSpacing,
+  const dashboardHeading = page.locator("#workspace-root .ops-home-header h1");
+  assert.ok((await dashboardHeading.innerText()).includes("Operations overview"), "dashboard heading should identify the current work surface");
+  const dashboardGeometry = await page.locator("#workspace-root .ops-home").evaluate((node) => ({
+    width: Math.round(node.getBoundingClientRect().width),
+    kpiColumns: getComputedStyle(node.querySelector(".ops-kpis")).gridTemplateColumns.split(" ").length,
+    fontFamily: getComputedStyle(node.querySelector(".ops-home-header h1")).fontFamily,
   }));
-  assert.ok(headingStyle.fontFamily.includes("Space Grotesk"), "display headlines should use Space Grotesk");
-  const sharedSurface = await page.locator("#workspace-root .hero-bg").evaluate((node) => getComputedStyle(node).backgroundColor);
-  for (const selector of [".hero-bg", ".capabilities-bg", ".process-bg", ".feature-bg", ".layers-bg", ".showcase-bg", ".boundary-bg", ".cta-bg"]) {
-    const section = page.locator("#workspace-root " + selector);
-    const styles = await section.evaluate((node) => ({
-      backgroundImage: getComputedStyle(node).backgroundImage,
-      backgroundColor: getComputedStyle(node).backgroundColor,
-    }));
-    assert.equal(styles.backgroundImage, "none", "long-form sections should not each use a different photo background: " + selector);
-    assert.equal(styles.backgroundColor, sharedSurface, "long-form sections should share one theme surface: " + selector);
-    const overlayImage = await section.locator("> .section-overlay").evaluate((node) => getComputedStyle(node).backgroundImage);
-    const shouldAccent = selector === ".hero-bg" || selector === ".cta-bg";
-    assert.equal(overlayImage.includes("radial-gradient"), shouldAccent, "gradients should be selective, not on every section: " + selector);
+  assert.ok(dashboardGeometry.width > 900, "dashboard should use available desktop width: " + JSON.stringify(dashboardGeometry));
+  assert.equal(dashboardGeometry.kpiColumns, 4, "desktop dashboard should show four KPI columns: " + JSON.stringify(dashboardGeometry));
+  assert.ok(dashboardGeometry.fontFamily.includes("Space Grotesk"), "dashboard headings should use Space Grotesk");
+
+  const dashboardPhotoRules = [];
+  for (const selector of [".ops-kpi", ".ops-panel", ".ops-quick-card"]) {
+    assert.ok(await page.locator("#workspace-root " + selector).count() > 0, "expected dashboard component " + selector);
+    const photo = await page.locator("#workspace-root " + selector).first().evaluate((node) =>
+      [getComputedStyle(node).backgroundImage, getComputedStyle(node, "::before").backgroundImage].join(" ")
+    );
+    dashboardPhotoRules.push({selector, photo:photo.includes("https://")});
   }
+  assert.ok(dashboardPhotoRules.every(item => !item.photo), "operational dashboard cards must not be marketing photo tiles");
+
   const footerStyle = await page.locator("footer.site-footer").evaluate((node) => ({
     backgroundImage: getComputedStyle(node).backgroundImage,
     borderTopWidth: getComputedStyle(node).borderTopWidth,
   }));
   assert.equal(footerStyle.backgroundImage, "none", "footer should share the single theme surface rather than add another photo");
   assert.equal(footerStyle.borderTopWidth, "1px", "footer should use a restrained theme-border divider");
-
-  for (const selector of [".capability-card", ".process-card", ".layer-card", ".boundary-point"]) {
-    const count = await page.locator("#workspace-root " + selector).count();
-    assert.ok(count > 0, "expected card group " + selector);
-    const image = await page.locator("#workspace-root " + selector).first().evaluate((node) => getComputedStyle(node, "::before").backgroundImage);
-    assert.ok(image.includes("https://"), "cards should have photo overlays: " + selector);
-    const opacity = Number(await page.locator("#workspace-root " + selector).first().evaluate((node) => getComputedStyle(node, "::before").opacity));
-    assert.ok(opacity >= 0.13 && opacity <= 0.15, "card background images should remain very subtle: " + selector + " = " + opacity);
-  }
 
   // Exercise all persistent footer navigation links; this footer is outside the re-rendered workspace root.
   const routes = await page.locator("footer [data-route]").evaluateAll((buttons) =>
@@ -385,7 +366,7 @@ try {
 
   assert.deepEqual(pageErrors, [], "uncaught browser exceptions: " + pageErrors.join(" | "));
   assert.equal(await page.locator("#site-nav-menu button[data-route]").count(), 4, "secondary navigation remains available");
-  console.log("OK: fixed header, five primary links + More submenu, persistent light/dark themes, restrained photo backgrounds, visible signup/sign-in, local signup + sign-out + sign-in, image fallbacks, " + landingActions.length + " card destinations, " + routes.length + " footer routes and mobile width.");
+  console.log("OK: fixed header, five primary links + More submenu, persistent light/dark themes, working auth routes, operational dashboard metrics, task and appointment inspection, " + quickLinksCount + " workspace shortcuts, " + routes.length + " footer routes and mobile width.");
 } finally {
   await browser.close();
 }
