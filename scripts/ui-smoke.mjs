@@ -282,7 +282,7 @@ try {
   // Local ERP create, update and delete should operate on the browser demo store.
   await goToWorkspace("erp");
   await page.locator('#workspace-root .erp-module-tabs [data-action="erp-module:products"]').click();
-  await page.locator('#workspace-root [data-action="erp-create"]').click();
+  await page.locator('#workspace-root .erp-table-panel .erp-list-actions [data-action="erp-create"]').click();
   await page.locator('#erp-record-form [data-erp-field="name"]').fill("UI CRUD ERP Product");
   const uiSku = "UI-CRUD-" + Date.now().toString(36).toUpperCase();
   await page.locator('#erp-record-form [data-erp-field="sku"]').fill(uiSku);

@@ -221,3 +221,8 @@ The Chromium smoke suite now exercises local synthetic create flows for people, 
 ### Browser test harness correction (2026-10-27)
 
 The first run of the new local ERP UI lifecycle test stopped because its Playwright selector matched five visible “products” actions rather than one. This was a test-selector ambiguity, not an application failure. The test now scopes the click to the unique ERP module-tabs navigation before creating/updating/deleting the local product.
+
+
+### Latest browser-regression correction (2026-10-27)
+
+The Chromium run for `707ff0f66bdeba4af51b5c31c0cf09a3e08e51d0` failed because the ERP create button locator matched both the page heading action and the table-toolbar action. The app was rendering both as designed; the regression test used an ambiguous locator. The test is now scoped to `.erp-table-panel .erp-list-actions`, which selects the visible table-toolbar control. The updated test run should be checked before asserting a clean full suite.
