@@ -116,7 +116,7 @@ Postman collection: postman/AVERIS-ERP.postman_collection.json
 - **Netlify is the only intended public frontend:** https://averis-saas.netlify.app/. GitHub remains the source repository and `main` is the deployment source.
 - The Edge Function uses its managed Supabase environment for server credentials. No database password or service-role key should be committed to source control or placed in browser code.
 - Render is set to AI_ONLY=true, APP_ENV=production, with auto-deploy from main. Do not add a database secret to this service; it is meant to run only the Python inference layer.
-- Netlify production publishing from GitHub Actions requires the repository secret NETLIFY_AUTH_TOKEN. To enable it, add that secret in https://github.com/mahitech580/averis/settings/secrets/actions. The workflow deliberately skips Netlify publishing when the token is absent.
+- Netlify production publishing from GitHub Actions requires the repository secret NETLIFY_AUTH_TOKEN. To enable it, add that secret in https://github.com/mahitech580/averis/settings/secrets/actions, or connect the Netlify project to GitHub under https://app.netlify.com/projects/averis-saas/configuration/deploys. The workflow fails at the publish gate when the token is absent.
 - After publishing, verify the Netlify deployment uses the latest `main` commit and serves the matching index.html, app.js, styles.css, and service-worker cache version.
 - Never claim a host is current solely because its URL responds. Check the published deployment's source commit before relying on it.
 
