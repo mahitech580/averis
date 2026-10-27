@@ -2399,3 +2399,28 @@ body.scrolled .site-header,body.scrolled #site-header{
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
   .reveal-on-scroll{opacity:1!important;transform:none!important}
 }
+
+
+/* Theme-specific refinements: preserve the outlined display word in light mode too. */
+:root{--text-secondary:#2B2252;--text-tertiary:#51476F}
+:root[data-theme="dark"]{--text-secondary:#E8E2FF;--text-tertiary:#BEB4DC}
+html[data-theme="light"] .website-shell .website-section-bg{color:#19132F}
+html[data-theme="light"] .website-shell .overview-heading h1{color:#19132F!important;-webkit-text-fill-color:#19132F!important}
+html[data-theme="light"] .website-shell .overview-heading h1 span{
+  color:transparent!important;
+  -webkit-text-fill-color:transparent!important;
+  -webkit-text-stroke:1.35px var(--accent-purple)!important;
+  background:none!important;
+  text-shadow:none!important;
+}
+html[data-theme="light"] .website-shell .overview-heading h1 em{
+  color:var(--muted)!important;
+  -webkit-text-fill-color:var(--muted)!important;
+}
+html[data-theme="light"] .website-shell .overview-subtitle,
+html[data-theme="light"] .website-shell .overview-matter .landing-lead,
+html[data-theme="light"] .website-shell .center-heading p,
+html[data-theme="light"] .website-shell .capability-card p{color:#625A7C!important}
+html[data-theme="light"] .website-shell .website-section-bg>.section-overlay{
+  background:radial-gradient(ellipse at 12% 8%,rgba(95,62,232,.035),transparent 42%)!important;
+}
