@@ -9,7 +9,7 @@ AVERIS is a multi-tenant **healthcare operations coordination demo** with a resp
 - **Supabase project:** https://supabase.com/dashboard/project/zspustvmjtdsnfkprbvv
 - **Render Python ML service:** https://averis-platform-api-mahi.onrender.com
 
-Netlify is the only intended public frontend. The current site must be published from the latest `main` build to receive frontend updates. The GitHub Actions workflow requires the repository secret `NETLIFY_AUTH_TOKEN` for its manual production publish; without it the publish gate fails instead of claiming that deployment succeeded. Alternatively, connect this Netlify site directly to the GitHub repository's `main` branch for Git-based continuous deployment.
+Netlify is the only intended public frontend. The current site must be published from the latest `main` build to receive frontend updates. The GitHub Actions workflow can publish directly with the repository secret `NETLIFY_AUTH_TOKEN`, or rely on Netlify Git continuous deployment from `main`. It verifies that the live Netlify site serves the expected asset version and a healthy PostgreSQL-backed API; it fails if the production site remains stale.
 
 > **Data boundary:** use synthetic/demo data only. Never enter real patient information, diagnoses, treatment plans, production customer records, or other sensitive information into a public preview.
 
@@ -116,7 +116,7 @@ Postman collection: postman/AVERIS-ERP.postman_collection.json
 - **Netlify is the only intended public frontend:** https://averis-saas.netlify.app/. GitHub remains the source repository and `main` is the deployment source.
 - The Edge Function uses its managed Supabase environment for server credentials. No database password or service-role key should be committed to source control or placed in browser code.
 - Render is set to AI_ONLY=true, APP_ENV=production, with auto-deploy from main. Do not add a database secret to this service; it is meant to run only the Python inference layer.
-- Netlify production publishing from GitHub Actions requires the repository secret NETLIFY_AUTH_TOKEN. To enable it, add that secret in https://github.com/mahitech580/averis/settings/secrets/actions, or connect the Netlify project to GitHub under https://app.netlify.com/projects/averis-saas/configuration/deploys. The workflow fails at the publish gate when the token is absent.
+- Netlify production publishing from GitHub Actions requires the repository secret NETLIFY_AUTH_TOKEN. To enable it, add that secret in https://github.com/mahitech580/averis/settings/secrets/actions, or connect the Netlify project to GitHub under https://app.netlify.com/projects/averis-saas/configuration/deploys. When the token is absent, the workflow relies on Netlify Git continuous deployment and verifies that the new build is actually live.
 - After publishing, verify the Netlify deployment uses the latest `main` commit and serves the matching index.html, app.js, styles.css, and service-worker cache version.
 - Never claim a host is current solely because its URL responds. Check the published deployment's source commit before relying on it.
 
