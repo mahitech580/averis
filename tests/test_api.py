@@ -198,12 +198,14 @@ def test_local_static_preview_origin_can_preflight_api(client):
         headers={
             "Origin": "http://127.0.0.1:4173",
             "Access-Control-Request-Method": "POST",
-            "Access-Control-Request-Headers": "content-type",
+            "Access-Control-Request-Headers": "content-type, authorization, apikey, x-averis-request",
         },
     )
     assert response.status_code == 200
     assert response.headers.get("access-control-allow-origin") == "http://127.0.0.1:4173"
     assert "POST" in response.headers.get("access-control-allow-methods", "")
+    allowed_headers = {value.strip().lower() for value in response.headers.get("access-control-allow-headers", "").split(",")}
+    assert {"authorization", "content-type", "apikey", "x-averis-request"} <= allowed_headers
 
 def test_authenticated_ml_triage_does_not_echo_or_persist_input(client):
     register(client, "ml-owner@example.test", "ML Team")
