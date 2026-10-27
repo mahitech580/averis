@@ -235,3 +235,14 @@ def test_home_page_copy_distinguishes_cloud_persistence_from_local_preview():
     assert "the browser-only preview remains local" in app
     assert "PostgreSQL + Python APIs" in app
     assert "Human-reviewed ML signals" in app
+
+
+def test_public_overview_is_visible_without_authentication_but_private_routes_stay_gated():
+    app = read("app.js")
+    assert 'if(!state.session.authenticated&&!authPage&&route!=="today")route="login";' in app
+    assert 'const publicRoute' not in app  # keep a single, explicit public-route gate
+    assert 'data-action="open-register"' in app
+    assert 'data-action="open-login"' in app
+    css = read("styles.css")
+    assert 'html[data-theme="light"] .website-shell .overview-heading h1 span' in css
+    assert '-webkit-text-stroke:1.35px var(--accent-purple)!important' in css
