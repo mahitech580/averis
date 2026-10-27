@@ -27,7 +27,7 @@ def test_light_and_dark_themes_are_supported_across_shell_and_settings():
     render = app[render_start:render_end]
     assert 'data-theme="dark"' in html
     assert '--bg:#F5F2FF' in css and '--bg:#0E0B20' in css
-    assert "Space Grotesk" in html and "Manrope" in html and "DM+Mono" in html
+    assert "Space+Grotesk" in html and "Manrope" in html and "DM+Mono" in html
     assert "function initScrollExperience()" in app
     assert 'window.addEventListener("scroll",update,{passive:true})' in app
     assert 'topButton?.classList.toggle("visible",window.scrollY>620)' in app
