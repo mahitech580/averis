@@ -1,67 +1,81 @@
 # AVERIS — Healthcare operations coordination SaaS
 
-AVERIS is a multi-tenant healthcare **operations coordination** SaaS demo with a responsive web frontend, FastAPI REST API, SQLAlchemy persistence, PostgreSQL database, organization-scoped records, and authenticated operational ML endpoints. Every public sample is synthetic; it is not a clinical record system.
+AVERIS is a multi-tenant **healthcare operations coordination demo** with a responsive web frontend, server-side authentication, organization-scoped ERP records, PostgreSQL persistence, and a separate Python ML service for synthetic operational workflows. It is not a patient-record, diagnosis, treatment, or clinical decision-support system.
 
-**Main frontend:** https://averis-saas.netlify.app/  
-**Static showcase:** https://mahitech580.github.io/averis/  
-**Repository:** https://github.com/mahitech580/averis
+## Live deployments
 
-> **Data boundary:** never enter real patient information, diagnoses, treatment plans, production customer records, or other sensitive data into the public preview.
-## What is included
+- **Primary frontend:** https://averis-tau.vercel.app/
+- **GitHub Pages showcase:** https://mahitech580.github.io/averis/
+- **Repository:** https://github.com/mahitech580/averis
+- **Supabase project:** https://supabase.com/dashboard/project/zspustvmjtdsnfkprbvv
+- **Render Python ML service:** https://averis-platform-api-mahi.onrender.com
 
-- Responsive application shell with viewport-fixed navigation, a five-link primary bar with a More submenu, mobile layout, focus states, smooth transitions, reduced-motion support, and a dark-only appearance.
-- Photo-led healthcare imagery across hero sections, feature cards, operational layers, login, and signup, with bundled SVG fallbacks when an image host is unavailable.
-- Local/browser demo and an isolated cloud-demo route; the cloud demo provisions a dedicated organization per visitor and seeds **313 synthetic records across 15 ERP modules**.
-- Server-side registration/sign-in, password hashing, HttpOnly session cookies, logout/revocation, organization-scoped records, shared workspace snapshots, revision checks, and server audit events.
-- ERP search, summary counts, low-stock signals, CRUD operations, field validation, duplicate SKU checks, and organization-level isolation.
-- Postman collection with Newman CI execution, pytest API coverage, Chromium UI smoke tests, and a static-only publishing build that excludes backend and test source from the website artifact.
+The existing Netlify site is optional and may be behind the current main commit while the GitHub secret NETLIFY_AUTH_TOKEN is not configured. Do not assume that the Netlify URL serves the newest build until its deployment commit is checked.
+
+> **Data boundary:** use synthetic/demo data only. Never enter real patient information, diagnoses, treatment plans, production customer records, or other sensitive information into a public preview.
+
+## Product capabilities
+
+- Responsive operations workspace with keyboard-accessible navigation, mobile layout, focus states, reduced-motion support, and dark/light UI treatments.
+- Browser-local demo mode and a cloud demo mode that creates an isolated organization and seeds **313 synthetic ERP records across 15 modules**.
+- Server-side registration/sign-in, password hashing, expiring/revocable sessions, organization membership checks, and server audit events.
+- ERP search, summary counts, low-stock signals, CRUD operations, input validation, duplicate SKU checks, and organization-level data isolation.
+- Shared workspace snapshots with optimistic revision checks, so stale writes do not silently overwrite newer state.
+- A Python ML service that classifies short synthetic operational notes and screens inventory for reorder risks/anomalies. Its public service mode does not expose account or ERP routes and has no database credentials.
+- Postman/Newman integration tests, pytest coverage, Chromium UI smoke tests, production service checks, and static-only publishing.
 
 ## ERP modules
 
 | Area | Modules |
 | --- | --- |
-| Inventory & supply | Products, suppliers, purchase orders, stock movements |
+| Inventory and supply | Products, suppliers, purchase orders, stock movements |
 | Commercial | Customers, sales orders, invoices, leads |
 | Finance | Journal entries |
-| People & delivery | Employees, projects, assets |
+| People and delivery | Employees, projects, assets |
 | Operations | Support tickets, production orders, quality checks |
 
-That catalog has 15 ERP modules; the broader operations workspace additionally has navigation for people, journeys, workflow, schedule, capacity, workforce, diagnostics, pharmacy, finance, messages, incidents, quality, insights, assistant, reports, workspace, audit, and settings.
+The broader workspace also includes navigation for people, journeys, workflow, schedule, capacity, workforce, diagnostics, pharmacy, finance, messages, incidents, quality, insights, assistant, reports, workspace, audit, and settings. These workspace screens include simulated/local interactions; they should not be mistaken for live integrations with external clinical or business systems.
 
-## Architecture
+## Production architecture
 
-- Frontend: vanilla JavaScript, responsive CSS design system, semantic HTML, photo-led imagery with local SVG fallbacks, service worker, and static-only output.
-- API: FastAPI routes under /api, SQLAlchemy ORM, Pydantic input validation, HttpOnly cookie sessions, tenant-scoped authorization, and server-side commits.
-- Data: SQLite for local/test runs; PostgreSQL for hosted deployment; MySQL URL parsing is supported by the backend.
-- Persistence: each ERP mutation is committed server-side. Shared workspace snapshots are versioned, and the browser polls for cloud state when connected.
-- Multi-tenancy: every ERP query and mutation is scoped to the authenticated user's organization. The demo endpoint creates isolated tenants rather than a shared account.
-- Database security: the dedicated Supabase project has the core schema, foreign-key indexes, row-level security enabled on all six tables, and no direct table grants to the public API roles. FastAPI is intended to access the database as the trusted server.
+- **Frontend:** vanilla JavaScript, responsive CSS, semantic HTML, photo-led imagery with bundled SVG fallbacks, a service worker, and a static-only build output.
+- **Production app API and data:** the averis-api Supabase Edge Function at https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api talks to the Supabase PostgreSQL database. The function uses the managed server-side SUPABASE_SERVICE_ROLE_KEY; the service-role key is not included in frontend code or this repository.
+- **Authentication:** the server hashes passwords and stores only a hash of each random session token in auth_sessions. The API issues an HttpOnly cookie and also returns an opaque access token for static-hosting clients; the frontend keeps that token in sessionStorage and sends it as a Bearer token. Browser storage is JavaScript-accessible, so standard XSS precautions still matter.
+- **Tenant isolation:** authenticated API handlers derive the organization from the verified server-side session. ERP reads and mutations are scoped to that organization. Public database roles are not intended to read application tables directly.
+- **Python ML service:** Render runs FastAPI with AI_ONLY=true. It provides health and bounded non-clinical inference routes only. It has no database connection and cannot handle account, workspace, or ERP endpoints.
+- **AI data boundary:** the Edge API forwards only the required operational text or synthetic product values for inference. Triage text is processed in memory and is not persisted; audit entries record model/classification metadata rather than the raw note.
+- **Local/test backend:** the full FastAPI application can run locally with SQLite or a PostgreSQL DATABASE_URL. This local backend is also exercised by the Python and Postman tests; it is not the production data plane for the hosted static frontends.
 
-## API route groups
+### Production API routes
 
-| Method | Route | Purpose |
-| --- | --- | --- |
-| GET | /api/health | Health check, database driver, persistence mode |
-| POST | /api/auth/register | Create account and organization |
-| POST | /api/auth/login | Start a session |
-| GET | /api/auth/me | Read current identity |
-| PUT | /api/auth/profile | Update profile |
-| POST | /api/auth/logout | Revoke session |
-| POST | /api/auth/demo | Create isolated demo and seed the ERP catalog |
-| GET | /api/organization | Organization/member summary |
-| POST | /api/organization/join | Join by invite code |
-| POST | /api/organization/rotate-invite | Rotate owner invite |
-| GET / PUT | /api/workspace | Read or persist versioned workspace snapshot |
-| GET | /api/activity | Audit feed |
-| GET | /api/erp/modules | Module catalogue |
-| GET | /api/erp/summary | Per-module counts and operational summary |
-| GET | /api/erp/search | Search across ERP collections |
-| GET | /api/erp/{collection} | List/filter records |
-| POST | /api/erp/{collection} | Create a record |
-| PUT | /api/erp/{collection}/{record_key} | Update a record |
-| DELETE | /api/erp/{collection}/{record_key} | Delete a record |
+The Supabase Edge Function exposes the application API through the /api prefix:
 
-The OpenAPI/Swagger UI is served by FastAPI at /docs when the API is running.
+| Route | Purpose |
+| --- | --- |
+| GET /api/health | Health check and PostgreSQL persistence status |
+| POST /api/auth/register | Create an account and organization |
+| POST /api/auth/login | Start a session |
+| GET /api/auth/me | Read the current identity |
+| PUT /api/auth/profile | Update the profile |
+| POST /api/auth/logout | Revoke the session |
+| POST /api/auth/demo | Create an isolated synthetic demo workspace |
+| GET /api/organization | Read organization/member summary |
+| POST /api/organization/join | Join with an invitation code |
+| POST /api/organization/rotate-invite | Rotate the owner invitation code |
+| GET / PUT /api/workspace | Read or save a versioned workspace snapshot |
+| GET /api/activity | Read the organization-scoped audit feed |
+| GET /api/erp/modules | List supported ERP modules and fields |
+| GET /api/erp/summary | Read module counts and operational summaries |
+| GET /api/erp/search | Search organization-scoped ERP records |
+| GET /api/erp/{collection} | List/filter records |
+| POST /api/erp/{collection} | Create a record |
+| PUT /api/erp/{collection}/{record_key} | Update a record |
+| DELETE /api/erp/{collection}/{record_key} | Delete a record |
+| POST /api/ai/triage | Classify a short synthetic operations note |
+| GET /api/ai/inventory/anomalies | Screen the current organization's inventory |
+| GET /api/ai/capabilities | List enabled models and data-retention boundaries |
+
+The Render service's separate public inference routes are limited to POST /api/ai/triage-public and POST /api/ai/inventory/anomalies-public, plus GET /api/health.
 
 ## Run locally on Windows
 
@@ -82,7 +96,7 @@ In a second terminal, serve the static frontend:
 python -m http.server 4173 --bind 127.0.0.1
 ~~~
 
-Open http://127.0.0.1:4173/. On localhost and 127.0.0.1, the frontend automatically targets http://127.0.0.1:8000/api, so a running local FastAPI process enables server-backed login and data saving. Without the API, the browser-only demo remains available.
+Open http://127.0.0.1:4173/. On localhost and 127.0.0.1, the frontend targets the local FastAPI backend at http://127.0.0.1:8000/api. With no local API running, the browser-only demo remains available. The hosted frontend instead targets the production Supabase Edge API.
 
 ## Test and build
 
@@ -94,62 +108,31 @@ python scripts/validate_site.py
 python scripts/build_pages.py --output dist
 ~~~
 
-CI also runs the Postman collection via Newman against a temporary SQLite database, starts a static preview, checks browser behavior with Chromium, and deploys only the generated dist/ site artifact.
+The GitHub Actions workflow runs JavaScript/Python validation, pytest, the Postman collection through Newman against a temporary SQLite database, Chromium UI smoke tests, production Supabase API health checks, live Python ML endpoint checks, a static-only build, and a post-publish check of the actual GitHub Pages assets. It deploys only the generated dist/ website artifact, not backend or test source.
 
 Postman collection: postman/AVERIS-ERP.postman_collection.json
 
-## Hosted PostgreSQL connection
+## Deployment and operations
 
-The dedicated Supabase project is named **averis-erp-prod** in the Mumbai region. Its database is active and the schema is applied, but production records remain empty until the FastAPI service is connected.
-
-1. In Supabase, open the project and choose **Connect → Session pooler**. Copy the full connection URI and replace the password placeholder in the secure dashboard context only. The pooler is suitable for IPv4-hosted app services; do not build the pooler hostname by hand.
-2. Open the Render Blueprint for this repository: https://dashboard.render.com/blueprint/new?repo=https://github.com/mahitech580/averis
-3. Set the secret environment variable DATABASE_URL to the copied URI. Keep APP_ENV=production. The backend intentionally rejects SQLite in production because an ephemeral service filesystem is not durable.
-4. Wait for /api/health to return status=ok and verify database_driver=postgresql. Then server-backed demo, CRUD, and automatic cloud saves will use that PostgreSQL database.
-5. To publish Netlify updates through GitHub Actions, configure the repository secret NETLIFY_AUTH_TOKEN at https://github.com/mahitech580/averis/settings/secrets/actions.
-
-The Netlify production deploy is currently skipped when that secret is missing. GitHub Pages publishes the static preview; a Render service/database connection is separate and is not claimed as live until its health route is verified.
-
-
-
-## Production SaaS architecture
-
-- **Netlify and Vercel frontends:** `/api/*` rewrites target the Supabase Edge Function, preserving a same-origin API path. GitHub Pages calls the same function directly with a bearer session token held in sessionStorage.
-- **Database API and authentication:** the `averis-api` Supabase Edge Function validates hashed session tokens and organization membership, then performs tenant-scoped queries through the server-side Supabase service-role client. The service-role key is never shipped to the browser or committed to the repository. Public Data API roles remain denied direct access to application tables.
-- **Python ML service:** Render hosts FastAPI in `AI_ONLY=true` mode and exposes only bounded, non-clinical inference routes. It uses scikit-learn TF-IDF/logistic regression for synthetic operations-note routing, plus NumPy/Pandas and IsolationForest for inventory outlier screening. It has no database credentials and cannot serve account or ERP routes.
-- **AI data boundary:** submitted note text is processed in memory and is not saved to audit logs. The Edge API records only the model name, predicted category and priority. All application data must remain synthetic.
-- **Optional study stack:** `requirements-ai.txt` documents TensorFlow, PyTorch, LangChain, CrewAI, Sentence Transformers and Jupyter for isolated experimentation. Those libraries are not silently installed into the production inference image.
-
-## ML endpoints
-
-| Method | Route | Purpose |
-| --- | --- | --- |
-| POST | `/api/ai/triage` | Classify a short synthetic operations note; raw text is not retained |
-| GET | `/api/ai/inventory/anomalies` | Tenant-scoped inventory anomaly and reorder-risk screen |
-| GET | `/api/ai/capabilities` | Enabled models and retention boundaries |
+- Pushes to **main** run the verification-and-deployment workflow for GitHub Pages. Vercel is connected to the repository's main branch and has a production deployment alias at https://averis-tau.vercel.app/.
+- The Edge Function uses its managed Supabase environment for server credentials. No database password or service-role key should be committed to source control or placed in browser code.
+- Render is set to AI_ONLY=true, APP_ENV=production, with auto-deploy from main. Do not add a database secret to this service; it is meant to run only the Python inference layer.
+- Netlify production publishing from GitHub Actions requires the repository secret NETLIFY_AUTH_TOKEN. To enable it, add that secret in https://github.com/mahitech580/averis/settings/secrets/actions. The workflow deliberately skips Netlify publishing when the token is absent.
+- The GitHub Pages workflow checks the real production Edge API and the Render inference routes before publishing. After deployment it also fetches the published HTML, JavaScript, CSS, and service-worker files and checks the asset-version contract.
+- Never claim a host is current solely because its URL responds. Check the published deployment's source commit before relying on it.
 
 ## Visual design system
 
-Space Grotesk headlines, Manrope body copy and DM Mono metadata; light lavender/purple and dark midnight-violet themes; restrained medical blue/green/red accents; 8px-based spacing; 48px minimum buttons; passive scroll-progress tracking, IntersectionObserver reveals, subtle hero motion and a back-to-top button. Reduced-motion preferences are respected.
+Space Grotesk headlines, Manrope body text, and DM Mono metadata; midnight-violet and lavender surfaces with restrained operational blue/green/red accents; 8px-based spacing; responsive controls; subtle transitions and scroll reveals; reduced-motion preferences respected.
 
-## Deployment topology and verification
+## Official references
 
-- **GitHub Pages** publishes the static showcase from `main`. It uses the Supabase Edge API directly for cloud accounts and data.
-- **Supabase** hosts the production Postgres database and the `averis-api` Edge Function. The function reads `SUPABASE_SERVICE_ROLE_KEY` from its managed server environment; no database password or service-role key is required in the repo or on Render.
-- **Render** hosts the separate Python ML service. Its `AI_ONLY=true` middleware blocks account, workspace and ERP routes, so it uses no database and cannot operate on tenant records directly. The Edge API sends only ephemeral note text or authenticated-tenant synthetic product data to this service.
-- **Netlify production publish** requires `NETLIFY_AUTH_TOKEN` in the GitHub repository's Actions secrets. Without it, the workflow deliberately skips the Netlify publish step. Check the deployment commit before assuming the existing Netlify URL includes the latest frontend.
-- **Verification gates:** API health returns `status=ok` from Supabase, signup/login issue revocable session tokens, workspace snapshots persist across reloads, ERP CRUD remains organization-scoped, ML endpoints return bounded results, and the GitHub Actions Python/Postman/Chromium checks pass.
+- [FastAPI testing](https://fastapi.tiangolo.com/tutorial/testing/)
+- [SQLAlchemy ORM](https://docs.sqlalchemy.org/en/20/orm/)
+- [Supabase PostgreSQL connections](https://supabase.com/docs/guides/database/connecting-to-postgres)
+- [Supabase Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security)
+- [Postman/Newman](https://learning.postman.com/docs/collections/using-newman-cli/installing-running-newman)
+- [Playwright browser testing](https://playwright.dev/docs/intro)
+- [Netlify redirects and rewrites](https://docs.netlify.com/routing/redirects/)
 
-Use synthetic data only. Averis is not a diagnosis, treatment, patient-record, or clinical decision-support system.
-
-## Official implementation references
-
-- [MDN: position and sticky/fixed containing blocks](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/position)
-- [MDN: overflow and clipping behavior](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/overflow)
-- [FastAPI: testing with pytest and TestClient](https://fastapi.tiangolo.com/tutorial/testing/)
-- [SQLAlchemy 2.0 ORM documentation](https://docs.sqlalchemy.org/en/20/orm/)
-- [Supabase: connect to PostgreSQL](https://supabase.com/docs/guides/database/connecting-to-postgres)
-- [Supabase: Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security)
-- [Postman: run collections with Newman](https://learning.postman.com/docs/collections/using-newman-cli/installing-running-newman)
-- [Playwright: browser testing](https://playwright.dev/docs/intro)
-- [Netlify: redirects and rewrites](https://docs.netlify.com/routing/redirects/)
+AVERIS is a demonstration of synthetic operational workflows, not a clinical system. Do not use it for diagnoses, treatment decisions, real patient data, or other high-stakes clinical work.
