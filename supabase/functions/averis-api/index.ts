@@ -83,7 +83,7 @@ function corsHeaders(origin: string | null) {
     h.set("vary", "Origin");
   }
   h.set("access-control-allow-methods", "GET,POST,PUT,DELETE,OPTIONS");
-  h.set("access-control-allow-headers", "Authorization,Content-Type,X-Averis-Request");
+  h.set("access-control-allow-headers", "Authorization,Content-Type,X-Averis-Request,apikey");
   h.set("access-control-max-age", "600");
   return h;
 }
