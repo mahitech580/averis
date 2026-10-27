@@ -83,6 +83,48 @@ jobs:
                       raise SystemExit("Production API health verification failed: " + repr(error))
                   time.sleep(3)
           PY
+      - name: Verify live Python ML endpoints
+        run: |
+          python - <<'PY'
+          import json
+          import time
+          from urllib.request import Request, urlopen
+
+          base = "https://averis-platform-api-mahi.onrender.com"
+          headers = {"content-type": "application/json", "X-Averis-Request": "1"}
+          payloads = [
+              ("/api/ai/triage-public", {"text": "Critical inventory shortage is blocking tomorrow's operations workflow."}),
+              ("/api/ai/inventory/anomalies-public", {"items": [
+                  {"id": f"CI-{i}", "name": f"Synthetic item {i}", "sku": f"CI-{i}",
+                   "quantity": 1 if i == 9 else 20 + i, "reorder_level": 5,
+                   "unit_cost": 10 + i, "selling_price": 20 + i}
+                  for i in range(10)
+              ]}),
+          ]
+          last_error = None
+          for attempt in range(10):
+              try:
+                  results = []
+                  for path, body in payloads:
+                      req = Request(base + path, data=json.dumps(body).encode(), headers=headers, method="POST")
+                      with urlopen(req, timeout=20) as response:
+                          results.append(json.loads(response.read().decode("utf-8")))
+                  triage, inventory = results
+                  assert triage.get("category") in {"inventory", "scheduling", "capacity", "workflow", "communications", "quality"}
+                  assert triage.get("priority") in {"CRITICAL", "HIGH", "NORMAL"}
+                  assert triage.get("clinical_decisioning") is False
+                  assert inventory.get("scanned") == 10
+                  assert inventory.get("reorder_risk_count", 0) >= 1
+                  assert inventory.get("clinical_decisioning") is False
+                  print("Python ML service verified: triage and inventory anomaly endpoints returned valid non-clinical results.")
+                  break
+              except Exception as exc:
+                  last_error = exc
+                  if attempt == 9:
+                      raise SystemExit("Python ML verification failed: " + repr(last_error))
+                  print("Python ML service not ready yet; retry", attempt + 1)
+                  time.sleep(5)
+          PY
       - name: Build clean static-only publish artifact
         run: python scripts/build_pages.py --output dist
       - name: Configure Pages
