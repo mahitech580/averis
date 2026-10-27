@@ -341,7 +341,7 @@ def test_service_worker_never_persists_same_origin_api_responses():
 def test_public_overview_layout_prevents_narrow_hero_columns():
     css = read("styles.css")
     assert "grid-template-columns:minmax(280px,.95fr) minmax(340px,1.12fr) minmax(280px,.93fr)!important" in css
-    assert ".website-shell .landing-hero{display:block!important;" in css
+    assert re.search(r"\.website-shell \.landing-hero\s*\{[^}]*display:block!important;", css, re.S)
     assert "@media(max-width:1300px) and (min-width:901px)" in css
     assert "@media(max-width:900px)" in css
     assert "word-break:normal!important" in css
