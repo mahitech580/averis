@@ -268,6 +268,10 @@ def test_netlify_cache_api_and_build_revision_contract():
     assert 'os.environ.get("GITHUB_SHA")' in build
     assert "build-revision.txt" in workflow
     assert "NETLIFY_AUTH_TOKEN is absent; no CLI deployment was performed" in workflow
+    assert "Observed live assets:" in workflow
+    assert "app_has_workspace_html_sanitizer" in workflow
+    assert "css_has_drawer_layer_fix" in workflow
+    assert workflow.index("app_js = fetch(urljoin(base, app_ref))") < workflow.index("if app_version != expected_version")
 
 
 

@@ -178,17 +178,41 @@ jobs:
 
                   app_ref, app_version = app_match.group(1), app_match.group(2)
                   css_ref, css_version = css_match.group(1), css_match.group(2)
-                  if app_version != expected_version or css_version != expected_version:
-                      raise RuntimeError(f"Netlify asset version mismatch: expected v{expected_version}, live app={app_version}, css={css_version}.")
+
+                  # Fetch actual response bodies before reporting version mismatch.
+                  # This distinguishes complete asset files from 404s or HTML fallback bodies.
                   app_js = fetch(urljoin(base, app_ref))
                   css = fetch(urljoin(base, css_ref))
                   sw = fetch(urljoin(base, "sw.js"))
+                  import hashlib
+                  app_sha256 = hashlib.sha256(app_js.encode("utf-8")).hexdigest()
+                  css_sha256 = hashlib.sha256(css.encode("utf-8")).hexdigest()
+                  app_security_fix = "function sanitizeMarkup(markup)" in app_js
+                  css_drawer_fix = ".drawer{z-index:110}" in css
+                  print("Observed live assets: " + json.dumps({
+                      "app_url": urljoin(base, app_ref),
+                      "app_bytes": len(app_js),
+                      "app_sha256": app_sha256,
+                      "app_has_workspace_html_sanitizer": app_security_fix,
+                      "css_url": urljoin(base, css_ref),
+                      "css_bytes": len(css),
+                      "css_sha256": css_sha256,
+                      "css_has_drawer_layer_fix": css_drawer_fix,
+                      "html_app_version": app_version,
+                      "html_css_version": css_version,
+                      "expected_version": expected_version,
+                  }, sort_keys=True))
+                  if len(app_js) < 10000 or len(css) < 10000 or "AVERIS" not in app_js:
+                      raise RuntimeError("Published JS/CSS responses are incomplete or are not the expected asset types.")
+                  if app_version != expected_version or css_version != expected_version or not app_security_fix or not css_drawer_fix:
+                      raise RuntimeError(
+                          f"Netlify is serving stale or mismatched frontend assets: expected v{expected_version}, "
+                          f"live app={app_version} (HTML sanitizer present={app_security_fix}, sha256={app_sha256}), "
+                          f"css={css_version} (drawer z-index fix present={css_drawer_fix}, sha256={css_sha256})."
+                      )
                   cache_match = re.search(r"""const CACHE=['"]averis-by-mahi-v(\d+)['"]""", sw)
                   if not cache_match or cache_match.group(1) != expected_version:
                       raise RuntimeError(f"Netlify service-worker cache does not match v{expected_version}.")
-                  if len(app_js) < 10000 or len(css) < 10000 or "AVERIS" not in app_js:
-                      raise RuntimeError("Published Netlify assets are incomplete.")
-
                   try:
                       published_revision = fetch(urljoin(base, "build-revision.txt")).strip()
                   except Exception as exc:
