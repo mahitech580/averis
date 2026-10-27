@@ -2660,3 +2660,15 @@ body.public-mode .site-header .connection-chip{font-size:.62rem}
 @media(max-width:1100px){.ops-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.ops-dashboard-grid,.ops-dashboard-grid-lower{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:760px){.ops-home{gap:14px}.ops-home-header{align-items:flex-start;flex-direction:column;gap:16px}.ops-main-actions{width:100%;justify-content:flex-start}.ops-livebar{align-items:flex-start;gap:9px}.ops-livebar-right{width:100%;margin-left:0;justify-content:space-between}.ops-kpis{gap:9px}.ops-kpi{padding:14px 12px 12px;gap:10px}.ops-kpi-top{font-size:.72rem}.ops-kpi-foot{align-items:flex-start;flex-direction:column;gap:7px}.ops-panel{padding:15px 12px 12px}.ops-panel-head{gap:8px}.ops-panel-head>.button{padding-inline:9px!important;min-height:34px!important}.ops-table-wrap{margin-inline:-5px;width:calc(100% + 10px)}.ops-panel-foot{align-items:flex-start;flex-direction:column}.ops-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ops-quick-card{grid-template-columns:30px minmax(0,1fr) 12px;gap:8px;padding:12px 9px}.ops-quick-icon{width:30px;height:30px}.ops-quick-card>strong{display:none}.ops-quick-copy b{font-size:.73rem}.ops-quick-copy small{font-size:.62rem}}
 @media(max-width:420px){.ops-kpis{grid-template-columns:minmax(0,1fr)}.ops-kpi{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}.ops-kpi-top{grid-column:1/-1}.ops-kpi>strong{font-size:2.1rem}.ops-kpi-foot{align-items:flex-start}.ops-quick-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Keep the operational dashboard visually distinct from the photo-led legacy cards. */
+#workspace-root .ops-panel:before{
+  background:none!important;
+  background-image:none!important;
+  opacity:0!important;
+}
+/* The footer shares the page surface rather than introducing a second background treatment. */
+.site-footer,
+html[data-theme="light"] .site-footer{
+  background:var(--bg)!important;
+}
