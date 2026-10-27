@@ -111,6 +111,22 @@ try {
   const heroHeading = page.locator("#workspace-root .overview-heading h1");
   assert.ok((await heroHeading.innerText()).includes("CARE."), "public hero should show the new editorial headline");
   assert.ok((await heroHeading.innerText()).includes("Operations,"), "hero should include the muted italic secondary line");
+  const heroGeometry = await page.locator("#workspace-root .overview-layout").evaluate((node) => {
+    const rect = (selector) => {
+      const box = node.querySelector(selector).getBoundingClientRect();
+      return { width: Math.round(box.width), left: Math.round(box.left), right: Math.round(box.right) };
+    };
+    return {
+      layout: Math.round(node.getBoundingClientRect().width),
+      heading: rect(".overview-heading"),
+      matter: rect(".overview-matter"),
+      visual: rect(".overview-visual"),
+    };
+  });
+  assert.ok(heroGeometry.layout > 900, "public hero grid must occupy the available desktop width: " + JSON.stringify(heroGeometry));
+  assert.ok(heroGeometry.heading.width >= 260, "hero heading must not collapse into a narrow vertical strip: " + JSON.stringify(heroGeometry));
+  assert.ok(heroGeometry.matter.width >= 300, "hero description must retain a readable desktop column: " + JSON.stringify(heroGeometry));
+  assert.ok(heroGeometry.visual.width >= 260, "hero visual must retain its own usable column: " + JSON.stringify(heroGeometry));
   const headingStyle = await heroHeading.evaluate((node) => ({
     fontFamily: getComputedStyle(node).fontFamily,
     fontSize: getComputedStyle(node).fontSize,

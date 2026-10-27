@@ -224,9 +224,9 @@ def test_requested_editorial_healthcare_design_system_is_used_by_live_overview()
     assert 'topButton?.addEventListener("click"' in app
     assert ".reveal-on-scroll.is-revealed" in css
     assert "prefers-reduced-motion:reduce" in css
-    assert "styles.css?v=54" in html
-    assert "app.js?v=54" in html
-    assert "averis-by-mahi-v54" in read("sw.js")
+    assert "styles.css?v=55" in html
+    assert "app.js?v=55" in html
+    assert "averis-by-mahi-v55" in read("sw.js")
 
 
 def test_home_page_copy_distinguishes_cloud_persistence_from_local_preview():
@@ -333,6 +333,14 @@ def test_service_worker_never_persists_same_origin_api_responses():
     assert api_guard in sw
     assert "fetch(e.request,{cache:'no-store'})" in sw
     assert sw.index(api_guard) < sw.index("const dynamic=")
-    assert "averis-by-mahi-v54" in sw
+    assert "averis-by-mahi-v55" in sw
     html = read("index.html")
-    assert "app.js?v=54" in html and "styles.css?v=54" in html
+    assert "app.js?v=55" in html and "styles.css?v=55" in html
+
+
+def test_public_overview_layout_prevents_narrow_hero_columns():
+    css = read("styles.css")
+    assert "grid-template-columns:minmax(280px,.95fr) minmax(340px,1.12fr) minmax(280px,.93fr)!important" in css
+    assert "@media(max-width:1300px) and (min-width:901px)" in css
+    assert "@media(max-width:900px)" in css
+    assert "word-break:normal!important" in css
