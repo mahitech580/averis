@@ -88,6 +88,27 @@ def main() -> int:
         if html_versions[0] != cache_version:
             fail(f"{filename} version v{html_versions[0]} does not match service-worker cache v{cache_version}")
 
+    header_rules = (ROOT / "_headers").read_text(encoding="utf-8")
+    redirects = (ROOT / "_redirects").read_text(encoding="utf-8")
+    netlify_config = (ROOT / "netlify.toml").read_text(encoding="utf-8")
+    required_headers = (
+        ("/", "Cache-Control: no-cache, no-store, must-revalidate"),
+        ("/index.html", "Cache-Control: no-cache, no-store, must-revalidate"),
+        ("/app.js", "Cache-Control: public, max-age=31536000, immutable"),
+        ("/styles.css", "Cache-Control: public, max-age=31536000, immutable"),
+        ("/sw.js", "Cache-Control: no-cache, no-store, must-revalidate"),
+        ("/build-revision.txt", "Cache-Control: no-cache, no-store, must-revalidate"),
+        ("/api/*", "Cache-Control: no-store"),
+    )
+    for route, header in required_headers:
+        if f"{route}\\n  {header}" not in header_rules:
+            fail(f"missing cache policy for {route}: {header}")
+    expected_api_target = "https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api/api/:splat"
+    if expected_api_target not in redirects or expected_api_target not in netlify_config:
+        fail("Netlify API rewrite must consistently target the Supabase production API")
+    if "averis-platform-api-mahi.onrender.com/api/:splat" in redirects:
+        fail("stale /api rewrite still points to the inference-only Render service")
+
     image_preloads = re.findall(r"<link\b(?=[^>]*\bas=['\"]image['\"])[^>]*>", html, re.I)
     if len(image_preloads) > 1:
         fail(f"found {len(image_preloads)} image preloads; keep only the initial hero image prioritized")

@@ -129,14 +129,16 @@ jobs:
           if [ -n "$NETLIFY_AUTH_TOKEN" ]; then
             npx --yes netlify-cli@23.11.0 deploy --prod --dir dist --site b67c38c4-93c9-4f01-b175-b75e00d0675c
           else
-            echo "::notice::NETLIFY_AUTH_TOKEN is absent; relying on Netlify Git continuous deployment. The post-publish smoke test will fail if main has not reached production."
+            echo "::warning::NETLIFY_AUTH_TOKEN is absent; no CLI deployment was performed. This workflow cannot assume Netlify Git continuous deployment is connected. The production checks below must independently prove that the new revision is live."
           fi
       - name: Verify published Netlify frontend and proxied API
         run: |
           python - <<'PY'
           import json
+          import os
           import re
           import time
+          from pathlib import Path
           from urllib.parse import urljoin
           from urllib.request import Request, urlopen
 
@@ -150,6 +152,13 @@ jobs:
                       raise RuntimeError(f"{url} returned HTTP {response.status}")
                   return response.read().decode("utf-8", "replace")
 
+          def cache_control(url):
+              request = Request(url, headers={"User-Agent": "AVERIS-Netlify-smoke/1.0"})
+              with urlopen(request, timeout=20) as response:
+                  if response.status != 200:
+                      raise RuntimeError(f"{url} returned HTTP {response.status}")
+                  return response.headers.get("Cache-Control", "").lower()
+
           last_error = None
           for attempt in range(10):
               try:
@@ -158,23 +167,54 @@ jobs:
                   css_match = re.search(r"""<link[^>]+href=["']([^"']*styles\.css\?v=(\d+))["']""", html, re.I)
                   if not app_match or not css_match:
                       raise RuntimeError("Published HTML is missing versioned app.js or styles.css.")
+                  source_html = Path("index.html").read_text(encoding="utf-8")
+                  source_app_match = re.search(r"""<script[^>]+src=["']([^"']*app\.js\?v=(\d+))["']""", source_html, re.I)
+                  source_css_match = re.search(r"""<link[^>]+href=["']([^"']*styles\.css\?v=(\d+))["']""", source_html, re.I)
+                  if not source_app_match or not source_css_match:
+                      raise RuntimeError("Source HTML is missing versioned app.js or styles.css.")
+                  expected_version = source_app_match.group(2)
+                  if source_css_match.group(2) != expected_version:
+                      raise RuntimeError("Source HTML has inconsistent app.js and styles.css versions.")
+
                   app_ref, app_version = app_match.group(1), app_match.group(2)
                   css_ref, css_version = css_match.group(1), css_match.group(2)
-                  if app_version != "50" or css_version != "50" or app_version != css_version:
-                      raise RuntimeError(f"Netlify is not serving the expected v50 asset set (app={app_version}, css={css_version}).")
+                  if app_version != expected_version or css_version != expected_version:
+                      raise RuntimeError(f"Netlify asset version mismatch: expected v{expected_version}, live app={app_version}, css={css_version}.")
                   app_js = fetch(urljoin(base, app_ref))
                   css = fetch(urljoin(base, css_ref))
                   sw = fetch(urljoin(base, "sw.js"))
                   cache_match = re.search(r"""const CACHE=['"]averis-by-mahi-v(\d+)['"]""", sw)
-                  if not cache_match or cache_match.group(1) != "50":
-                      raise RuntimeError("Netlify service-worker cache is not v50.")
+                  if not cache_match or cache_match.group(1) != expected_version:
+                      raise RuntimeError(f"Netlify service-worker cache does not match v{expected_version}.")
                   if len(app_js) < 10000 or len(css) < 10000 or "AVERIS" not in app_js:
                       raise RuntimeError("Published Netlify assets are incomplete.")
+
+                  try:
+                      published_revision = fetch(urljoin(base, "build-revision.txt")).strip()
+                  except Exception as exc:
+                      raise RuntimeError("Published artifact does not expose build-revision.txt; exact source revision cannot be verified.") from exc
+                  expected_revision = os.environ.get("GITHUB_SHA", "").strip()
+                  if not expected_revision or published_revision != expected_revision:
+                      raise RuntimeError(f"Netlify source revision mismatch: expected {expected_revision or 'current GitHub SHA'}, live {published_revision}.")
+
+                  html_cache = cache_control(base)
+                  app_cache = cache_control(urljoin(base, app_ref))
+                  css_cache = cache_control(urljoin(base, css_ref))
+                  sw_cache = cache_control(urljoin(base, "sw.js"))
+                  if not ("no-cache" in html_cache or "max-age=0" in html_cache):
+                      raise RuntimeError("HTML cache policy is not revalidating on each visit.")
+                  if "immutable" not in app_cache or "max-age=31536000" not in app_cache:
+                      raise RuntimeError("app.js does not use long-lived versioned asset caching.")
+                  if "immutable" not in css_cache or "max-age=31536000" not in css_cache:
+                      raise RuntimeError("styles.css does not use long-lived versioned asset caching.")
+                  if "no-store" not in sw_cache and "no-cache" not in sw_cache:
+                      raise RuntimeError("Service worker response may remain stale in browser caches.")
+
                   health_raw = fetch(urljoin(base, "api/health"), {"apikey": public_key, "accept": "application/json"})
                   health = json.loads(health_raw)
                   if health.get("status") != "ok" or health.get("database_driver") != "postgresql":
                       raise RuntimeError("Netlify API rewrite did not return the PostgreSQL health contract.")
-                  print("Netlify production verified: app.js/css v50, service-worker v50, and same-origin API rewrite to PostgreSQL are healthy.")
+                  print(f"Netlify production verified: source {expected_revision}, app.js/css v{expected_version}, matching service-worker cache, cache-control policies, and PostgreSQL-backed same-origin API are healthy.")
                   break
               except Exception as exc:
                   last_error = exc

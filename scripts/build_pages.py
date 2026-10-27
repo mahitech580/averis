@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -39,6 +40,11 @@ def build(output: Path) -> int:
         shutil.copy2(ROOT / name, destination / name)
     for name in STATIC_DIRECTORIES:
         shutil.copytree(ROOT / name, destination / name)
+
+    # Embed the source revision in every artifact. Netlify sets COMMIT_REF;
+    # GitHub Actions sets GITHUB_SHA. Local builds remain clearly identifiable.
+    revision = os.environ.get("COMMIT_REF") or os.environ.get("GITHUB_SHA") or "local"
+    (destination / "build-revision.txt").write_text(revision.strip() + "\n", encoding="utf-8")
 
     # Disable implicit Jekyll processing on GitHub Pages.
     (destination / ".nojekyll").write_text("", encoding="utf-8")

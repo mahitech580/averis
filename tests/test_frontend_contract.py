@@ -247,3 +247,24 @@ def test_public_overview_is_visible_without_authentication_but_private_routes_st
     css = read("styles.css")
     assert 'html[data-theme="light"] .website-shell .overview-heading h1 span' in css
     assert '-webkit-text-stroke:1.35px var(--accent-purple)!important' in css
+
+
+
+def test_netlify_cache_api_and_build_revision_contract():
+    headers = read("_headers")
+    redirects = read("_redirects")
+    netlify = read("netlify.toml")
+    build = read("scripts/build_pages.py")
+    workflow = read(".github/workflows/pages.yml")
+
+    assert "/app.js\\n  Cache-Control: public, max-age=31536000, immutable" in headers
+    assert "/styles.css\\n  Cache-Control: public, max-age=31536000, immutable" in headers
+    assert "/sw.js\\n  Cache-Control: no-cache, no-store, must-revalidate" in headers
+    assert "/build-revision.txt\\n  Cache-Control: no-cache, no-store, must-revalidate" in headers
+    assert "supabase.co/functions/v1/averis-api/api/:splat" in redirects
+    assert "supabase.co/functions/v1/averis-api/api/:splat" in netlify
+    assert "averis-platform-api-mahi.onrender.com/api/:splat" not in redirects
+    assert 'os.environ.get("COMMIT_REF")' in build
+    assert 'os.environ.get("GITHUB_SHA")' in build
+    assert "build-revision.txt" in workflow
+    assert "NETLIFY_AUTH_TOKEN is absent; no CLI deployment was performed" in workflow
