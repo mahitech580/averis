@@ -9,7 +9,7 @@ AVERIS is a multi-tenant **healthcare operations coordination demo** with a resp
 - **Supabase project:** https://supabase.com/dashboard/project/zspustvmjtdsnfkprbvv
 - **Render Python ML service:** https://averis-platform-api-mahi.onrender.com
 
-Netlify is the only intended public frontend. The current site must be published from the latest `main` build to receive frontend updates. The GitHub Actions workflow's manual Netlify publish requires the repository secret `NETLIFY_AUTH_TOKEN`; without it the workflow skips the Netlify upload, so always verify the published deploy commit.
+Netlify is the only intended public frontend. The current site must be published from the latest `main` build to receive frontend updates. The GitHub Actions workflow requires the repository secret `NETLIFY_AUTH_TOKEN` for its manual production publish; without it the publish gate fails instead of claiming that deployment succeeded. Alternatively, connect this Netlify site directly to the GitHub repository's `main` branch for Git-based continuous deployment.
 
 > **Data boundary:** use synthetic/demo data only. Never enter real patient information, diagnoses, treatment plans, production customer records, or other sensitive information into a public preview.
 
