@@ -1983,10 +1983,10 @@ html[data-theme="dark"] .auth-card{background:rgba(4,12,22,.88);backdrop-filter:
 }
 
 
-/* AVERIS design system v45 — typography, accessible themes and low-cost motion. */
+/* AVERIS design system v47 — editorial healthcare operations UI. */
 :root{--font-display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;--font-body:"Manrope",ui-sans-serif,system-ui,sans-serif;--font-mono:"DM Mono",ui-monospace,SFMono-Regular,monospace;--bg:#F5F2FF;--bg2:#FEFCFF;--surface:rgba(254,252,255,.94);--solid:#FEFCFF;--surface2:rgba(255,255,255,.78);--line:rgba(69,49,134,.17);--line2:rgba(69,49,134,.29);--text:#19132F;--muted:#625A7C;--dim:#51476F;--teal:#5F3EE8;--blue:#087EAE;--amber:#A96806;--red:#CF3E5D;--violet:#BE397C;--shadow:0 24px 70px rgba(31,18,71,.13);--soft:0 10px 30px rgba(31,18,71,.08);--radius:16px;--ease:cubic-bezier(.2,.75,.25,1);color-scheme:light}
 :root[data-theme="dark"]{--bg:#0E0B20;--bg2:#18132F;--surface:rgba(24,19,47,.92);--solid:#18132F;--surface2:rgba(33,26,62,.80);--line:rgba(195,177,255,.19);--line2:rgba(195,177,255,.32);--text:#FBF8FF;--muted:#BEB4DC;--dim:#D0C5EB;--teal:#BFAEFF;--blue:#45C8F5;--amber:#FFD27A;--red:#FF7189;--violet:#F085BE;--shadow:0 28px 90px rgba(0,0,0,.34);--soft:0 12px 35px rgba(0,0,0,.22);color-scheme:dark}
-html{min-width:320px;background:var(--bg);scroll-behavior:smooth;scroll-padding-top:90px}body{font-family:var(--font-body);font-size:14px;line-height:1.65;background:var(--bg);color:var(--text);overflow-x:clip}button,input,select,textarea{font-family:var(--font-body)}button{font-weight:700}::selection{background:rgba(95,62,232,.22)}
+html{min-width:320px;background:var(--bg);scroll-behavior:smooth;scroll-padding-top:90px}body{font-family:var(--font-body);font-size:14px;line-height:1.6;background:var(--bg);color:var(--text);overflow-x:clip}button,input,select,textarea{font-family:var(--font-body)}button{font-weight:700}::selection{background:rgba(95,62,232,.22)}
 h1,h2,h3,h4,.brand b,.page-head h1,.page-head h2,.report h3,.section-inner h2{font-family:var(--font-display);letter-spacing:-.045em}h1,.page-head h1{font-size:clamp(2.25rem,4.2vw,4.4rem);line-height:.98;font-weight:500;letter-spacing:-.065em}.eyebrow,.section-kicker,.micro,.mono,.nav-label,.nav-item,.clock,.breadcrumbs,.local-chip,.connection-chip,.status,.tag,.field-hint,kbd{font-family:var(--font-mono)}.eyebrow,.section-kicker{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase}.page-copy,.page-description,.page-head p{max-width:68ch;line-height:1.82;color:var(--muted);font-size:.86rem}.page-head{gap:24px;margin-bottom:24px}.page-head h1,.page-head h2{line-height:.96;letter-spacing:-.07em}
 .backdrop-scene{background:radial-gradient(circle at 12% 4%,rgba(95,62,232,.11),transparent 34%),radial-gradient(circle at 87% 12%,rgba(8,126,174,.08),transparent 28%),linear-gradient(180deg,var(--bg2),var(--bg))}:root[data-theme="dark"] .backdrop-scene{background:radial-gradient(circle at 12% 4%,rgba(191,174,255,.11),transparent 34%),radial-gradient(circle at 87% 12%,rgba(8,126,174,.12),transparent 28%),linear-gradient(180deg,#18132F,#0E0B20)}
 .scene-grid{background-image:linear-gradient(rgba(89,66,156,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(89,66,156,.055) 1px,transparent 1px)}:root[data-theme="dark"] .scene-grid{background-image:linear-gradient(rgba(195,177,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(195,177,255,.045) 1px,transparent 1px)}
@@ -2004,3 +2004,44 @@ h1,h2,h3,h4,.brand b,.page-head h1,.page-head h2,.report h3,.section-inner h2{fo
 
 
 .overview-heading h1{font-size:clamp(3rem,6.8vw,7.4rem);line-height:.94;letter-spacing:-.078em;font-weight:500}.overview-heading h1 span{-webkit-text-stroke:1px var(--teal);color:transparent;text-shadow:0 0 28px color-mix(in srgb,var(--teal) 15%,transparent)}.overview-matter .landing-lead{font-size:.88rem;line-height:1.85;color:var(--muted);max-width:62ch}.overview-heading{padding-top:6px}
+
+
+/* v47: clinical signals, editorial scale, and consistent navigation rhythm */
+:root{
+  --health:#16834A;
+  --clinical-red:#CF3E5D;
+  --clinical-blue:#087EAE;
+  --accent-pink:#BE397C;
+}
+:root[data-theme="dark"]{
+  --health:#55E69A;
+  --clinical-red:#FF7189;
+  --clinical-blue:#45C8F5;
+  --accent-pink:#F085BE;
+}
+html{scroll-padding-top:90px}
+body{line-height:1.6}
+p,.page-copy,.page-description,.landing-lead,.section-description{line-height:1.82}
+.site-header .site-nav-link{font-family:var(--font-mono);font-size:.72rem;letter-spacing:-.015em}
+.eyebrow,.section-kicker,.field label,.form-label{font-size:clamp(.55rem,.62rem,.72rem)}
+.status.good,.status.success,.health-positive,.clinical-positive{color:var(--health)!important}
+.status.bad,.status.critical,.clinical-negative{color:var(--clinical-red)!important}
+.status.info,.clinical-info,.accent-sky{color:var(--clinical-blue)!important}
+.accent-pink{color:var(--accent-pink)!important}
+.button.ghost:hover,.icon-button:hover{
+  border-color:var(--clinical-blue);
+  color:var(--clinical-blue);
+  background:color-mix(in srgb,var(--clinical-blue) 8%,transparent);
+}
+.signal,.card,.platform-metric,.showcase-card,.layer-card{
+  transition:border-color .22s var(--ease),box-shadow .22s var(--ease),transform .22s var(--ease);
+}
+.signal:hover,.showcase-card:hover,.layer-card:hover{
+  border-color:color-mix(in srgb,var(--teal) 38%,var(--line));
+}
+@media(max-width:820px){
+  .site-header .site-nav-link{font-size:.66rem}
+}
+@media(prefers-reduced-motion:reduce){
+  .signal,.card,.platform-metric,.showcase-card,.layer-card{transition:none}
+}
