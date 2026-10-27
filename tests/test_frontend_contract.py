@@ -224,9 +224,9 @@ def test_requested_editorial_healthcare_design_system_is_used_by_live_overview()
     assert 'topButton?.addEventListener("click"' in app
     assert ".reveal-on-scroll.is-revealed" in css
     assert "prefers-reduced-motion:reduce" in css
-    assert "styles.css?v=48" in html
-    assert "app.js?v=48" in html
-    assert "averis-by-mahi-v48" in read("sw.js")
+    assert "styles.css?v=49" in html
+    assert "app.js?v=49" in html
+    assert "averis-by-mahi-v49" in read("sw.js")
 
 
 def test_home_page_copy_distinguishes_cloud_persistence_from_local_preview():
@@ -240,6 +240,7 @@ def test_home_page_copy_distinguishes_cloud_persistence_from_local_preview():
 def test_public_overview_is_visible_without_authentication_but_private_routes_stay_gated():
     app = read("app.js")
     assert 'if(!state.session.authenticated&&!authPage&&route!=="today")route="login";' in app
+    assert 'document.body.classList.toggle("public-mode",!state.session.authenticated&&route==="today")' in app
     assert 'const publicRoute' not in app  # keep a single, explicit public-route gate
     assert 'data-action="open-register"' in app
     assert 'data-action="open-login"' in app
