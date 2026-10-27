@@ -257,10 +257,10 @@ def test_netlify_cache_api_and_build_revision_contract():
     build = read("scripts/build_pages.py")
     workflow = read(".github/workflows/pages.yml")
 
-    assert "/app.js\\n  Cache-Control: public, max-age=31536000, immutable" in headers
-    assert "/styles.css\\n  Cache-Control: public, max-age=31536000, immutable" in headers
-    assert "/sw.js\\n  Cache-Control: no-cache, no-store, must-revalidate" in headers
-    assert "/build-revision.txt\\n  Cache-Control: no-cache, no-store, must-revalidate" in headers
+    assert "/app.js\n  Cache-Control: public, max-age=31536000, immutable" in headers
+    assert "/styles.css\n  Cache-Control: public, max-age=31536000, immutable" in headers
+    assert "/sw.js\n  Cache-Control: no-cache, no-store, must-revalidate" in headers
+    assert "/build-revision.txt\n  Cache-Control: no-cache, no-store, must-revalidate" in headers
     assert "supabase.co/functions/v1/averis-api/api/:splat" in redirects
     assert "supabase.co/functions/v1/averis-api/api/:splat" in netlify
     assert "averis-platform-api-mahi.onrender.com/api/:splat" not in redirects

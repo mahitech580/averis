@@ -101,7 +101,7 @@ def main() -> int:
         ("/api/*", "Cache-Control: no-store"),
     )
     for route, header in required_headers:
-        if f"{route}\\n  {header}" not in header_rules:
+        if f"{route}\n  {header}" not in header_rules:
             fail(f"missing cache policy for {route}: {header}")
     expected_api_target = "https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api/api/:splat"
     if expected_api_target not in redirects or expected_api_target not in netlify_config:
