@@ -349,7 +349,7 @@ def test_service_worker_never_persists_same_origin_api_responses():
     assert sw.index(api_guard) < sw.index("const dynamic=")
     assert "averis-by-mahi-v56" in sw
     html = read("index.html")
-    assert "app.js?v=55" in html and "styles.css?v=55" in html
+    assert "app.js?v=56" in html and "styles.css?v=56" in html
 
 
 def test_operations_dashboard_layout_collapses_cleanly_on_tablet_and_mobile():
