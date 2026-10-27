@@ -70,7 +70,7 @@ def test_photo_backgrounds_and_images_have_bundled_fallbacks():
         assert selector in css
     assert 'const art=register?' in app and 'artFallback=register?' in app
     assert "data-fallback=\"'+artFallback+'\"" in app
-    assert "data-fallback=\"'+x[4]+'\"" in app
+    assert 'id="server-activity-list"' in app
     assert "./assets/healthcare-scene.svg" in app
 
 
@@ -186,22 +186,31 @@ def test_cloud_auth_uses_a_server_session_token_and_durable_edge_api():
     assert "/api/auth/register" in edge and "/api/erp/summary" in edge and "/api/ai/triage" in edge
 
 
-def test_requested_editorial_healthcare_design_system_is_used_by_live_overview():
+def test_operations_dashboard_uses_workspace_state_and_live_sync_contract():
     html = read("index.html")
     app = read("app.js")
     css = read("styles.css")
 
-    # The visible first-screen headline must be editorial content, not just a logo.
-    assert '<div class="overview-heading"><h1><span>CARE.</span><em>Operations,<br> connected.</em></h1>' in app
-    assert "One calm command layer for the people who keep care moving." in app
+    start = app.index("function today(){")
+    end = app.index("\nfunction people(){", start)
+    dashboard = app[start:end]
+    for marker in (
+        "Operations overview", "ops-home-header", "ops-livebar", "ops-kpis",
+        "ops-dashboard-grid", "server-activity-list", "SHARED WORKSPACE", "LOCAL PREVIEW",
+        'data-open-task="', 'data-open-appointment="', 'data-action="go-queue"',
+        "state.tasks.filter", "state.appointments", "state.resources", "state.pharmacy",
+    ):
+        assert marker in dashboard, f"missing operations dashboard contract: {marker}"
+    assert "HOW IT WORKS" not in dashboard
+    assert "PostgreSQL + Python APIs" not in dashboard
+    assert "A connected operations SaaS for teams behind care" not in dashboard
 
-    # Load the requested type system from the HTML shell and define its CSS tokens.
     for font in ("Space+Grotesk", "Manrope", "DM+Mono"):
         assert font in html
     for token in (
-        "--font-display:\"Space Grotesk\"",
-        "--font-body:\"Manrope\"",
-        "--font-mono:\"DM Mono\"",
+        '--font-display:"Space Grotesk"',
+        '--font-body:"Manrope"',
+        '--font-mono:"DM Mono"',
         "--accent-purple:#5F3EE8",
         "--accent-purple-strong:#5B35D5",
         "--accent-lavender:#D8CCFF",
@@ -209,45 +218,50 @@ def test_requested_editorial_healthcare_design_system_is_used_by_live_overview()
         "--healthcare-red:#CF3E5D",
         "--healthcare-sky:#087EAE",
         "--healthcare-pink:#BE397C",
-        "font-size:clamp(3rem,6.8vw,7.4rem)",
-        "line-height:.94",
-        "letter-spacing:-.078em",
         "scroll-padding-top:90px",
         ".scroll-progress",
         ".back-to-top",
         "IntersectionObserver",
     ):
         assert token in css or token in app, f"missing design or interaction contract: {token}"
-
     assert "requestAnimationFrame" in app
     assert 'window.addEventListener("scroll",update,{passive:true})' in app
     assert 'topButton?.addEventListener("click"' in app
     assert ".reveal-on-scroll.is-revealed" in css
     assert "prefers-reduced-motion:reduce" in css
-    assert "styles.css?v=55" in html
-    assert "app.js?v=55" in html
-    assert "averis-by-mahi-v55" in read("sw.js")
+    assert "styles.css?v=56" in html
+    assert "app.js?v=56" in html
+    assert "averis-by-mahi-v56" in read("sw.js")
 
 
-def test_home_page_copy_distinguishes_cloud_persistence_from_local_preview():
+def test_dashboard_shows_operational_state_without_technology_marketing_copy():
     app = read("app.js")
-    assert "Authenticated workspace changes persist to PostgreSQL" in app
-    assert "the browser-only preview remains local" in app
-    assert "PostgreSQL + Python APIs" in app
-    assert "Human-reviewed ML signals" in app
+    start = app.index("function today(){")
+    end = app.index("\nfunction people(){", start)
+    dashboard = app[start:end]
+    for marker in (
+        "Open work", "Active journeys", "Schedule items", "Stock to review",
+        "Needs attention", "Movement", "Capacity pulse", "Recent activity",
+        "SYNTHETIC RECORDS", "LOCAL PREVIEW", "SHARED WORKSPACE",
+    ):
+        assert marker in dashboard
+    assert "PostgreSQL + Python APIs" not in dashboard
+    assert "Human-reviewed ML signals" not in dashboard
+    assert "A connected operations SaaS for teams behind care" not in dashboard
 
 
-def test_public_overview_is_visible_without_authentication_but_private_routes_stay_gated():
+def test_public_operations_dashboard_is_visible_without_authentication_but_private_routes_stay_gated():
     app = read("app.js")
     assert 'if(!state.session.authenticated&&route!=="login"&&route!=="register"&&route!=="today")route="login";' in app
     assert 'document.body.classList.toggle("public-mode",!state.session.authenticated&&route==="today")' in app
-    assert 'const publicRoute' not in app  # keep a single, explicit public-route gate
+    assert 'const publicRoute' not in app
     assert 'data-action="open-register"' in app
     assert 'data-action="open-login"' in app
     css = read("styles.css")
-    assert 'html[data-theme="light"] .website-shell .overview-heading h1 span' in css
-    assert '-webkit-text-stroke:1.35px var(--accent-purple)!important' in css
-
+    assert ".ops-home{" in css
+    assert ".ops-livebar{" in css
+    assert ".ops-kpis{" in css
+    assert ".ops-dashboard-grid{" in css
 
 
 def test_netlify_cache_api_and_build_revision_contract():
@@ -333,15 +347,15 @@ def test_service_worker_never_persists_same_origin_api_responses():
     assert api_guard in sw
     assert "fetch(e.request,{cache:'no-store'})" in sw
     assert sw.index(api_guard) < sw.index("const dynamic=")
-    assert "averis-by-mahi-v55" in sw
+    assert "averis-by-mahi-v56" in sw
     html = read("index.html")
     assert "app.js?v=55" in html and "styles.css?v=55" in html
 
 
-def test_public_overview_layout_prevents_narrow_hero_columns():
+def test_operations_dashboard_layout_collapses_cleanly_on_tablet_and_mobile():
     css = read("styles.css")
-    assert "grid-template-columns:minmax(280px,.95fr) minmax(340px,1.12fr) minmax(280px,.93fr)!important" in css
-    assert re.search(r"\.website-shell \.landing-hero\s*\{[^}]*display:block!important;", css, re.S)
-    assert "@media(max-width:1300px) and (min-width:901px)" in css
-    assert "@media(max-width:900px)" in css
-    assert "word-break:normal!important" in css
+    assert "@media(max-width:1100px)" in css
+    assert ".ops-dashboard-grid,.ops-dashboard-grid-lower{grid-template-columns:minmax(0,1fr)}" in css
+    assert "@media(max-width:760px)" in css
+    assert "@media(max-width:420px)" in css
+    assert ".ops-quick-grid{grid-template-columns:minmax(0,1fr)}" in css

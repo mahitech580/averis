@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0E0B20"><meta name="color-scheme" content="dark light"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="preload" href="https://www.ihhhealthcare.com/images/default-source/ihh/occ-2.jpg?sfvrsn=2801dfb4_1" as="image">
-<meta name="description" content="AVERIS by Mahi — multi-tenant healthcare operations SaaS demo with organization-scoped ERP APIs, PostgreSQL persistence and Python ML for non-clinical workflows. Synthetic data only.">
+<meta name="theme-color" content="#0E0B20"><meta name="color-scheme" content="dark light"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="description" content="AVERIS operations workspace for coordinating people, journeys, queues, schedules, capacity, inventory, quality and reporting. Sample records are synthetic.">
 <link rel="icon" href="./assets/averis-orbit.svg">
 <link rel="manifest" href="./manifest.json">
-<link rel="stylesheet" href="./styles.css?v=55">
-<title>AVERIS — by Mahi</title>
+<link rel="stylesheet" href="./styles.css?v=56">
+<title>AVERIS — Operations workspace</title>
 </head>
 <body>
 <div id="scroll-progress" class="scroll-progress" aria-hidden="true"></div>
@@ -18,9 +18,9 @@
 <div class="app-shell website-shell">
 <div class="shell-main">
 <header class="topbar site-header" id="site-header">
-  <a href="#/today" class="brand site-brand" aria-label="AVERIS website overview"><span class="brand-logo"><img src="./assets/averis-orbit.svg" alt=""></span><span><b>AVERIS</b><small>by Mahi · OPERATIONS OS</small></span></a>
+  <a href="#/today" class="brand site-brand" aria-label="AVERIS operations dashboard"><span class="brand-logo"><img src="./assets/averis-orbit.svg" alt=""></span><span><b>AVERIS</b><small>by Mahi · OPERATIONS OS</small></span></a>
   <nav class="site-nav" aria-label="Primary navigation">
-    <button class="site-nav-link" data-route="today" type="button">Website Overview</button>
+    <button class="site-nav-link" data-route="today" type="button">Today</button>
     <button class="site-nav-link" data-route="people" type="button">People</button>
     <button class="site-nav-link" data-route="journeys" type="button">Journeys</button>
     <button class="site-nav-link" data-route="queue" type="button">Workflow</button>
@@ -31,7 +31,7 @@
         <button class="site-nav-link" data-route="insights" role="menuitem" type="button">Insights</button>
         <button class="site-nav-link" data-route="reports" role="menuitem" type="button">Reports</button>
         <button class="site-nav-link" data-route="erp" role="menuitem" type="button">ERP Suite</button>
-        <button class="site-nav-link" data-route="workspace" role="menuitem" type="button">Live Workspace</button>
+        <button class="site-nav-link" data-route="workspace" role="menuitem" type="button">Workspace</button>
       </div>
     </div>
   </nav>
@@ -48,7 +48,7 @@
   <div class="footer-main">
     <div class="footer-brand">
       <a href="#/today" class="brand"><span class="brand-logo"><img src="./assets/averis-orbit.svg" alt=""></span><span><b>AVERIS</b><small>by Mahi</small></span></a>
-      <p>A unified operations SaaS demo for inventory, purchasing, sales, CRM, finance, projects, workforce and quality, with PostgreSQL-backed accounts and ERP records plus a separate Python inference service for non-clinical workflow insights.</p>
+      <p>A single workspace for coordinating people, schedules, work queues, capacity, inventory, quality and reporting.</p>
       <span class="footer-boundary"><i></i> SYNTHETIC DEMO · NO PATIENT DATA</span>
     </div>
     <div class="footer-column"><b>Operations</b><button data-route="today" type="button">Home</button><button data-route="people" type="button">People</button><button data-route="journeys" type="button">Journeys</button><button data-route="queue" type="button">Workflow</button><button data-route="schedule" type="button">Schedule</button></div>
@@ -73,6 +73,6 @@
 <aside class="drawer" id="drawer" aria-hidden="true"><div class="drawer-head"><div><span class="eyebrow" id="drawer-eyebrow">DETAIL</span><h2 id="drawer-title">Record</h2></div><button id="drawer-close" class="icon-button" type="button">×</button></div><div id="drawer-body" class="drawer-body"></div></aside>
 <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
 <noscript><div class="noscript"><b>JavaScript is required for the AVERIS control room.</b><span>Everything is local to this browser.</span></div></noscript>
-<script src="./app.js?v=55" defer></script>
+<script src="./app.js?v=56" defer></script>
 </body>
 </html>

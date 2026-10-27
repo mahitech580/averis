@@ -120,6 +120,10 @@ Postman collection: postman/AVERIS-ERP.postman_collection.json
 - After publishing, verify the Netlify deployment uses the latest `main` commit and serves the matching index.html, app.js, styles.css, and service-worker cache version.
 - Never claim a host is current solely because its URL responds. Check the published deployment's source commit before relying on it.
 
+## Operations dashboard
+
+The default route is an action-first command center. Queue counts, journey counts, schedule, stock alerts, capacity, activity and shortcuts are derived from the workspace state. Tasks and appointments can be inspected from the home screen; create actions link into the existing forms. Signed-in cloud workspaces poll for revision changes every five seconds. Browser-local preview is visibly separate and remains local. All seeded records are synthetic.
+
 ## Visual design system
 
 Space Grotesk headlines, Manrope body text, and DM Mono metadata; midnight-violet and lavender surfaces with restrained operational blue/green/red accents; 8px-based spacing; responsive controls; subtle transitions and scroll reveals; reduced-motion preferences respected.
@@ -133,5 +137,9 @@ Space Grotesk headlines, Manrope body text, and DM Mono metadata; midnight-viole
 - [Postman/Newman](https://learning.postman.com/docs/collections/using-newman-cli/installing-running-newman)
 - [Playwright browser testing](https://playwright.dev/docs/intro)
 - [Netlify redirects and rewrites](https://docs.netlify.com/routing/redirects/)
+- [Supabase Realtime: subscribe to database changes](https://supabase.com/docs/guides/realtime/subscribing-to-database-changes)
+- [Linear filters and focused work views](https://linear.app/docs/filters)
+- [Linear custom views](https://linear.app/docs/custom-views)
+- [Retool operational tools and write-back workflows](https://retool.com/resources/what-operations-teams-build-in-retool)
 
 AVERIS is a demonstration of synthetic operational workflows, not a clinical system. Do not use it for diagnoses, treatment decisions, real patient data, or other high-stakes clinical work.
