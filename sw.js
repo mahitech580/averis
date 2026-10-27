@@ -1,12 +1,15 @@
-const CACHE='averis-by-mahi-v56';
-const CORE=['./','./index.html','./styles.css?v=56','./app.js?v=56','./manifest.json','./assets/averis-orbit.svg','./assets/care-network.svg','./assets/operational-pulse.svg','./assets/healthcare-scene.svg','./assets/care-team.svg','./assets/people.svg','./assets/operations.svg','./assets/welcome.svg'];
+const CACHE='averis-by-mahi-v57';
+const CORE=['./','./index.html','./styles.css?v=57','./app.js?v=57','./manifest.json','./assets/averis-orbit.svg','./assets/care-network.svg','./assets/operational-pulse.svg','./assets/healthcare-scene.svg','./assets/care-team.svg','./assets/people.svg','./assets/operations.svg','./assets/welcome.svg'];
+const API_ORIGIN='https://zspustvmjtdsnfkprbvv.supabase.co';
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
   if(e.request.method!=='GET')return;
   const url=new URL(e.request.url);
-  // API responses may contain account/workspace data: never put them in Cache Storage.
-  if(url.origin===self.location.origin&&(url.pathname==='/api'||url.pathname.startsWith('/api/'))){
+  const localApi=url.origin===self.location.origin&&(url.pathname==='/api'||url.pathname.startsWith('/api/'));
+  const productionApi=url.origin===API_ORIGIN&&url.pathname.startsWith('/functions/v1/averis-api/api/');
+  // Account, identity and workspace API responses must never be stored, regardless of API origin.
+  if(localApi||productionApi){
     e.respondWith(fetch(e.request,{cache:'no-store'}));
     return;
   }

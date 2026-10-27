@@ -100,7 +100,7 @@ class BusinessRecord(Base):
 
 COLLECTIONS={"people","tasks","appointments","resources","workforce","messages","incidents","diagnostics","pharmacy","finance","reports","audit"}
 PREFERENCES={"compact","focus","notifications","theme"}
-ALLOWED_ORIGINS={x.strip().rstrip("/") for x in os.getenv("ALLOWED_ORIGINS","https://averis-saas.netlify.app,https://mahitech580.github.io,http://localhost:4173,http://127.0.0.1:4173,http://localhost:5500,http://127.0.0.1:5500").split(",") if x.strip()}
+ALLOWED_ORIGINS={x.strip().rstrip("/") for x in os.getenv("ALLOWED_ORIGINS","https://mahitech580.github.io,http://localhost:4173,http://127.0.0.1:4173,http://localhost:5500,http://127.0.0.1:5500").split(",") if x.strip()}
 app=FastAPI(title="AVERIS Workspace API",version="1.0.0",description="Tenant-scoped shared JSON workspaces. Synthetic operational data only.",docs_url="/api/docs",openapi_url="/api/openapi.json")
 app.add_middleware(CORSMiddleware,allow_origins=sorted(ALLOWED_ORIGINS),allow_credentials=True,allow_methods=["GET","POST","PUT","DELETE","OPTIONS"],allow_headers=["Authorization","Content-Type","X-Averis-Request","apikey"])
 

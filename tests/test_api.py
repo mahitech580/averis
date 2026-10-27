@@ -214,7 +214,7 @@ def test_allowed_origin_can_preflight_erp_delete(client):
     response = client.options(
         "/api/erp/products/PRD-1",
         headers={
-            "Origin": "https://averis-saas.netlify.app",
+            "Origin": "https://mahitech580.github.io",
             "Access-Control-Request-Method": "DELETE",
             "Access-Control-Request-Headers": "x-averis-request",
         },

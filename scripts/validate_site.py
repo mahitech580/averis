@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail-fast consistency checks for the static AVERIS site (standard library only)."""
+"""Fail-fast consistency checks for AVERIS' static GitHub Pages site."""
 from __future__ import annotations
 
 import re
@@ -54,6 +54,7 @@ def main() -> int:
             fail(f"required file is missing: {path.relative_to(ROOT)}")
 
     html = html_path.read_text(encoding="utf-8")
+    app = app_path.read_text(encoding="utf-8")
     sw = sw_path.read_text(encoding="utf-8")
     parser = ResourceParser()
     parser.feed(html)
@@ -88,26 +89,17 @@ def main() -> int:
         if html_versions[0] != cache_version:
             fail(f"{filename} version v{html_versions[0]} does not match service-worker cache v{cache_version}")
 
-    header_rules = (ROOT / "_headers").read_text(encoding="utf-8")
-    redirects = (ROOT / "_redirects").read_text(encoding="utf-8")
-    netlify_config = (ROOT / "netlify.toml").read_text(encoding="utf-8")
-    required_headers = (
-        ("/", "Cache-Control: no-cache, no-store, must-revalidate"),
-        ("/index.html", "Cache-Control: no-cache, no-store, must-revalidate"),
-        ("/app.js", "Cache-Control: public, max-age=31536000, immutable"),
-        ("/styles.css", "Cache-Control: public, max-age=31536000, immutable"),
-        ("/sw.js", "Cache-Control: no-cache, no-store, must-revalidate"),
-        ("/build-revision.txt", "Cache-Control: no-cache, no-store, must-revalidate"),
-        ("/api/*", "Cache-Control: no-store"),
-    )
-    for route, header in required_headers:
-        if f"{route}\n  {header}" not in header_rules:
-            fail(f"missing cache policy for {route}: {header}")
-    expected_api_target = "https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api/api/:splat"
-    if expected_api_target not in redirects or expected_api_target not in netlify_config:
-        fail("Netlify API rewrite must consistently target the Supabase production API")
-    if "averis-platform-api-mahi.onrender.com/api/:splat" in redirects:
-        fail("stale /api rewrite still points to the inference-only Render service")
+    api_base = "https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api/api"
+    if 'location.hostname.endsWith("github.io")' not in app or api_base not in app:
+        fail("GitHub Pages must target the production Supabase Edge Function directly")
+    if "SUPABASE_SERVICE_ROLE_KEY" in app or "SUPABASE_SERVICE_ROLE_KEY" in html:
+        fail("server-only Supabase service-role key must never appear in browser assets")
+    if "const API_ORIGIN='https://zspustvmjtdsnfkprbvv.supabase.co'" not in sw:
+        fail("service worker must recognize the production Supabase API origin")
+    if "url.pathname.startsWith('/functions/v1/averis-api/api/')" not in sw:
+        fail("service worker must recognize the direct Supabase API path")
+    if "fetch(e.request,{cache:'no-store'})" not in sw:
+        fail("API fetches must bypass service-worker caching")
 
     image_preloads = re.findall(r"<link\b(?=[^>]*\bas=['\"]image['\"])[^>]*>", html, re.I)
     if len(image_preloads) > 1:
@@ -118,6 +110,7 @@ def main() -> int:
         f"{len(set(parser.resources))} local HTML resources, "
         f"{len(core)} service-worker precache entries, "
         f"matching asset/cache version v{cache_version}, "
+        "GitHub Pages direct API target and no-store API handling, "
         f"{len(image_preloads)} image preload."
     )
     return 0

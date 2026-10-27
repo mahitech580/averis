@@ -24,7 +24,7 @@ if(!state.profile)state.profile={name:state.account.name||"Mahi",role:"Control r
 if(!state.session.authenticated&&route!=="login"&&route!=="register")route="login";
 
 
-const API_BASE=window.AVERIS_API_BASE||(["localhost","127.0.0.1"].includes(location.hostname)?"http://127.0.0.1:8000/api":((location.hostname.endsWith(".netlify.app")||location.hostname.endsWith(".vercel.app"))?"/api":(location.hostname.endsWith("github.io")?"https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api/api":null)));
+const API_BASE=window.AVERIS_API_BASE||(["localhost","127.0.0.1"].includes(location.hostname)?"http://127.0.0.1:8000/api":(location.hostname.endsWith("github.io")?"https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api/api":null));
 const SUPABASE_PUBLIC_KEY="sb_publishable_NKhKySO2mf12Sxpu99EKrw_FQ_ahH-h";
 const cloud={configured:!!API_BASE,online:false,authenticated:false,booting:false,user:null,organization:null,health:null,revision:0,lastData:null,lastSync:null,saving:false,pending:false,syncTimer:null,pollTimer:null,lastError:null,initialRoute:"today"};
 const SYNC_KEYS=["people","tasks","appointments","resources","workforce","messages","incidents","diagnostics","pharmacy","finance","reports","audit","compact","focus","notifications","theme"];

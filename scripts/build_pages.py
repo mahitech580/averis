@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a safe static-only site artifact for GitHub Pages and Netlify."""
+"""Build a safe static-only site artifact for GitHub Pages."""
 from __future__ import annotations
 
 import argparse
@@ -15,8 +15,6 @@ STATIC_FILES = (
     "styles.css",
     "sw.js",
     "manifest.json",
-    "_headers",
-    "_redirects",
 )
 STATIC_DIRECTORIES = ("assets",)
 
@@ -41,9 +39,8 @@ def build(output: Path) -> int:
     for name in STATIC_DIRECTORIES:
         shutil.copytree(ROOT / name, destination / name)
 
-    # Embed the source revision in every artifact. Netlify sets COMMIT_REF;
-    # GitHub Actions sets GITHUB_SHA. Local builds remain clearly identifiable.
-    revision = os.environ.get("COMMIT_REF") or os.environ.get("GITHUB_SHA") or "local"
+    # Embed the exact GitHub Actions source revision in the published artifact.
+    revision = os.environ.get("GITHUB_SHA") or "local"
     (destination / "build-revision.txt").write_text(revision.strip() + "\n", encoding="utf-8")
 
     # Disable implicit Jekyll processing on GitHub Pages.

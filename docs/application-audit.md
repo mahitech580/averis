@@ -4,9 +4,13 @@
 **Repository:** `mahitech580/averis`  
 **Branch:** `main`  
 **Source revision at audit write:** `322c73b9ac85d0239c8542a73a2237bc88580eea`  
-**Production site:** https://averis-saas.netlify.app/  
-**Purpose:** Record the implemented architecture, authorization boundaries, feature-to-API map, test coverage, verified defects, and unresolved production release blocker.
+**Production frontend:** https://mahitech580.github.io/averis/  
+**Purpose:** Record the implemented architecture, authorization boundaries, feature-to-API map, test coverage, and verified defects.
 
+> **Current deployment:** Frontend publishing is configured for GitHub Pages at https://mahitech580.github.io/averis/ from `main`; the static app calls the Supabase Edge Function directly and leaves Python inference on Render.
+>
+> **Historical note:** The hosting-specific findings and release-blocker entries below record the former Netlify-era audit snapshot and are archival context, not the current publishing workflow. `.github/workflows/pages.yml` is now the GitHub Pages build, deployment, and live-verification workflow.
+>
 > **Data boundary:** AVERIS is a synthetic healthcare-operations coordination demo. It is not a patient-record system, clinical decision-support tool, diagnosis or treatment application. Do not enter real patient data or sensitive production information.
 
 ## 1. Repository inventory
@@ -16,7 +20,7 @@ The repository has 82 tracked paths at the audit snapshot, including the single-
 | Area | Principal files | Responsibility |
 | --- | --- | --- |
 | Browser shell and routes | `index.html`, `app.js`, `styles.css`, `sw.js`, `manifest.json` | Single-page application, visual system, theme state, navigation, local demo state, cloud API calls, service-worker cache |
-| Static production build | `netlify.toml`, `_headers`, `_redirects`, `scripts/build_pages.py`, `scripts/validate_site.py` | Clean static-only output, same-origin API rewrite, cache policy and source-revision marker |
+| Static production build | `.github/workflows/pages.yml`, `scripts/build_pages.py`, `scripts/validate_site.py` | Clean static-only GitHub Pages artifact, direct Supabase API target, source-revision marker and independent release verification |
 | Production API | `supabase/functions/averis-api/index.ts`, `supabase/config.toml` | Server-side authentication/session validation, organization scoping, workspace snapshots, ERP CRUD, activity/audit and model proxy |
 | Database | `database/schema.sql`, `database/migrations/*.sql`, `schema.sql` | Postgres schema, foreign keys/indexes, RLS and denial of direct public-role access |
 | Test/reference FastAPI | `backend/main.py`, `backend/services/ai_engine.py`, `backend/services/prioritization.py`, `backend/requirements.txt` | Full local/test API, SQLite or configured SQL database, deterministic validation and synthetic ML helpers |
@@ -27,20 +31,19 @@ The repository has 82 tracked paths at the audit snapshot, including the single-
 ## 2. Production data path and environment boundaries
 
 ```text
-Browser SPA
-  └─ same-origin /api/* on Netlify
-      └─ rewrite to Supabase Edge Function: averis-api
+Browser SPA on GitHub Pages
+  └─ direct HTTPS request to Supabase Edge Function: averis-api
           ├─ verifies bearer/session token and organization membership
           ├─ reads and mutates server-side Postgres records
           ├─ serves versioned shared-workspace snapshots and audit events
           └─ calls Render's isolated Python inference service for permitted AI analysis
 ```
 
-- **Netlify** serves static HTML/CSS/JS/assets. It is not the Python API runtime and does not host the application database.
+- **GitHub Pages** serves static HTML/CSS/JS/assets. The browser calls the Supabase Edge Function directly; Pages is not an API proxy.
 - **Supabase Edge Function** `averis-api` is the hosted application API. It uses a server-side service key; the service-role key must never be put in a browser bundle or committed source.
 - **Supabase PostgreSQL** stores organizations, users, hashed session tokens/expiry/revocation, workspace snapshots, audit events and normalized ERP record envelopes.
 - **Render** runs a separate Python inference service with `AI_ONLY=true`; its public routes are deliberately limited to health and synthetic non-clinical inference. It cannot serve the account/ERP API.
-- **FastAPI in `backend/main.py`** is exercised by local/CI tests using an isolated SQLite database (and supports a configured SQL URL). It is not the live Netlify data plane.
+- **FastAPI in `backend/main.py`** is exercised by local/CI tests using an isolated SQLite database (and supports a configured SQL URL). It is not the live Supabase data plane.
 - **Browser-only/local mode** intentionally supports offline preview behavior. Local workspace records are not evidence of a write to the hosted SQL database.
 - Hosted AI is synthetic operational routing/inventory screening only; it is not a clinical model and must be human-reviewed.
 
@@ -106,7 +109,7 @@ The production Edge Function exposes the `/api` contract below. The local/test F
 | `POST /api/ai/triage-public` | Public service-only non-clinical triage | Public inference endpoint; bounded synthetic payload, no application identity |
 | `POST /api/ai/inventory/anomalies-public` | Public service-only sample inventory screening | Public inference endpoint; bounded synthetic records, no application identity |
 
-The FastAPI backend has **23 explicitly detected decorators in the inspected source scan**, plus create/register endpoints with extra decorator parameters; the complete route contract is exercised through the FastAPI test suite and Postman collection. In cloud mode, UI helpers use a same-origin `/api` path on Netlify and attach the publishable key plus an optional bearer session token. The key is a publishable/browser key, not a service-role credential.
+The FastAPI backend has **23 explicitly detected decorators in the inspected source scan**, plus create/register endpoints with extra decorator parameters; the complete route contract is exercised through the FastAPI test suite and Postman collection. In cloud mode on GitHub Pages, UI helpers call the Supabase Edge Function directly and attach the publishable key plus an optional bearer session token. The key is a publishable/browser key, not a service-role credential.
 
 ### ERP collections
 

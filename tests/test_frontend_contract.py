@@ -95,17 +95,15 @@ def test_anchor_navigation_does_not_swallow_links():
     assert 'return\n}\nconst nativeControl=e.target.closest("input,select,textarea,label")' in app
 
 
-def test_netlify_api_proxy_and_cloud_demo_route_are_wired():
-    netlify = read("netlify.toml")
+def test_github_pages_direct_api_and_cloud_demo_route_are_wired():
     app = read("app.js")
     backend = read("backend/main.py")
-    assert 'from = "/api/*"' in netlify
-    assert 'to = "https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api/api/:splat"' in netlify
+    assert 'location.hostname.endsWith("github.io")' in app
+    assert "https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api/api" in app
     assert 'data-action="cloud-demo"' in app
     assert 'apiRequest("/auth/demo"' in app
     assert '@app.post("/api/auth/demo")' in backend
     assert "seeded_erp_records" in backend
-
 
 def test_postman_collection_covers_auth_health_and_erp_lifecycle():
     collection = json.loads(read("postman/AVERIS-ERP.postman_collection.json"))
@@ -156,11 +154,14 @@ def test_static_publish_artifact_contains_only_frontend_assets(tmp_path):
     assert not list(output.rglob("*.db"))
 
 
-def test_netlify_build_uses_the_clean_static_distribution():
-    netlify = read("netlify.toml")
-    assert re.search(r'(?m)^\s*publish\s*=\s*"dist"\s*$', netlify)
-    assert "python scripts/build_pages.py --output dist" in netlify
-
+def test_github_pages_build_uses_the_clean_static_distribution():
+    build = read("scripts/build_pages.py")
+    workflow = read(".github/workflows/pages.yml")
+    assert 'default="dist"' in build
+    assert "python scripts/build_pages.py --output dist" in workflow
+    assert "actions/upload-pages-artifact@v5" in workflow
+    assert "actions/deploy-pages@v5" in workflow
+    assert "build-revision.txt" in workflow
 
 def test_local_preview_automatically_targets_fastapi():
     app = read("app.js")
@@ -168,23 +169,20 @@ def test_local_preview_automatically_targets_fastapi():
     assert '"http://127.0.0.1:8000/api"' in app
 
 
-def test_cloud_auth_uses_a_server_session_token_and_durable_edge_api():
+def test_cloud_auth_uses_server_session_and_direct_supabase_edge_api():
     app = read("app.js")
-    netlify = read("netlify.toml")
-    vercel = read("vercel.json")
     edge = read("supabase/functions/averis-api/index.ts")
     config = read("supabase/config.toml")
     assert "functions/v1/averis-api/api" in app
     assert "SUPABASE_PUBLIC_KEY" in app and '"apikey":SUPABASE_PUBLIC_KEY' in app
     assert 'sessionStorage.getItem("averis_session_token")' in app
     assert 'sessionStorage.setItem("averis_session_token",identity.access_token)' in app
-    assert "supabase.co/functions/v1/averis-api/api/:splat" in netlify
-    assert "supabase.co/functions/v1/averis-api/api/:path*" in vercel
+    assert "https://mahitech580.github.io" in edge
     assert "SUPABASE_SERVICE_ROLE_KEY" in edge
+    assert "SUPABASE_SERVICE_ROLE_KEY" not in app
     assert 'request.headers.get("authorization")' in edge
     assert "verify_jwt = false" in config
     assert "/api/auth/register" in edge and "/api/erp/summary" in edge and "/api/ai/triage" in edge
-
 
 def test_operations_dashboard_uses_workspace_state_and_live_sync_contract():
     html = read("index.html")
@@ -229,9 +227,9 @@ def test_operations_dashboard_uses_workspace_state_and_live_sync_contract():
     assert 'topButton?.addEventListener("click"' in app
     assert ".reveal-on-scroll.is-revealed" in css
     assert "prefers-reduced-motion:reduce" in css
-    assert "styles.css?v=56" in html
-    assert "app.js?v=56" in html
-    assert "averis-by-mahi-v56" in read("sw.js")
+    assert "styles.css?v=57" in html
+    assert "app.js?v=57" in html
+    assert "averis-by-mahi-v57" in read("sw.js")
 
 
 def test_dashboard_shows_operational_state_without_technology_marketing_copy():
@@ -264,30 +262,16 @@ def test_public_operations_dashboard_is_visible_without_authentication_but_priva
     assert ".ops-dashboard-grid{" in css
 
 
-def test_netlify_cache_api_and_build_revision_contract():
-    headers = read("_headers")
-    redirects = read("_redirects")
-    netlify = read("netlify.toml")
+def test_github_pages_deploy_and_build_revision_contract():
     build = read("scripts/build_pages.py")
     workflow = read(".github/workflows/pages.yml")
-
-    assert "/app.js\n  Cache-Control: public, max-age=31536000, immutable" in headers
-    assert "/styles.css\n  Cache-Control: public, max-age=31536000, immutable" in headers
-    assert "/sw.js\n  Cache-Control: no-cache, no-store, must-revalidate" in headers
-    assert "/build-revision.txt\n  Cache-Control: no-cache, no-store, must-revalidate" in headers
-    assert "supabase.co/functions/v1/averis-api/api/:splat" in redirects
-    assert "supabase.co/functions/v1/averis-api/api/:splat" in netlify
-    assert "averis-platform-api-mahi.onrender.com/api/:splat" not in redirects
-    assert 'os.environ.get("COMMIT_REF")' in build
     assert 'os.environ.get("GITHUB_SHA")' in build
-    assert "build-revision.txt" in workflow
-    assert "NETLIFY_AUTH_TOKEN is absent; no CLI deployment was performed" in workflow
-    assert "Observed live assets:" in workflow
-    assert "app_has_workspace_html_sanitizer" in workflow
-    assert "css_has_drawer_layer_fix" in workflow
-    assert workflow.index("app_js = fetch(urljoin(base, app_ref))") < workflow.index("if app_version != expected_version")
-
-
+    assert "build-revision.txt" in build and "build-revision.txt" in workflow
+    assert "actions/configure-pages@v6" in workflow
+    assert "actions/upload-pages-artifact@v5" in workflow
+    assert "actions/deploy-pages@v5" in workflow
+    assert "PAGES_URL" in workflow
+    assert "Published revision mismatch" in workflow
 
 def test_workspace_html_interpolation_is_escaped_and_dynamic_sinks_are_sanitized():
     app = read("app.js")
@@ -341,16 +325,17 @@ def test_local_modal_forms_preserve_data_and_enforce_numeric_constraints():
 
 
 
-def test_service_worker_never_persists_same_origin_api_responses():
+def test_service_worker_never_persists_local_or_supabase_api_responses():
     sw = read("sw.js")
-    api_guard = "if(url.origin===self.location.origin&&(url.pathname==='/api'||url.pathname.startsWith('/api/')))"
-    assert api_guard in sw
+    local_api_guard = "const localApi=url.origin===self.location.origin&&(url.pathname==='/api'||url.pathname.startsWith('/api/'))"
+    production_api_guard = "const productionApi=url.origin===API_ORIGIN&&url.pathname.startsWith('/functions/v1/averis-api/api/')"
+    assert local_api_guard in sw
+    assert production_api_guard in sw
     assert "fetch(e.request,{cache:'no-store'})" in sw
-    assert sw.index(api_guard) < sw.index("const dynamic=")
-    assert "averis-by-mahi-v56" in sw
+    assert sw.index("if(localApi||productionApi)") < sw.index("const dynamic=")
+    assert "averis-by-mahi-v57" in sw
     html = read("index.html")
-    assert "app.js?v=56" in html and "styles.css?v=56" in html
-
+    assert "app.js?v=57" in html and "styles.css?v=57" in html
 
 def test_operations_dashboard_layout_collapses_cleanly_on_tablet_and_mobile():
     css = read("styles.css")

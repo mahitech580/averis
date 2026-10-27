@@ -4,12 +4,14 @@ AVERIS is a multi-tenant **healthcare operations coordination demo** with a resp
 
 ## Live deployments
 
-- **Production frontend:** https://averis-saas.netlify.app/
-- **GitHub source (`main`):** https://github.com/mahitech580/averis
+- **Production frontend (GitHub Pages):** https://mahitech580.github.io/averis/
+- **GitHub source and deployment branch:** https://github.com/mahitech580/averis/tree/main
 - **Supabase project:** https://supabase.com/dashboard/project/zspustvmjtdsnfkprbvv
 - **Render Python ML service:** https://averis-platform-api-mahi.onrender.com
 
-Netlify is the only intended public frontend. The GitHub Actions workflow publishes the clean `dist/` artifact with `netlify deploy --prod` when the repository secret `NETLIFY_AUTH_TOKEN` is configured. Git continuous deployment only works if this Netlify project is explicitly connected to `mahitech580/averis` on `main`; a historical API/manual deploy is not automatically subscribed to Git pushes. The workflow verifies the exact published source revision, HTML-referenced JS/CSS versions, service-worker cache, cache-control policy, and PostgreSQL-backed API, and it reports stale production content as a failure.
+GitHub Pages is the only intended public frontend host. Every push to `main` runs the repository's production checks, creates a static-only `dist/` artifact, publishes it with GitHub Pages Actions, and verifies that the served revision and core assets match the exact commit. Frontend publishing uses GitHub Actions' Pages deployment token and does not require a third-party hosting token.
+
+The browser frontend calls the Supabase Edge Function directly at `https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api/api`. The GitHub Pages origin is already allowed by the Edge Function's CORS policy. GitHub Pages does not provide same-origin `/api/*` proxy rewrites, so the app does not rely on host-specific proxy configuration. Render remains a separate Python inference dependency.
 
 > **Data boundary:** use synthetic/demo data only. Never enter real patient information, diagnoses, treatment plans, production customer records, or other sensitive information into a public preview.
 
@@ -107,18 +109,19 @@ python scripts/validate_site.py
 python scripts/build_pages.py --output dist
 ~~~
 
-GitHub Actions validates JavaScript/Python, runs pytest and the Postman collection through Newman against a temporary SQLite database, smoke-tests Chromium, verifies the production Supabase API and Python ML endpoints, and builds a static-only dist/ artifact. The Netlify site must publish that build from the main branch or through the configured Netlify publish step.
+GitHub Actions validates JavaScript/Python, runs pytest and the Postman collection through Newman against a temporary SQLite database, smoke-tests Chromium, verifies the production Supabase API and Python ML endpoints, builds a static-only dist/ artifact, deploys it to GitHub Pages, and independently verifies the published revision and core assets.
 
 Postman collection: postman/AVERIS-ERP.postman_collection.json
 
 ## Deployment and operations
 
-- **Netlify is the only intended public frontend:** https://averis-saas.netlify.app/. GitHub remains the source repository and `main` is the deployment source.
+- **GitHub Pages is the only intended public frontend:** https://mahitech580.github.io/averis/. The workflow in `.github/workflows/pages.yml` runs from `main`, builds only the static frontend, and publishes the `dist/` artifact with GitHub Pages Actions.
+- The frontend calls the production Supabase Edge Function directly. GitHub Pages does not process `_redirects` or `_headers` host configuration files and cannot provide an `/api/*` proxy; those host-specific files are not included in the published artifact.
 - The Edge Function uses its managed Supabase environment for server credentials. No database password or service-role key should be committed to source control or placed in browser code.
-- Render is set to AI_ONLY=true, APP_ENV=production, with auto-deploy from main. Do not add a database secret to this service; it is meant to run only the Python inference layer.
-- Netlify production publishing from GitHub Actions requires the repository secret NETLIFY_AUTH_TOKEN. To enable it, add that secret in https://github.com/mahitech580/averis/settings/secrets/actions, or connect the Netlify project to GitHub under https://app.netlify.com/projects/averis-saas/configuration/deploys. When the token is absent, the workflow relies on Netlify Git continuous deployment and verifies that the new build is actually live.
-- After publishing, verify the Netlify deployment uses the latest `main` commit and serves the matching index.html, app.js, styles.css, and service-worker cache version.
-- Never claim a host is current solely because its URL responds. Check the published deployment's source commit before relying on it.
+- Render runs the isolated AI inference layer with `AI_ONLY=true`; do not add database credentials to that service.
+- Repository Pages publishing should use **Settings → Pages → Build and deployment → Source: GitHub Actions**. The workflow uses the protected GitHub Actions token and the `github-pages` deployment environment; it does not depend on a third-party frontend-host token.
+- After every release, the workflow checks the live page, core JS/CSS/service-worker/manifest responses, and `build-revision.txt` against the exact `main` commit. It also verifies the Supabase health contract and Pages-origin CORS allowlist.
+- Use synthetic/demo data only. Never enter real patient data or sensitive production information into a public demo.
 
 ## Operations dashboard
 
@@ -136,7 +139,7 @@ Space Grotesk headlines, Manrope body text, and DM Mono metadata; midnight-viole
 - [Supabase Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security)
 - [Postman/Newman](https://learning.postman.com/docs/collections/using-newman-cli/installing-running-newman)
 - [Playwright browser testing](https://playwright.dev/docs/intro)
-- [Netlify redirects and rewrites](https://docs.netlify.com/routing/redirects/)
+- [GitHub Pages custom workflow publishing](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)
 - [Supabase Realtime: subscribe to database changes](https://supabase.com/docs/guides/realtime/subscribing-to-database-changes)
 - [Linear filters and focused work views](https://linear.app/docs/filters)
 - [Linear custom views](https://linear.app/docs/custom-views)

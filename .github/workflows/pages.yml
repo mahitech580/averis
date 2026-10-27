@@ -1,4 +1,5 @@
-name: Build and deploy AVERIS to Netlify
+name: Build, test, and deploy AVERIS to GitHub Pages
+
 on:
   push:
     branches: [main]
@@ -8,31 +9,54 @@ permissions:
   contents: read
 
 concurrency:
-  group: netlify-production
-  cancel-in-progress: true
+  group: pages-production
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout main revision
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
       - name: Validate JavaScript
         run: node --check app.js
+
       - name: Validate Python syntax
-        run: python -m compileall -q generate_data.py backend frameworks tests
-      - name: Validate static site references and cache versions
+        run: python -m compileall -q generate_data.py backend frameworks tests scripts
+
+      - name: Validate static site and Pages API contract
         run: python scripts/validate_site.py
+
       - name: Test FastAPI backend
         run: |
+          python -m pip install --upgrade pip
           python -m pip install -r backend/requirements.txt
           DATABASE_URL=sqlite:///./ci_averis.db APP_ENV=test python -m pytest -q
+
       - name: Install isolated API and browser test tools
         run: |
           mkdir -p /tmp/averis-ci-tools
           npm --prefix /tmp/averis-ci-tools install --no-save --no-package-lock playwright@1.64.1 newman@6.2.1
           cp scripts/ui-smoke.mjs /tmp/averis-ci-tools/ui-smoke.mjs
           /tmp/averis-ci-tools/node_modules/.bin/playwright install --with-deps chromium
+
       - name: Run Postman API integration collection
         run: |
           APP_ENV=test DATABASE_URL=sqlite:////tmp/averis-ci-tools/postman_averis.db python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 > /tmp/averis-ci-tools/api.log 2>&1 &
@@ -43,6 +67,7 @@ jobs:
             sleep 1
           done
           /tmp/averis-ci-tools/node_modules/.bin/newman run postman/AVERIS-ERP.postman_collection.json --bail --timeout-request 20000
+
       - name: Browser UI smoke tests (Chromium)
         run: |
           python -m http.server 4173 --bind 127.0.0.1 > /tmp/averis-http.log 2>&1 &
@@ -53,7 +78,8 @@ jobs:
             sleep 1
           done
           node /tmp/averis-ci-tools/ui-smoke.mjs
-      - name: Verify production Supabase API health
+
+      - name: Verify production Supabase API and GitHub Pages CORS
         run: |
           python - <<'PY'
           import json
@@ -62,22 +88,31 @@ jobs:
 
           url = "https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api/api/health"
           public_key = "sb_publishable_NKhKySO2mf12Sxpu99EKrw_FQ_ahH-h"
-          error = None
+          pages_origin = "https://mahitech580.github.io"
+          last_error = None
           for attempt in range(8):
               try:
-                  request = Request(url, headers={"apikey": public_key, "accept": "application/json"})
+                  request = Request(url, headers={
+                      "apikey": public_key,
+                      "accept": "application/json",
+                      "Origin": pages_origin,
+                  })
                   with urlopen(request, timeout=12) as response:
                       body = json.loads(response.read().decode("utf-8"))
+                      allow_origin = response.headers.get("Access-Control-Allow-Origin")
                   if body.get("status") != "ok" or body.get("database_driver") != "postgresql":
                       raise RuntimeError("Production API health contract mismatch: " + json.dumps(body))
-                  print("Production API healthy: PostgreSQL persistence confirmed.")
+                  if allow_origin != pages_origin:
+                      raise RuntimeError("Supabase did not allow GitHub Pages origin: " + repr(allow_origin))
+                  print("Supabase API healthy: PostgreSQL persistence confirmed and GitHub Pages CORS accepted.")
                   break
               except Exception as exc:
-                  error = exc
+                  last_error = exc
                   if attempt == 7:
-                      raise SystemExit("Production API health verification failed: " + repr(error))
+                      raise SystemExit("Production API/CORS verification failed: " + repr(last_error))
                   time.sleep(3)
           PY
+
       - name: Verify live Python ML endpoints
         run: |
           python - <<'PY'
@@ -111,7 +146,7 @@ jobs:
                   assert inventory.get("scanned") == 10
                   assert inventory.get("reorder_risk_count", 0) >= 1
                   assert inventory.get("clinical_decisioning") is False
-                  print("Python ML service verified: triage and inventory anomaly endpoints returned valid non-clinical results.")
+                  print("Python ML service verified: triage and inventory endpoints returned valid non-clinical results.")
                   break
               except Exception as exc:
                   last_error = exc
@@ -120,130 +155,104 @@ jobs:
                   print("Python ML service not ready yet; retry", attempt + 1)
                   time.sleep(5)
           PY
-      - name: Build clean static-only publish artifact
-        run: python scripts/build_pages.py --output dist
-      - name: Deploy Netlify production
+
+      - name: Build clean static-only GitHub Pages artifact
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        run: |
-          if [ -n "$NETLIFY_AUTH_TOKEN" ]; then
-            npx --yes netlify-cli@23.11.0 deploy --prod --dir dist --site b67c38c4-93c9-4f01-b175-b75e00d0675c
-          else
-            echo "::warning::NETLIFY_AUTH_TOKEN is absent; no CLI deployment was performed. This workflow cannot assume Netlify Git continuous deployment is connected. The production checks below must independently prove that the new revision is live."
-          fi
-      - name: Verify published Netlify frontend and proxied API
+          GITHUB_SHA: ${{ github.sha }}
+        run: python scripts/build_pages.py --output dist
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy tested artifact to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+  verify:
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      PAGES_URL: ${{ needs.deploy.outputs.page_url }}
+      GITHUB_SHA: ${{ github.sha }}
+    steps:
+      - name: Checkout the tested source revision
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Verify live GitHub Pages files and build revision
         run: |
           python - <<'PY'
-          import json
+          import hashlib
           import os
           import re
-          import time
           from pathlib import Path
           from urllib.parse import urljoin
           from urllib.request import Request, urlopen
 
-          base = "https://averis-saas.netlify.app/"
-          public_key = "sb_publishable_NKhKySO2mf12Sxpu99EKrw_FQ_ahH-h"
+          base = os.environ["PAGES_URL"].rstrip("/") + "/"
+          expected_revision = os.environ["GITHUB_SHA"].strip()
 
-          def fetch(url, headers=None):
-              request = Request(url, headers={"User-Agent": "AVERIS-Netlify-smoke/1.0", **(headers or {})})
-              with urlopen(request, timeout=20) as response:
+          def fetch(url):
+              request = Request(url, headers={"User-Agent": "AVERIS-GitHub-Pages-smoke/1.0"})
+              with urlopen(request, timeout=30) as response:
                   if response.status != 200:
                       raise RuntimeError(f"{url} returned HTTP {response.status}")
-                  return response.read().decode("utf-8", "replace")
+                  return response.read()
 
-          def cache_control(url):
-              request = Request(url, headers={"User-Agent": "AVERIS-Netlify-smoke/1.0"})
-              with urlopen(request, timeout=20) as response:
-                  if response.status != 200:
-                      raise RuntimeError(f"{url} returned HTTP {response.status}")
-                  return response.headers.get("Cache-Control", "").lower()
+          live_html = fetch(base)
+          live_index = live_html.decode("utf-8", "replace")
+          if live_html != Path("index.html").read_bytes():
+              raise RuntimeError("Published index.html does not match the tested source commit.")
 
-          last_error = None
-          for attempt in range(10):
-              try:
-                  html = fetch(base)
-                  app_match = re.search(r"""<script[^>]+src=["']([^"']*app\.js\?v=(\d+))["']""", html, re.I)
-                  css_match = re.search(r"""<link[^>]+href=["']([^"']*styles\.css\?v=(\d+))["']""", html, re.I)
-                  if not app_match or not css_match:
-                      raise RuntimeError("Published HTML is missing versioned app.js or styles.css.")
-                  source_html = Path("index.html").read_text(encoding="utf-8")
-                  source_app_match = re.search(r"""<script[^>]+src=["']([^"']*app\.js\?v=(\d+))["']""", source_html, re.I)
-                  source_css_match = re.search(r"""<link[^>]+href=["']([^"']*styles\.css\?v=(\d+))["']""", source_html, re.I)
-                  if not source_app_match or not source_css_match:
-                      raise RuntimeError("Source HTML is missing versioned app.js or styles.css.")
-                  expected_version = source_app_match.group(2)
-                  if source_css_match.group(2) != expected_version:
-                      raise RuntimeError("Source HTML has inconsistent app.js and styles.css versions.")
+          app_match = re.search(r"""<script[^>]+src=["']([^"']*app\.js\?v=(\d+))["']""", live_index, re.I)
+          css_match = re.search(r"""<link[^>]+href=["']([^"']*styles\.css\?v=(\d+))["']""", live_index, re.I)
+          if not app_match or not css_match:
+              raise RuntimeError("Published HTML is missing versioned app.js or styles.css.")
+          if app_match.group(2) != css_match.group(2):
+              raise RuntimeError("Published JavaScript and CSS version query strings differ.")
 
-                  app_ref, app_version = app_match.group(1), app_match.group(2)
-                  css_ref, css_version = css_match.group(1), css_match.group(2)
+          app_bytes = fetch(urljoin(base, app_match.group(1)))
+          css_bytes = fetch(urljoin(base, css_match.group(1)))
+          sw_bytes = fetch(urljoin(base, "sw.js"))
+          manifest_bytes = fetch(urljoin(base, "manifest.json"))
+          if app_bytes != Path("app.js").read_bytes():
+              raise RuntimeError("Published app.js does not match the tested source commit.")
+          if css_bytes != Path("styles.css").read_bytes():
+              raise RuntimeError("Published styles.css does not match the tested source commit.")
+          if sw_bytes != Path("sw.js").read_bytes():
+              raise RuntimeError("Published service worker does not match the tested source commit.")
+          if manifest_bytes != Path("manifest.json").read_bytes():
+              raise RuntimeError("Published manifest.json does not match the tested source commit.")
 
-                  # Fetch actual response bodies before reporting version mismatch.
-                  # This distinguishes complete asset files from 404s or HTML fallback bodies.
-                  app_js = fetch(urljoin(base, app_ref))
-                  css = fetch(urljoin(base, css_ref))
-                  sw = fetch(urljoin(base, "sw.js"))
-                  import hashlib
-                  app_sha256 = hashlib.sha256(app_js.encode("utf-8")).hexdigest()
-                  css_sha256 = hashlib.sha256(css.encode("utf-8")).hexdigest()
-                  app_security_fix = "function sanitizeMarkup(markup)" in app_js
-                  css_drawer_fix = ".drawer{z-index:110}" in css
-                  print("Observed live assets: " + json.dumps({
-                      "app_url": urljoin(base, app_ref),
-                      "app_bytes": len(app_js),
-                      "app_sha256": app_sha256,
-                      "app_has_workspace_html_sanitizer": app_security_fix,
-                      "css_url": urljoin(base, css_ref),
-                      "css_bytes": len(css),
-                      "css_sha256": css_sha256,
-                      "css_has_drawer_layer_fix": css_drawer_fix,
-                      "html_app_version": app_version,
-                      "html_css_version": css_version,
-                      "expected_version": expected_version,
-                  }, sort_keys=True))
-                  if len(app_js) < 10000 or len(css) < 10000 or "AVERIS" not in app_js:
-                      raise RuntimeError("Published JS/CSS responses are incomplete or are not the expected asset types.")
-                  if app_version != expected_version or css_version != expected_version or not app_security_fix or not css_drawer_fix:
-                      raise RuntimeError(
-                          f"Netlify is serving stale or mismatched frontend assets: expected v{expected_version}, "
-                          f"live app={app_version} (HTML sanitizer present={app_security_fix}, sha256={app_sha256}), "
-                          f"css={css_version} (drawer z-index fix present={css_drawer_fix}, sha256={css_sha256})."
-                      )
-                  cache_match = re.search(r"""const CACHE=['"]averis-by-mahi-v(\d+)['"]""", sw)
-                  if not cache_match or cache_match.group(1) != expected_version:
-                      raise RuntimeError(f"Netlify service-worker cache does not match v{expected_version}.")
-                  try:
-                      published_revision = fetch(urljoin(base, "build-revision.txt")).strip()
-                  except Exception as exc:
-                      raise RuntimeError("Published artifact does not expose build-revision.txt; exact source revision cannot be verified.") from exc
-                  expected_revision = os.environ.get("GITHUB_SHA", "").strip()
-                  if not expected_revision or published_revision != expected_revision:
-                      raise RuntimeError(f"Netlify source revision mismatch: expected {expected_revision or 'current GitHub SHA'}, live {published_revision}.")
+          sw = sw_bytes.decode("utf-8", "replace")
+          cache_match = re.search(r"""const CACHE=['"]averis-by-mahi-v(\d+)['"]""", sw)
+          expected_version = app_match.group(2)
+          if not cache_match or cache_match.group(1) != expected_version:
+              raise RuntimeError("Published service-worker cache version does not match the HTML assets.")
 
-                  html_cache = cache_control(base)
-                  app_cache = cache_control(urljoin(base, app_ref))
-                  css_cache = cache_control(urljoin(base, css_ref))
-                  sw_cache = cache_control(urljoin(base, "sw.js"))
-                  if not ("no-cache" in html_cache or "max-age=0" in html_cache):
-                      raise RuntimeError("HTML cache policy is not revalidating on each visit.")
-                  if "immutable" not in app_cache or "max-age=31536000" not in app_cache:
-                      raise RuntimeError("app.js does not use long-lived versioned asset caching.")
-                  if "immutable" not in css_cache or "max-age=31536000" not in css_cache:
-                      raise RuntimeError("styles.css does not use long-lived versioned asset caching.")
-                  if "no-store" not in sw_cache and "no-cache" not in sw_cache:
-                      raise RuntimeError("Service worker response may remain stale in browser caches.")
-
-                  health_raw = fetch(urljoin(base, "api/health"), {"apikey": public_key, "accept": "application/json"})
-                  health = json.loads(health_raw)
-                  if health.get("status") != "ok" or health.get("database_driver") != "postgresql":
-                      raise RuntimeError("Netlify API rewrite did not return the PostgreSQL health contract.")
-                  print(f"Netlify production verified: source {expected_revision}, app.js/css v{expected_version}, matching service-worker cache, cache-control policies, and PostgreSQL-backed same-origin API are healthy.")
-                  break
-              except Exception as exc:
-                  last_error = exc
-                  if attempt == 9:
-                      raise SystemExit("Netlify production verification failed: " + repr(last_error))
-                  print("Waiting for Netlify production propagation; retry", attempt + 1)
-                  time.sleep(5)
+          revision = fetch(urljoin(base, "build-revision.txt")).decode("utf-8", "replace").strip()
+          if revision != expected_revision:
+              raise RuntimeError(f"Published revision mismatch: expected {expected_revision}, live {revision}.")
+          for name, data in (("app.js", app_bytes), ("styles.css", css_bytes), ("sw.js", sw_bytes)):
+              print(f"{name}: {len(data)} bytes sha256={hashlib.sha256(data).hexdigest()}")
+          print(f"GitHub Pages release verified: revision {revision}; core assets match source; asset version v{expected_version}.")
           PY
