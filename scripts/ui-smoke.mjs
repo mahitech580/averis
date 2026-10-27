@@ -128,14 +128,15 @@ try {
     assert.equal(styles.backgroundImage, "none", "long-form sections should not each use a different photo background: " + selector);
     assert.equal(styles.backgroundColor, sharedSurface, "long-form sections should share one theme surface: " + selector);
     const overlayImage = await section.locator("> .section-overlay").evaluate((node) => getComputedStyle(node).backgroundImage);
-    assert.ok(overlayImage.includes("radial-gradient"), "subtle shared accent gradient should remain: " + selector);
+    const shouldAccent = selector === ".hero-bg" || selector === ".cta-bg";
+    assert.equal(overlayImage.includes("radial-gradient"), shouldAccent, "gradients should be selective, not on every section: " + selector);
   }
   const footerStyle = await page.locator("footer.site-footer").evaluate((node) => ({
     backgroundImage: getComputedStyle(node).backgroundImage,
     borderTopWidth: getComputedStyle(node).borderTopWidth,
   }));
-  assert.ok(footerStyle.backgroundImage.includes("https://"), "footer must include a photo background");
-  assert.equal(footerStyle.borderTopWidth, "0px", "footer should not add a hard horizontal border seam");
+  assert.equal(footerStyle.backgroundImage, "none", "footer should share the single theme surface rather than add another photo");
+  assert.equal(footerStyle.borderTopWidth, "1px", "footer should use a restrained theme-border divider");
 
   for (const selector of [".capability-card", ".process-card", ".layer-card", ".boundary-point"]) {
     const count = await page.locator("#workspace-root " + selector).count();
