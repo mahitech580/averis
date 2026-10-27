@@ -2045,3 +2045,357 @@ p,.page-copy,.page-description,.landing-lead,.section-description{line-height:1.
 @media(prefers-reduced-motion:reduce){
   .signal,.card,.platform-metric,.showcase-card,.layer-card{transition:none}
 }
+
+
+/* AVERIS v48 — the requested clinical editorial system, applied across every route. */
+:root{
+  --accent-purple:#5F3EE8;
+  --accent-purple-strong:#5B35D5;
+  --accent-lavender:#D8CCFF;
+  --healthcare-green:#16834A;
+  --healthcare-red:#CF3E5D;
+  --healthcare-sky:#087EAE;
+  --healthcare-pink:#BE397C;
+  --line:rgba(69,49,134,.17);
+  --line2:rgba(69,49,134,.28);
+  --radius:16px;
+}
+:root[data-theme="dark"]{
+  --accent-purple:#BFAEFF;
+  --accent-purple-strong:#E5D9FF;
+  --accent-lavender:#4E4275;
+  --healthcare-green:#55E69A;
+  --healthcare-red:#FF7189;
+  --healthcare-sky:#45C8F5;
+  --healthcare-pink:#F085BE;
+  --line:rgba(195,177,255,.19);
+  --line2:rgba(195,177,255,.31);
+}
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:90px;
+}
+body{
+  font-family:var(--font-body);
+  line-height:1.6;
+  color:var(--text);
+}
+p,.page-copy,.page-description,.landing-lead,.overview-subtitle,
+.center-heading p,.feature-copy>p,.boundary-layout p,.process-card p{
+  line-height:1.82;
+}
+h1,h2,h3,h4,.brand b,.page-head h1,.page-head h2,.report h3,
+.section-inner h2{
+  font-family:var(--font-display);
+}
+.eyebrow,.section-kicker,.micro,.mono,.nav-label,.nav-item,
+.clock,.breadcrumbs,.local-chip,.connection-chip,.status,.tag,
+.field-hint,kbd,.site-nav-link,.overview-visual-caption span{
+  font-family:var(--font-mono);
+}
+.eyebrow,.section-kicker{font-size:clamp(.55rem,.62rem,.72rem);letter-spacing:.15em}
+.site-header,#site-header{
+  position:sticky;
+  top:0;
+  z-index:100;
+  min-height:74px;
+  background:color-mix(in srgb,var(--bg) 82%,transparent);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line);
+  transition:box-shadow .22s var(--ease),background .22s var(--ease);
+}
+body.scrolled .site-header,body.scrolled #site-header{
+  box-shadow:0 10px 28px rgba(22,12,55,.12);
+}
+.site-header .site-nav-link{
+  font-size:.72rem;
+  letter-spacing:-.015em;
+}
+.site-header .site-nav-link.active{
+  color:var(--accent-purple);
+  background:color-mix(in srgb,var(--accent-purple) 9%,transparent);
+}
+.website-shell .website-section-bg{
+  color:var(--text);
+  background-color:var(--bg)!important;
+  background-image:none!important;
+  background-position:center;
+  background-size:cover;
+}
+.website-shell .website-section-bg>.section-overlay{
+  background:
+    radial-gradient(ellipse at 12% 8%,color-mix(in srgb,var(--accent-purple) 7%,transparent),transparent 42%),
+    linear-gradient(180deg,color-mix(in srgb,var(--bg) 96%,transparent),color-mix(in srgb,var(--bg) 96%,transparent))!important;
+  opacity:1;
+  pointer-events:none;
+}
+.website-shell .landing-intro,
+.website-shell .process-section,
+.website-shell .landing-feature,
+.website-shell .layers-section,
+.website-shell .landing-showcase,
+.website-shell .boundary-section,
+.website-shell .landing-cta{
+  border-top:1px solid var(--line);
+}
+.website-shell .landing-hero{
+  padding-block:clamp(52px,7vw,92px) clamp(56px,7vw,84px);
+}
+.website-shell .overview-kicker{margin-bottom:clamp(24px,3.5vw,44px)}
+.website-shell .overview-kicker .hero-kicker{font-size:.62rem;color:var(--muted)}
+.website-shell .overview-layout{
+  grid-template-columns:minmax(0,.92fr) minmax(0,1.02fr) minmax(300px,.96fr);
+  gap:clamp(22px,3vw,48px);
+  align-items:center;
+}
+.website-shell .overview-heading{align-self:center}
+.website-shell .overview-heading h1{
+  max-width:100%;
+  margin:0;
+  font-size:clamp(3rem,6.8vw,7.4rem);
+  line-height:.94;
+  letter-spacing:-.078em;
+  font-weight:500;
+  overflow-wrap:normal;
+}
+.website-shell .overview-heading h1 span{
+  display:block;
+  color:transparent!important;
+  -webkit-text-fill-color:transparent;
+  -webkit-text-stroke:1.35px var(--accent-purple);
+  text-shadow:none!important;
+  letter-spacing:-.078em;
+  transition:transform .24s var(--ease),-webkit-text-stroke-color .24s var(--ease);
+}
+.website-shell .overview-heading h1 span::before,
+.website-shell .overview-heading h1 span::after{
+  background:radial-gradient(circle,color-mix(in srgb,var(--accent-purple) 14%,transparent),transparent 72%);
+  opacity:.45;
+}
+.website-shell .overview-heading h1 span:hover{
+  transform:translateY(-2px);
+  -webkit-text-stroke-color:var(--healthcare-sky);
+}
+.website-shell .overview-heading h1 em{
+  display:block;
+  margin-top:.14em;
+  color:var(--muted);
+  font-size:.56em;
+  line-height:1.03;
+  font-style:italic;
+  font-weight:400;
+  letter-spacing:-.055em;
+  overflow-wrap:normal;
+}
+.website-shell .overview-subtitle{
+  max-width:27ch;
+  margin:1.3rem 0 0;
+  color:var(--muted);
+  font-size:clamp(.82rem,1vw,.96rem);
+  line-height:1.75;
+  font-style:italic;
+}
+.website-shell .overview-matter .landing-lead{
+  color:var(--text-secondary,var(--muted));
+  font-size:clamp(.83rem,1.05vw,.94rem);
+  line-height:1.85;
+  max-width:56ch;
+}
+.website-shell .overview-matter .landing-actions{
+  gap:12px;
+  margin-top:24px;
+  align-items:center;
+}
+.website-shell .overview-matter .landing-trust{
+  gap:10px 14px;
+  margin-top:22px;
+}
+.website-shell .landing-trust span{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  color:var(--muted);
+  font:500 .6rem/1.5 var(--font-mono);
+  letter-spacing:.015em;
+}
+.website-shell .landing-trust span::before{
+  content:"";
+  width:6px;height:6px;flex:none;
+  border-radius:50%;
+  background:var(--healthcare-green);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--healthcare-green) 12%,transparent);
+}
+.website-shell .overview-visual .hero-image-window{
+  border:1px solid var(--line2);
+  border-radius:18px;
+  box-shadow:0 24px 70px rgba(18,10,47,.12);
+  background:var(--surface);
+}
+.website-shell .overview-visual .hero-image-window img{
+  transform-origin:center center;
+  transition:transform .16s linear,filter .25s ease;
+}
+.website-shell .overview-visual-caption{
+  color:var(--muted);
+  font-family:var(--font-mono);
+  font-size:.6rem;
+}
+.website-shell .overview-visual-caption span{color:var(--healthcare-sky)}
+.website-shell .section-inner{padding-block:clamp(52px,6vw,84px)}
+.website-shell .center-heading{max-width:800px;margin-inline:auto;margin-bottom:32px}
+.website-shell .center-heading h2{
+  font-size:clamp(2.1rem,4.6vw,4.4rem);
+  line-height:1.02;
+  letter-spacing:-.06em;
+  font-weight:500;
+}
+.website-shell .center-heading h2 span{
+  color:transparent;
+  -webkit-text-stroke:1px var(--accent-purple);
+  background:none;
+}
+.website-shell .center-heading p{
+  max-width:66ch;
+  margin-inline:auto;
+  font-size:.86rem;
+  color:var(--muted);
+}
+.website-shell .capability-grid{gap:16px}
+.website-shell .capability-card,
+.website-shell .process-card,
+.website-shell .layer-card,
+.website-shell .showcase-card,
+.website-shell .boundary-point{
+  padding:clamp(18px,2.2vw,28px);
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface);
+  box-shadow:var(--soft);
+}
+.website-shell .capability-card{
+  min-height:250px;
+  text-align:left;
+  align-items:flex-start;
+  transition:transform .22s var(--ease),border-color .22s var(--ease),box-shadow .22s var(--ease);
+}
+.website-shell .capability-card:hover,
+.website-shell .process-card:hover,
+.website-shell .layer-card:hover{
+  transform:translateY(-3px);
+  border-color:color-mix(in srgb,var(--accent-purple) 42%,var(--line));
+  box-shadow:0 18px 45px rgba(25,19,47,.10);
+}
+.website-shell .capability-icon{
+  width:42px;height:42px;
+  border:1px solid var(--line2);
+  border-radius:12px;
+  background:color-mix(in srgb,var(--accent-purple) 8%,var(--surface));
+  color:var(--accent-purple);
+}
+.website-shell .capability-card h3{font-size:1.15rem;letter-spacing:-.04em}
+.website-shell .capability-card p{
+  font-size:.83rem;line-height:1.8;
+  color:var(--muted);
+}
+.website-shell .process-card small{
+  font:500 .62rem var(--font-mono);
+  letter-spacing:.13em;
+  color:var(--healthcare-sky);
+}
+.website-shell .process-card p{font-size:.83rem;color:var(--muted)}
+.website-shell .button,.website-shell .button.primary,.website-shell .button.ghost{
+  min-height:48px;
+  padding-inline:19px;
+  gap:8px;
+  border-radius:12px;
+  font-weight:800;
+  letter-spacing:-.01em;
+}
+.website-shell .button.primary{
+  color:#fff;
+  background:var(--accent-purple);
+  border:1px solid var(--accent-purple);
+  box-shadow:0 8px 22px color-mix(in srgb,var(--accent-purple) 18%,transparent);
+}
+:root[data-theme="dark"] .website-shell .button.primary{color:#19132F}
+.website-shell .button.primary:hover{
+  background:var(--accent-purple-strong);
+  border-color:var(--accent-purple-strong);
+}
+.website-shell .button.ghost{
+  color:var(--text);
+  border:1px solid var(--line2);
+  background:transparent;
+}
+.website-shell .button.ghost:hover{
+  color:var(--healthcare-sky);
+  border-color:var(--healthcare-sky);
+  background:color-mix(in srgb,var(--healthcare-sky) 7%,transparent);
+}
+.icon-button{
+  width:44px;height:44px;min-width:44px;
+  border-radius:50%;
+  border:1px solid var(--line2);
+  background:transparent;
+}
+.icon-button:hover{
+  color:var(--healthcare-sky);
+  border-color:var(--healthcare-sky);
+}
+.status.good,.status.success,.health-positive{color:var(--healthcare-green)!important}
+.status.bad,.status.critical,.health-negative{color:var(--healthcare-red)!important}
+.status.info,.health-info{color:var(--healthcare-sky)!important}
+.status.pink,.health-pink{color:var(--healthcare-pink)!important}
+.scroll-progress{
+  position:fixed;top:0;left:0;right:auto;height:3px;
+  z-index:1200;width:0;background:var(--accent-purple);
+  box-shadow:0 0 12px color-mix(in srgb,var(--accent-purple) 35%,transparent);
+  pointer-events:none;transition:width .08s linear;
+}
+.back-to-top{
+  width:48px;height:48px;right:22px;bottom:22px;
+  border-radius:50%;
+  border:1px solid var(--line2);
+  background:color-mix(in srgb,var(--surface) 92%,transparent);
+  backdrop-filter:blur(18px);
+  color:var(--accent-purple);
+}
+.back-to-top:hover{color:var(--healthcare-sky);border-color:var(--healthcare-sky)}
+.reveal-on-scroll{
+  opacity:.01;transform:translateY(14px);
+  transition:opacity .48s var(--ease),transform .48s var(--ease);
+}
+.reveal-on-scroll.is-revealed{opacity:1;transform:translateY(0)}
+@media(max-width:1020px){
+  .website-shell .overview-layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}
+  .website-shell .overview-heading{grid-column:1/-1}
+  .website-shell .overview-heading h1{font-size:clamp(3.5rem,10vw,6rem)}
+  .website-shell .overview-subtitle{max-width:42ch}
+  .website-shell .overview-matter .landing-lead{font-size:.9rem}
+  .website-shell .overview-visual .hero-image-window{min-height:220px}
+}
+@media(max-width:680px){
+  .website-shell .landing-hero{padding-block:36px 48px}
+  .website-shell .overview-kicker{align-items:flex-start;flex-direction:column;gap:10px}
+  .website-shell .overview-kicker .hero-kicker{justify-content:flex-start;text-align:left}
+  .website-shell .overview-layout{grid-template-columns:minmax(0,1fr);gap:24px}
+  .website-shell .overview-heading{grid-column:auto}
+  .website-shell .overview-heading h1{font-size:clamp(3.25rem,15vw,5.1rem)}
+  .website-shell .overview-heading h1 em{font-size:.58em}
+  .website-shell .overview-subtitle{margin-top:14px;font-size:.82rem}
+  .website-shell .overview-visual{grid-row:auto}
+  .website-shell .overview-visual .hero-image-window{min-height:0;aspect-ratio:5/4;border-radius:15px}
+  .website-shell .overview-matter .landing-actions{display:flex;flex-direction:column;align-items:stretch}
+  .website-shell .overview-matter .landing-actions .button{width:100%;justify-content:center}
+  .website-shell .overview-matter .landing-trust{gap:9px;flex-direction:column;align-items:flex-start}
+  .website-shell .center-heading h2{font-size:clamp(2rem,9vw,3.2rem)}
+  .website-shell .capability-grid{grid-template-columns:minmax(0,1fr)}
+  .website-shell .capability-card{min-height:0}
+  .site-header .site-nav-link{font-size:.6rem}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .reveal-on-scroll{opacity:1!important;transform:none!important}
+}
