@@ -2556,3 +2556,15 @@ body.public-mode .site-header .connection-chip{font-size:.62rem}
     aspect-ratio:16/10!important;
   }
 }
+
+
+/* The overview is now a full-width section; do not leave it in the legacy two-column hero grid. */
+.website-shell .landing-hero{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  grid-template-columns:minmax(0,1fr)!important;
+}
+.website-shell .landing-hero-inner{
+  grid-column:1/-1!important;
+}
