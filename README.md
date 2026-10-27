@@ -114,11 +114,11 @@ The Netlify production deploy is currently skipped when that secret is missing. 
 
 ## Production SaaS architecture
 
-- **Netlify frontend:** the `averis-saas` site serves the UI and proxies `/api/*` to FastAPI. GitHub Pages remains a static portfolio showcase; cross-site session cookies can be blocked by browsers.
-- **Python API:** FastAPI, SQLAlchemy, input validation, server-hashed passwords, revocable HttpOnly sessions, tenant-scoped access, audit events, revision-checked workspace sync, and OpenAPI docs at `/api/docs`.
-- **Database:** the existing Mumbai-region Supabase PostgreSQL project `averis-erp-prod`. Six application tables have RLS enabled with public API privileges revoked. The API must connect through the trusted server database URI.
-- **AI/ML:** local scikit-learn TF-IDF/logistic-regression classification of non-clinical synthetic operations notes; NumPy/Pandas and IsolationForest inventory anomaly detection. Triage text is not persisted or included in audit logs; only predicted category/priority/model are recorded. No external AI inference calls are made.
-- **Optional study stack:** `requirements-ai.txt` documents TensorFlow, PyTorch, LangChain, CrewAI, Sentence Transformers and Jupyter for experiments outside the default production server image.
+- **Netlify and Vercel frontends:** `/api/*` rewrites target the Supabase Edge Function, preserving a same-origin API path. GitHub Pages calls the same function directly with a bearer session token held in sessionStorage.
+- **Database API and authentication:** the `averis-api` Supabase Edge Function validates hashed session tokens and organization membership, then performs tenant-scoped queries through the server-side Supabase service-role client. The service-role key is never shipped to the browser or committed to the repository. Public Data API roles remain denied direct access to application tables.
+- **Python ML service:** Render hosts FastAPI in `AI_ONLY=true` mode and exposes only bounded, non-clinical inference routes. It uses scikit-learn TF-IDF/logistic regression for synthetic operations-note routing, plus NumPy/Pandas and IsolationForest for inventory outlier screening. It has no database credentials and cannot serve account or ERP routes.
+- **AI data boundary:** submitted note text is processed in memory and is not saved to audit logs. The Edge API records only the model name, predicted category and priority. All application data must remain synthetic.
+- **Optional study stack:** `requirements-ai.txt` documents TensorFlow, PyTorch, LangChain, CrewAI, Sentence Transformers and Jupyter for isolated experimentation. Those libraries are not silently installed into the production inference image.
 
 ## ML endpoints
 
@@ -132,9 +132,15 @@ The Netlify production deploy is currently skipped when that secret is missing. 
 
 Space Grotesk headlines, Manrope body copy and DM Mono metadata; light lavender/purple and dark midnight-violet themes; restrained medical blue/green/red accents; 8px-based spacing; 48px minimum buttons; passive scroll-progress tracking, IntersectionObserver reveals, subtle hero motion and a back-to-top button. Reduced-motion preferences are respected.
 
-## Deployment status and required database secret
+## Deployment topology and verification
 
-The frontend is deployed, but a production API has not yet been verified. The connected Render workspace had no Averis web-service resource when last inspected, while the existing Netlify proxy points to `https://averis-platform-api-mahi.onrender.com`; its health route returned 404. Provision the API from `render.yaml`, set the Supabase **Session pooler connection URI** as the secret `DATABASE_URL`, keep `APP_ENV=production`, and verify `/api/health` returns `status=ok` with `database_driver=postgresql`. Never commit the password or use ephemeral SQLite in production. Do not describe production as connected until signup/login and tenant-isolation tests pass.
+- **GitHub Pages** publishes the static showcase from `main`. It uses the Supabase Edge API directly for cloud accounts and data.
+- **Supabase** hosts the production Postgres database and the `averis-api` Edge Function. The function reads `SUPABASE_SERVICE_ROLE_KEY` from its managed server environment; no database password or service-role key is required in the repo or on Render.
+- **Render** hosts the separate Python ML service. Its `AI_ONLY=true` middleware blocks account, workspace and ERP routes, so it uses no database and cannot operate on tenant records directly. The Edge API sends only ephemeral note text or authenticated-tenant synthetic product data to this service.
+- **Netlify production publish** requires `NETLIFY_AUTH_TOKEN` in the GitHub repository's Actions secrets. Without it, the workflow deliberately skips the Netlify publish step. Check the deployment commit before assuming the existing Netlify URL includes the latest frontend.
+- **Verification gates:** API health returns `status=ok` from Supabase, signup/login issue revocable session tokens, workspace snapshots persist across reloads, ERP CRUD remains organization-scoped, ML endpoints return bounded results, and the GitHub Actions Python/Postman/Chromium checks pass.
+
+Use synthetic data only. Averis is not a diagnosis, treatment, patient-record, or clinical decision-support system.
 
 ## Official implementation references
 

@@ -1,0 +1,2 @@
+[functions.averis-api]
+verify_jwt = false

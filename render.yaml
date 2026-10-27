@@ -12,8 +12,8 @@ services:
     envVars:
       - key: APP_ENV
         value: production
-      - key: DATABASE_URL
-        sync: false
+      - key: AI_ONLY
+        value: "true"
       - key: ALLOWED_ORIGINS
         value: https://averis-saas.netlify.app,https://mahitech580.github.io,https://averis-tau.vercel.app
 previews:

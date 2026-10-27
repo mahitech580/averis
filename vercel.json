@@ -25,7 +25,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://averis-platform-api-mahi.onrender.com/api/:path*"
+      "destination": "https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api/api/:path*"
     },
     {
       "source": "/",

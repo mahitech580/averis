@@ -100,7 +100,7 @@ def test_netlify_api_proxy_and_cloud_demo_route_are_wired():
     app = read("app.js")
     backend = read("backend/main.py")
     assert 'from = "/api/*"' in netlify
-    assert 'to = "https://averis-platform-api-mahi.onrender.com/api/:splat"' in netlify
+    assert 'to = "https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api/api/:splat"' in netlify
     assert 'data-action="cloud-demo"' in app
     assert 'apiRequest("/auth/demo"' in app
     assert '@app.post("/api/auth/demo")' in backend
@@ -166,3 +166,20 @@ def test_local_preview_automatically_targets_fastapi():
     app = read("app.js")
     assert '["localhost","127.0.0.1"].includes(location.hostname)' in app
     assert '"http://127.0.0.1:8000/api"' in app
+
+
+def test_cloud_auth_uses_a_server_session_token_and_durable_edge_api():
+    app = read("app.js")
+    netlify = read("netlify.toml")
+    vercel = read("vercel.json")
+    edge = read("supabase/functions/averis-api/index.ts")
+    config = read("supabase/config.toml")
+    assert "functions/v1/averis-api/api" in app
+    assert 'sessionStorage.getItem("averis_session_token")' in app
+    assert 'sessionStorage.setItem("averis_session_token",identity.access_token)' in app
+    assert "supabase.co/functions/v1/averis-api/api/:splat" in netlify
+    assert "supabase.co/functions/v1/averis-api/api/:path*" in vercel
+    assert "SUPABASE_SERVICE_ROLE_KEY" in edge
+    assert 'request.headers.get("authorization")' in edge
+    assert "verify_jwt = false" in config
+    assert "/api/auth/register" in edge and "/api/erp/summary" in edge and "/api/ai/triage" in edge

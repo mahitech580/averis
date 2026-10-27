@@ -15,12 +15,13 @@ from backend.services.prioritization import prioritize_inventory
 from backend.services.ai_engine import classify_operational_text, inventory_anomalies
 
 APP_ENV=os.getenv("APP_ENV","development").lower()
+AI_ONLY=os.getenv("AI_ONLY","false").lower() in {"1","true","yes"}
 COOKIE="averis_session"
 SESSION_TTL=604800
 MAX_BYTES=1_500_000
 PASSWORD_HASHER=PasswordHash.recommended()
 raw_url=os.getenv("DATABASE_URL","sqlite:///./averis.db").strip()
-if APP_ENV=="production" and raw_url.startswith("sqlite"):
+if APP_ENV=="production" and raw_url.startswith("sqlite") and not AI_ONLY:
     raise RuntimeError("APP_ENV=production requires a persistent DATABASE_URL; SQLite on ephemeral hosting is unsafe.")
 if raw_url.startswith("postgres://"): DB_URL=raw_url.replace("postgres://","postgresql+psycopg://",1)
 elif raw_url.startswith("postgresql://"): DB_URL=raw_url.replace("postgresql://","postgresql+psycopg://",1)
@@ -105,6 +106,8 @@ app.add_middleware(CORSMiddleware,allow_origins=sorted(ALLOWED_ORIGINS),allow_cr
 
 @app.middleware("http")
 async def request_safety(request:Request,call_next):
+    if AI_ONLY and request.url.path not in {"/api/health","/api/ai/triage-public","/api/ai/inventory/anomalies-public"}:
+        return JSONResponse(status_code=404,content={"detail":"Route not available on the isolated ML service."})
     if request.url.path.startswith("/api/") and request.method in {"POST","PUT","PATCH","DELETE"}:
         origin=request.headers.get("origin")
         if origin and origin.rstrip("/") not in ALLOWED_ORIGINS and origin.rstrip("/")!=str(request.base_url).rstrip("/"):
@@ -118,7 +121,8 @@ async def request_safety(request:Request,call_next):
     return response
 
 @app.on_event("startup")
-def create_schema(): Base.metadata.create_all(bind=engine)
+def create_schema():
+    if not AI_ONLY: Base.metadata.create_all(bind=engine)
 
 def get_db()->Generator[Session,None,None]:
     db=SessionLocal()
@@ -375,6 +379,20 @@ def ai_inventory_anomalies(db:Session=Depends(get_db),user:User=Depends(current_
 @app.get("/api/ai/capabilities")
 def ai_capabilities(user:User=Depends(current_user)):
     return {"enabled":True,"models":[{"id":"tfidf-logistic-regression-v1","purpose":"synthetic operations-note routing"},{"id":"isolation-forest-v1","purpose":"inventory outlier screening"}],"libraries":["NumPy","Pandas","scikit-learn"],"external_inference":False,"clinical_decisioning":False,"data_retention":"Triage input text is not stored; only predicted category, priority and model identifier are recorded in the audit log.","notice":"Synthetic operational data only. Not for diagnosis, treatment, or clinical decisions."}
+
+
+class AIInventoryInput(BaseModel):
+    items:list[dict[str,Any]]=Field(max_length=2000)
+
+@app.post("/api/ai/triage-public")
+def ai_triage_public(payload:AITextInput):
+    """Ephemeral non-clinical inference route for the isolated ML service."""
+    return classify_operational_text(payload.text)
+
+@app.post("/api/ai/inventory/anomalies-public")
+def ai_inventory_anomalies_public(payload:AIInventoryInput):
+    """Analyze caller-supplied synthetic inventory without database access or persistence."""
+    return inventory_anomalies(payload.items)
 
 # Public demo is isolated per visitor: no shared credentials, real patient data, or cross-visitor edits.
 _DEMO_WINDOW_SECONDS = 3600
