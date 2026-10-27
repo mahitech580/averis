@@ -224,9 +224,9 @@ def test_requested_editorial_healthcare_design_system_is_used_by_live_overview()
     assert 'topButton?.addEventListener("click"' in app
     assert ".reveal-on-scroll.is-revealed" in css
     assert "prefers-reduced-motion:reduce" in css
-    assert "styles.css?v=53" in html
-    assert "app.js?v=53" in html
-    assert "averis-by-mahi-v53" in read("sw.js")
+    assert "styles.css?v=54" in html
+    assert "app.js?v=54" in html
+    assert "averis-by-mahi-v54" in read("sw.js")
 
 
 def test_home_page_copy_distinguishes_cloud_persistence_from_local_preview():
@@ -324,3 +324,15 @@ def test_local_modal_forms_preserve_data_and_enforce_numeric_constraints():
         "UI CRUD Incident", "UI CRUD Report", "UI CRUD ERP Product Updated",
     ):
         assert marker in ui, f"missing browser workflow regression: {marker}"
+
+
+
+def test_service_worker_never_persists_same_origin_api_responses():
+    sw = read("sw.js")
+    api_guard = "if(url.origin===self.location.origin&&(url.pathname==='/api'||url.pathname.startsWith('/api/')))"
+    assert api_guard in sw
+    assert "fetch(e.request,{cache:'no-store'})" in sw
+    assert sw.index(api_guard) < sw.index("const dynamic=")
+    assert "averis-by-mahi-v54" in sw
+    html = read("index.html")
+    assert "app.js?v=54" in html and "styles.css?v=54" in html
