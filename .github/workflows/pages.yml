@@ -136,6 +136,61 @@ jobs:
       - name: Deploy Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify published GitHub Pages assets
+        env:
+          PAGES_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          python - <<'PY'
+          import os
+          import re
+          import time
+          from urllib.parse import urljoin
+          from urllib.request import Request, urlopen
+
+          base = os.environ.get("PAGES_URL", "").rstrip("/") + "/"
+          if not base.startswith("https://"):
+              raise SystemExit("GitHub Pages did not return an HTTPS deployment URL.")
+
+          def fetch(url):
+              request = Request(url, headers={"User-Agent": "AVERIS-production-smoke/1.0"})
+              with urlopen(request, timeout=20) as response:
+                  if response.status != 200:
+                      raise RuntimeError(f"{url} returned HTTP {response.status}")
+                  return response.read().decode("utf-8", "replace")
+
+          last_error = None
+          for attempt in range(12):
+              try:
+                  html = fetch(base)
+                  app_match = re.search(r'<script[^>]+src=["\']([^"\']*app\.js\?v=(\d+))["\']', html, re.I)
+                  css_match = re.search(r'<link[^>]+href=["\']([^"\']*styles\.css\?v=(\d+))["\']', html, re.I)
+                  if not app_match or not css_match:
+                      raise RuntimeError("Published HTML is missing versioned app.js or styles.css references.")
+
+                  app_ref, app_version = app_match.group(1), app_match.group(2)
+                  css_ref, css_version = css_match.group(1), css_match.group(2)
+                  if app_version != css_version:
+                      raise RuntimeError(f"Published asset versions differ: app.js v{app_version}, styles.css v{css_version}.")
+
+                  app_js = fetch(urljoin(base, app_ref))
+                  css = fetch(urljoin(base, css_ref))
+                  sw = fetch(urljoin(base, "sw.js"))
+                  cache_match = re.search(r"""const CACHE=['"]averis-by-mahi-v(\d+)['"]""", sw)
+                  if not cache_match or cache_match.group(1) != app_version:
+                      raise RuntimeError("Published service-worker cache version does not match the page assets.")
+                  if len(app_js) < 10000 or len(css) < 10000:
+                      raise RuntimeError("Published JavaScript or stylesheet looks unexpectedly small.")
+                  if "AVERIS" not in app_js:
+                      raise RuntimeError("Published JavaScript does not contain the expected AVERIS application.")
+                  print(f"GitHub Pages verified at {base}: HTML, app.js v{app_version}, styles.css v{css_version}, and service-worker cache all match.")
+                  break
+              except Exception as exc:
+                  last_error = exc
+                  if attempt == 11:
+                      raise SystemExit("Post-publish verification failed: " + repr(last_error))
+                  print("Published site is not ready yet; retry", attempt + 1)
+                  time.sleep(5)
+          PY
       - name: Deploy Netlify production when configured
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
