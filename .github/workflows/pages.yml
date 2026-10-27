@@ -154,8 +154,8 @@ jobs:
           for attempt in range(10):
               try:
                   html = fetch(base)
-          app_match = re.search(r"""<script[^>]+src=["']([^"']*app\.js\?v=(\d+))["']""", html, re.I)
-          css_match = re.search(r"""<link[^>]+href=["']([^"']*styles\.css\?v=(\d+))["']""", html, re.I)
+                  app_match = re.search(r"""<script[^>]+src=["']([^"']*app\.js\?v=(\d+))["']""", html, re.I)
+                  css_match = re.search(r"""<link[^>]+href=["']([^"']*styles\.css\?v=(\d+))["']""", html, re.I)
                   if not app_match or not css_match:
                       raise RuntimeError("Published HTML is missing versioned app.js or styles.css.")
                   app_ref, app_version = app_match.group(1), app_match.group(2)
@@ -165,7 +165,7 @@ jobs:
                   app_js = fetch(urljoin(base, app_ref))
                   css = fetch(urljoin(base, css_ref))
                   sw = fetch(urljoin(base, "sw.js"))
-          cache_match = re.search(r"""const CACHE=['"]averis-by-mahi-v(\d+)['"]""", sw)
+                  cache_match = re.search(r"""const CACHE=['"]averis-by-mahi-v(\d+)['"]""", sw)
                   if not cache_match or cache_match.group(1) != "47":
                       raise RuntimeError("Netlify service-worker cache is not v47.")
                   if len(app_js) < 10000 or len(css) < 10000 or "AVERIS" not in app_js:
