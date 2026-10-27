@@ -126,11 +126,11 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
-          if [ -z "$NETLIFY_AUTH_TOKEN" ]; then
-            echo "::error::NETLIFY_AUTH_TOKEN is missing. Add it to GitHub Actions secrets or connect this Netlify site directly to the repository's main branch."
-            exit 1
+          if [ -n "$NETLIFY_AUTH_TOKEN" ]; then
+            npx --yes netlify-cli@23.11.0 deploy --prod --dir dist --site b67c38c4-93c9-4f01-b175-b75e00d0675c
+          else
+            echo "::notice::NETLIFY_AUTH_TOKEN is absent; relying on Netlify Git continuous deployment. The post-publish smoke test will fail if main has not reached production."
           fi
-          npx --yes netlify-cli@23.11.0 deploy --prod --dir dist --site b67c38c4-93c9-4f01-b175-b75e00d0675c
       - name: Verify published Netlify frontend and proxied API
         run: |
           python - <<'PY'
