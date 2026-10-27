@@ -296,3 +296,14 @@ def test_drawer_layering_keeps_controls_above_sticky_header():
     css = read("styles.css")
     assert ".drawer-scrim{z-index:100}" in css
     assert ".drawer{z-index:110}" in css
+
+
+def test_product_sku_migration_enforces_case_insensitive_tenant_uniqueness():
+    migration = read("database/migrations/20261027090717_unique_product_sku_per_organization.sql")
+    schema = read("database/schema.sql")
+    assert "CREATE UNIQUE INDEX IF NOT EXISTS uq_erp_org_product_sku" in migration
+    assert "organization_id" in migration
+    assert "upper(btrim(payload ->> 'sku'))" in migration
+    assert "collection = 'products'" in migration
+    assert "NULLIF(btrim(payload ->> 'sku'), '') IS NOT NULL" in migration
+    assert "uq_erp_org_product_sku" in schema

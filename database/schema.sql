@@ -32,6 +32,9 @@ CREATE TABLE public.erp_business_records (
  created_by VARCHAR(36) NOT NULL REFERENCES public.users(id), updated_by VARCHAR(36) NOT NULL REFERENCES public.users(id),
  CONSTRAINT uq_erp_org_collection_key UNIQUE (organization_id, collection, record_key)
 );
+CREATE UNIQUE INDEX uq_erp_org_product_sku
+  ON public.erp_business_records (organization_id, upper(btrim(payload ->> 'sku')))
+  WHERE collection = 'products' AND NULLIF(btrim(payload ->> 'sku'), '') IS NOT NULL;
 CREATE INDEX ix_organizations_slug ON public.organizations (slug);
 CREATE INDEX ix_organizations_invite_code ON public.organizations (invite_code);
 CREATE INDEX ix_users_organization_id ON public.users (organization_id);
