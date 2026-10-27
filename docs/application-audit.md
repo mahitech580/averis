@@ -216,3 +216,8 @@ A data-driven API regression now derives valid create/update payloads from the b
 ### Browser interaction coverage expansion
 
 The Chromium smoke suite now exercises local synthetic create flows for people, tasks, appointments, resources, workforce, workflow results, inventory, finance, messages, incidents and report templates. It also validates negative inventory rejection, message-subject persistence, and local ERP product create/update/delete through visible controls. The suite uses a native confirmation dialog acceptance for deletion and asserts the updated row disappears.
+
+
+### Browser test harness correction (2026-10-27)
+
+The first run of the new local ERP UI lifecycle test stopped because its Playwright selector matched five visible “products” actions rather than one. This was a test-selector ambiguity, not an application failure. The test now scopes the click to the unique ERP module-tabs navigation before creating/updating/deleting the local product.
