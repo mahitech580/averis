@@ -107,12 +107,28 @@ try {
   await page.evaluate(() => { location.hash = "/today"; });
   await page.waitForFunction(() => location.hash === "#/today");
 
-  // Confirm imagery is subtle but still visible, and the footer blends without a hard seam.
+  // Verify the requested editorial typography and one consistent page surface.
+  const heroHeading = page.locator("#workspace-root .overview-heading h1");
+  assert.ok((await heroHeading.innerText()).includes("CARE."), "public hero should show the new editorial headline");
+  assert.ok((await heroHeading.innerText()).includes("Operations,"), "hero should include the muted italic secondary line");
+  const headingStyle = await heroHeading.evaluate((node) => ({
+    fontFamily: getComputedStyle(node).fontFamily,
+    fontSize: getComputedStyle(node).fontSize,
+    lineHeight: getComputedStyle(node).lineHeight,
+    letterSpacing: getComputedStyle(node).letterSpacing,
+  }));
+  assert.ok(headingStyle.fontFamily.includes("Space Grotesk"), "display headlines should use Space Grotesk");
+  const sharedSurface = await page.locator("#workspace-root .hero-bg").evaluate((node) => getComputedStyle(node).backgroundColor);
   for (const selector of [".hero-bg", ".capabilities-bg", ".process-bg", ".feature-bg", ".layers-bg", ".showcase-bg", ".boundary-bg", ".cta-bg"]) {
-    const backgroundImage = await page.locator("#workspace-root " + selector).evaluate((node) => getComputedStyle(node).backgroundImage);
-    assert.ok(backgroundImage.includes("https://"), "section must include a photo background: " + selector);
-    const overlayImage = await page.locator("#workspace-root " + selector + " > .section-overlay").evaluate((node) => getComputedStyle(node).backgroundImage);
-    assert.ok(overlayImage.includes("0.93") || overlayImage.includes("0.94") || overlayImage.includes("0.96"), "section photo should be very subtle beneath a 93–96% dark overlay: " + selector);
+    const section = page.locator("#workspace-root " + selector);
+    const styles = await section.evaluate((node) => ({
+      backgroundImage: getComputedStyle(node).backgroundImage,
+      backgroundColor: getComputedStyle(node).backgroundColor,
+    }));
+    assert.equal(styles.backgroundImage, "none", "long-form sections should not each use a different photo background: " + selector);
+    assert.equal(styles.backgroundColor, sharedSurface, "long-form sections should share one theme surface: " + selector);
+    const overlayImage = await section.locator("> .section-overlay").evaluate((node) => getComputedStyle(node).backgroundImage);
+    assert.ok(overlayImage.includes("radial-gradient"), "subtle shared accent gradient should remain: " + selector);
   }
   const footerStyle = await page.locator("footer.site-footer").evaluate((node) => ({
     backgroundImage: getComputedStyle(node).backgroundImage,
