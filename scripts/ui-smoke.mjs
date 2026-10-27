@@ -177,6 +177,130 @@ try {
   await page.waitForFunction(() => location.hash === "#/today");
   assert.ok((await page.locator("#workspace-root").innerText()).length > 30, "offline demo should open");
 
+  const goToWorkspace = async (route) => {
+    await page.evaluate((value) => { location.hash = "/" + value; }, route);
+    await page.waitForFunction((value) => location.hash === "#/" + value, route);
+    await page.locator("#workspace-root").waitFor({ state: "visible" });
+  };
+
+  // Person creation rejects an empty name, then persists a valid synthetic person.
+  await goToWorkspace("people");
+  const peopleBefore = await page.locator("#workspace-root .person-card").count();
+  await page.locator('#workspace-root [data-action="new-person"]').click();
+  await page.locator('#modal-foot [data-action="save-person"]').click();
+  assert.equal(await page.locator("#modal-overlay").evaluate(node => node.hidden), false, "invalid person form should remain open");
+  await page.locator("#f-name").fill("UI CRUD Person");
+  await page.locator("#f-notes").fill("Synthetic browser regression record.");
+  await page.locator('#modal-foot [data-action="save-person"]').click();
+  assert.equal(await page.locator("#workspace-root .person-card").count(), peopleBefore + 1, "person form should create a record");
+  assert.ok((await page.locator("#workspace-root").innerText()).includes("UI CRUD Person"), "created person should render");
+
+  // Work queue create flow.
+  await goToWorkspace("queue");
+  await page.locator('#workspace-root [data-action="new-task"]').click();
+  await page.locator("#f-task-title").fill("UI CRUD Task");
+  await page.locator("#f-task-priority").selectOption("Critical");
+  await page.locator('#modal-foot [data-action="save-task"]').click();
+  assert.ok((await page.locator("#workspace-root").innerText()).includes("UI CRUD Task"), "task form should create a record");
+
+  // Appointment scheduler create flow.
+  await goToWorkspace("schedule");
+  await page.locator('#workspace-root [data-action="new-appointment"]').click();
+  await page.locator("#f-ap-time").fill("13:45");
+  await page.locator("#f-ap-type").selectOption("Coordination");
+  await page.locator('#modal-foot [data-action="save-appointment"]').click();
+  assert.ok((await page.locator("#workspace-root").innerText()).includes("13:45"), "appointment form should save its time");
+
+  // Resource and workforce forms.
+  await goToWorkspace("capacity");
+  await page.locator('#workspace-root [data-action="new-resource"]').click();
+  await page.locator("#f-r-name").fill("UI CRUD Resource");
+  await page.locator("#f-r-util").fill("56");
+  await page.locator('#modal-foot [data-action="save-resource"]').click();
+  assert.ok((await page.locator("#workspace-root").innerText()).includes("UI CRUD Resource"), "resource form should create a record");
+
+  await goToWorkspace("workforce");
+  await page.locator('#workspace-root [data-action="new-workforce"]').click();
+  await page.locator("#f-w-name").fill("UI CRUD Workforce");
+  await page.locator("#f-w-load").fill("43");
+  await page.locator('#modal-foot [data-action="save-workforce"]').click();
+  assert.ok((await page.locator("#workspace-root").innerText()).includes("UI CRUD Workforce"), "workforce form should create a record");
+
+  // Workflow/diagnostic record.
+  await goToWorkspace("diagnostics");
+  await page.locator('#workspace-root [data-action="new-diagnostic"]').click();
+  await page.locator("#f-d-value").fill("UI CRUD Diagnostic");
+  await page.locator('#modal-foot [data-action="save-diagnostic"]').click();
+  assert.ok((await page.locator("#workspace-root").innerText()).includes("UI CRUD Diagnostic"), "workflow result form should create a record");
+
+  // Pharmacy validation must reject negative quantities, then accept a valid item.
+  await goToWorkspace("pharmacy");
+  await page.locator('#workspace-root [data-action="new-pharmacy"]').click();
+  await page.locator("#f-p-item").fill("UI Invalid Negative Inventory");
+  await page.locator("#f-p-qty").fill("-1");
+  await page.locator('#modal-foot [data-action="save-pharmacy"]').click();
+  assert.equal(await page.locator("#modal-overlay").evaluate(node => node.hidden), false, "negative inventory should not close the modal");
+  assert.ok((await page.locator("#toast-stack").innerText()).includes("must be zero or greater"), "negative inventory should show validation");
+  await page.locator("#f-p-item").fill("UI CRUD Inventory");
+  await page.locator("#f-p-qty").fill("12");
+  await page.locator("#f-p-min").fill("4");
+  await page.locator("#f-p-var").fill("0");
+  await page.locator('#modal-foot [data-action="save-pharmacy"]').click();
+  assert.ok((await page.locator("#workspace-root").innerText()).includes("UI CRUD Inventory"), "valid inventory form should create a record");
+
+  // Finance, messaging, incidents and report templates.
+  await goToWorkspace("finance");
+  await page.locator('#workspace-root [data-action="new-finance"]').click();
+  await page.locator("#f-f-label").fill("UI CRUD Finance");
+  await page.locator("#f-f-amount").fill("1250");
+  await page.locator('#modal-foot [data-action="save-finance"]').click();
+  assert.ok((await page.locator("#workspace-root").innerText()).includes("UI CRUD Finance"), "finance form should create a record");
+
+  await goToWorkspace("messages");
+  await page.locator('#workspace-root [data-action="new-message"]').click();
+  await page.locator("#f-message-subject").fill("UI CRUD Subject");
+  await page.locator("#f-message-text").fill("UI CRUD Message Body");
+  await page.locator('#modal-foot [data-action="save-message"]').click();
+  assert.ok((await page.locator("#workspace-root").innerText()).includes("UI CRUD Subject"), "message subject must be preserved");
+  assert.ok((await page.locator("#workspace-root").innerText()).includes("UI CRUD Message Body"), "message body must be preserved");
+  const createdMessage = await page.evaluate(() => JSON.parse(localStorage.getItem("averis-neon-v8") || "{}").messages?.find(x => x.subject === "UI CRUD Subject"));
+  assert.ok(createdMessage, "message subject should be persisted in browser state");
+
+  await goToWorkspace("incidents");
+  await page.locator('#workspace-root [data-action="new-incident"]').click();
+  await page.locator("#f-incident-title").fill("UI CRUD Incident");
+  await page.locator("#f-incident-note").fill("Synthetic incident note.");
+  await page.locator('#modal-foot [data-action="save-incident"]').click();
+  assert.ok((await page.locator("#workspace-root").innerText()).includes("UI CRUD Incident"), "incident form should create a record");
+
+  await goToWorkspace("reports");
+  await page.locator('#workspace-root [data-action="new-report"]').click();
+  await page.locator("#f-rep-name").fill("UI CRUD Report");
+  await page.locator('#modal-foot [data-action="save-report"]').click();
+  assert.ok((await page.locator("#workspace-root").innerText()).includes("UI CRUD Report"), "report form should create a record");
+
+  // Local ERP create, update and delete should operate on the browser demo store.
+  await goToWorkspace("erp");
+  await page.locator('#workspace-root [data-action="erp-module:products"]').click();
+  await page.locator('#workspace-root [data-action="erp-create"]').click();
+  await page.locator('#erp-record-form [data-erp-field="name"]').fill("UI CRUD ERP Product");
+  const uiSku = "UI-CRUD-" + Date.now().toString(36).toUpperCase();
+  await page.locator('#erp-record-form [data-erp-field="sku"]').fill(uiSku);
+  await page.locator('#erp-record-form [data-erp-field="quantity"]').fill("15");
+  await page.locator('#erp-record-form [data-erp-field="reorder_level"]').fill("5");
+  await page.locator("#erp-record-form button[type='submit']").click();
+  await page.waitForFunction(() => document.querySelector("#workspace-root")?.innerText.includes("UI CRUD ERP Product"));
+  let productRow = page.locator("#workspace-root tr").filter({ hasText: "UI CRUD ERP Product" });
+  await productRow.locator('button[data-action^="erp-edit:products:"]').click();
+  await page.locator('#erp-record-form [data-erp-field="name"]').fill("UI CRUD ERP Product Updated");
+  await page.locator("#erp-record-form button[type='submit']").click();
+  await page.waitForFunction(() => document.querySelector("#workspace-root")?.innerText.includes("UI CRUD ERP Product Updated"));
+  productRow = page.locator("#workspace-root tr").filter({ hasText: "UI CRUD ERP Product Updated" });
+  page.once("dialog", dialog => dialog.accept());
+  await productRow.locator('button[data-action^="erp-delete:products:"]').click();
+  await page.waitForFunction(() => !document.querySelector("#workspace-root")?.innerText.includes("UI CRUD ERP Product Updated"));
+  assert.equal(await page.locator("#workspace-root tr").filter({ hasText: "UI CRUD ERP Product Updated" }).count(), 0, "ERP delete should remove the record from the local demo store");
+
   // The local signup experience must validate and create a session in a browser-only preview.
   await page.evaluate(() => { location.hash = "/register"; });
   await page.waitForFunction(() => location.hash === "#/register");

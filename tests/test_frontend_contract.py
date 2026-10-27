@@ -224,9 +224,9 @@ def test_requested_editorial_healthcare_design_system_is_used_by_live_overview()
     assert 'topButton?.addEventListener("click"' in app
     assert ".reveal-on-scroll.is-revealed" in css
     assert "prefers-reduced-motion:reduce" in css
-    assert "styles.css?v=52" in html
-    assert "app.js?v=52" in html
-    assert "averis-by-mahi-v52" in read("sw.js")
+    assert "styles.css?v=53" in html
+    assert "app.js?v=53" in html
+    assert "averis-by-mahi-v53" in read("sw.js")
 
 
 def test_home_page_copy_distinguishes_cloud_persistence_from_local_preview():
@@ -307,3 +307,20 @@ def test_product_sku_migration_enforces_case_insensitive_tenant_uniqueness():
     assert "collection = 'products'" in migration
     assert "NULLIF(btrim(payload ->> 'sku'), '') IS NOT NULL" in migration
     assert "uq_erp_org_product_sku" in schema
+
+
+
+def test_local_modal_forms_preserve_data_and_enforce_numeric_constraints():
+    app = read("app.js")
+    assert 'subject=(document.getElementById("f-message-subject").value||"").trim()' in app
+    assert "subject,text:" in app
+    assert "Quantity, minimum and variance must be zero or greater." in app
+    assert 'field.type==="number"&&value!==null' in app
+    assert 'field.type==="email"&&value' in app
+    ui = read("scripts/ui-smoke.mjs")
+    for marker in (
+        "UI CRUD Person", "UI CRUD Task", "UI CRUD Resource", "UI CRUD Workforce",
+        "UI CRUD Diagnostic", "UI CRUD Inventory", "UI CRUD Finance", "UI CRUD Subject",
+        "UI CRUD Incident", "UI CRUD Report", "UI CRUD ERP Product Updated",
+    ):
+        assert marker in ui, f"missing browser workflow regression: {marker}"
