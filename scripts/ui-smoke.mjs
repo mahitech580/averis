@@ -226,6 +226,9 @@ try {
   await injectedPerson.locator('button[data-open-person]').click();
   assert.equal(await page.evaluate(() => window.__averisXssCanary), 0, "profile drawer must not execute stored HTML");
   assert.equal(await page.locator('#drawer-body img[src="x"], #drawer-body svg[onload], #drawer-body script').count(), 0, "profile drawer must not contain injected executable nodes");
+  const headerZ = Number(await page.locator("#site-header").evaluate(node => getComputedStyle(node).zIndex));
+  const drawerZ = Number(await page.locator("#drawer").evaluate(node => getComputedStyle(node).zIndex));
+  assert.ok(drawerZ > headerZ, "drawer must layer above the sticky header so its close control is reachable");
   await page.locator("#drawer-close").click();
 
   // A narrow viewport must not force the whole page to be wider than the screen.

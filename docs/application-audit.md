@@ -3,7 +3,7 @@
 **Audit snapshot:** 2026-10-27  
 **Repository:** `mahitech580/averis`  
 **Branch:** `main`  
-**Source revision at audit write:** `2c31863f69b27d229099db43e021796d0f72a752`  
+**Source revision at audit write:** `322c73b9ac85d0239c8542a73a2237bc88580eea`  
 **Production site:** https://averis-saas.netlify.app/  
 **Purpose:** Record the implemented architecture, authorization boundaries, feature-to-API map, test coverage, verified defects, and unresolved production release blocker.
 
@@ -151,8 +151,8 @@ Verified through the connected Supabase project read-only tools on 2026-10-27:
 | --- | --- | --- | --- | --- |
 | AVERIS-DEPLOY-01 — Critical release blocker | Netlify production serves stale v30 JS/CSS while the repository source was already on v50 | Current Netlify deploy metadata identifies an API/manual deploy of the old commit; GitHub Actions had no `NETLIFY_AUTH_TOKEN`, and the workflow previously assumed a Git auto-deploy that was not evidenced | Workflow no longer treats an empty token as a deploy; static build adds a source-revision marker, and the production smoke test validates revision, asset versions and caching | Fails explicitly until live Netlify is updated; still unresolved externally |
 | AVERIS-API-01 — High functional integration defect | Old static `_redirects` sent `/api/*` to Render's inference-only service | One rewrite target incorrectly conflated ML-only service with app API | `_redirects` now agrees with `netlify.toml` and targets the Supabase `averis-api` function | Source contract test and static validator; production rewrite awaits publication |
-| AVERIS-CACHE-01 — High availability/staleness risk | HTML/service worker were not explicitly configured to revalidate and an old immutable bundle could persist | Previous cache rules were broad and asset freshness wasn't checked against exact revision | Explicit per-path cache-control, versioned v51 app/css/service-worker keys, revision marker and live header checks | Static validator; live cache check awaits publication |
-| AVERIS-XSS-01 — High security defect | 142 direct data-property interpolations rendered workspace values without HTML escaping; user-controlled shared record strings could inject markup | Concatenated HTML templates treated data as trusted markup | Escaped direct property interpolations, sanitized the primary main/drawer/modal markup sinks, and replaced inline image fallback handlers with a delegated safe handler | Added pytest contract test and Chromium XSS regression test on commit `2c31863f69b27d229099db43e021796d0f72a752`; report the final run result from Actions before declaring it passed |
+| AVERIS-CACHE-01 — High availability/staleness risk | HTML/service worker were not explicitly configured to revalidate and an old immutable bundle could persist | Previous cache rules were broad and asset freshness wasn't checked against exact revision | Explicit per-path cache-control, versioned v52 app/css/service-worker keys, revision marker and live header checks | Static validator; live cache check awaits publication |
+| AVERIS-XSS-01 — High security defect | 142 direct data-property interpolations rendered workspace values without HTML escaping; user-controlled shared record strings could inject markup | Concatenated HTML templates treated data as trusted markup | Escaped direct property interpolations, sanitized the primary main/drawer/modal markup sinks, and replaced inline image fallback handlers with a delegated safe handler | Added pytest contract test and Chromium XSS regression test. The browser run also exposed the drawer close button being intercepted by the sticky header; its z-index is now raised and the E2E test asserts layering before performing a real click. Verify the final run result from Actions before declaring these regressions passed |
 
 ### Known limitations / still to verify
 
@@ -166,23 +166,28 @@ Verified through the connected Supabase project read-only tools on 2026-10-27:
 
 | Suite / check | Main coverage | Latest verified observation |
 | --- | --- | --- |
-| `node --check app.js` | JavaScript parse validation | Passed on v51 source in the current CI run (verify current run before finalizing) |
+| `node --check app.js` | JavaScript parse validation | Passed on v52 source in the current CI run (verify current run before finalizing) |
 | `python -m compileall -q generate_data.py backend frameworks tests` | Python module syntax | Passed on the current source revision in the current CI run (verify final run) |
 | `python scripts/validate_site.py` | HTML local dependencies, precache/version agreement, expected API rewrite/cache headers | Passed on the current source revision in the current CI run (verify final run) |
 | `pytest -q` with isolated SQLite | Backend auth, validation, workspace, ERP CRUD, tenant and ML contracts plus source regressions | The previous complete run reported 36 passed and 3 warnings; the current source adds a new injection contract test |
 | Postman/Newman collection | Health, demo/auth/session, ERP list/create/update/search/delete, workspace/org/activity and logout denial | Passed in the previous complete run |
-| Chromium `scripts/ui-smoke.mjs` | Public route, route CTAs, auth/local demo, theme persistence, fixed nav, images, footer routes, mobile overflow | Passed in the previous complete run; v51 adds a stored-injection regression that must be checked in the current run |
+| Chromium `scripts/ui-smoke.mjs` | Public route, route CTAs, auth/local demo, theme persistence, fixed nav, images, footer routes, mobile overflow | Passed in the previous complete run; v52 adds a stored-injection regression that must be checked in the current run |
 | Supabase production health | Edge function and database health contract | Passed in prior CI: PostgreSQL persistence confirmed |
 | Render ML endpoints | Non-clinical triage and synthetic inventory response contracts | Passed in prior CI |
 | Netlify production verification | Live HTML references, actual JS/CSS response, cache policy, service worker version, source SHA marker and same-origin API health | Failed on prior release: expected v50, live app/css v30; must be rerun after publication |
 
 **Latest full workflow:** https://github.com/mahitech580/averis/actions/runs/40470037048  
-The workflow is authoritative for the current v51 commit. Do not mark the new injection regression as passed until that run actually completes.
+The workflow is authoritative for the current v52 commit. Do not mark the new injection regression as passed until that run actually completes.
 
 ## 8. Release blocker and recovery condition
 
 Source and test changes are committed to `main`. The Netlify integration currently available to this agent supports project/deploy reads but does not expose an authenticated publish or Git-link operation. GitHub Actions reported `NETLIFY_AUTH_TOKEN` absent, so the CLI deploy is skipped and post-publish validation fails honestly when the live site remains stale.
 
-The release is **not live verified** until either (a) the GitHub Actions repository secret `NETLIFY_AUTH_TOKEN` exists and a production CLI deploy completes, or (b) the Netlify project is actually connected to this GitHub repository and `main` so Git continuous deployment runs. Do not paste tokens into source code, commits or chat. After publication, rerun the workflow and check the live `build-revision.txt`, app.js/css v51, service-worker v51, HTTP cache headers and `/api/health` contract.
+The release is **not live verified** until either (a) the GitHub Actions repository secret `NETLIFY_AUTH_TOKEN` exists and a production CLI deploy completes, or (b) the Netlify project is actually connected to this GitHub repository and `main` so Git continuous deployment runs. Do not paste tokens into source code, commits or chat. After publication, rerun the workflow and check the live `build-revision.txt`, app.js/css v52, service-worker v52, HTTP cache headers and `/api/health` contract.
 
 **Audit conclusion:** source audit and focused repairs have been applied to the repository. This is not a claim that every feature has been individually proven in production. Current production release remains blocked by the disconnected/missing deploy authorization described above.
+
+
+### Additional UI repair after initial v51 smoke
+
+The first v51 Chromium run failed at the real-user click on `#drawer-close`: the sticky header intercepted pointer events over the top of the drawer. This was a reproducible interaction defect. The v52 source raises `.drawer` to z-index 110 and `.drawer-scrim` to 100; the smoke test now asserts the drawer stacks above the header and then clicks its close button normally. The current CI run on the v52 change is the verification authority.

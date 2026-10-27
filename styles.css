@@ -2449,3 +2449,8 @@ body.public-mode #notification-button,
 body.public-mode #profile-button{display:none!important}
 body.public-mode .site-header .top-actions{gap:12px}
 body.public-mode .site-header .connection-chip{font-size:.62rem}
+
+
+/* Keep the drawer and its scrim above the sticky site header. Its close control must remain clickable. */
+.drawer-scrim{z-index:100}
+.drawer{z-index:110}
