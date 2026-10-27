@@ -175,6 +175,7 @@ def test_cloud_auth_uses_a_server_session_token_and_durable_edge_api():
     edge = read("supabase/functions/averis-api/index.ts")
     config = read("supabase/config.toml")
     assert "functions/v1/averis-api/api" in app
+    assert "SUPABASE_PUBLIC_KEY" in app and '"apikey":SUPABASE_PUBLIC_KEY' in app
     assert 'sessionStorage.getItem("averis_session_token")' in app
     assert 'sessionStorage.setItem("averis_session_token",identity.access_token)' in app
     assert "supabase.co/functions/v1/averis-api/api/:splat" in netlify

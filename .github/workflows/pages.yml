@@ -58,6 +58,31 @@ jobs:
             sleep 1
           done
           node /tmp/averis-ci-tools/ui-smoke.mjs
+      - name: Verify production Supabase API health
+        run: |
+          python - <<'PY'
+          import json
+          import time
+          from urllib.request import Request, urlopen
+
+          url = "https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api/api/health"
+          public_key = "sb_publishable_NKhKySO2mf12Sxpu99EKrw_FQ_ahH-h"
+          error = None
+          for attempt in range(8):
+              try:
+                  request = Request(url, headers={"apikey": public_key, "accept": "application/json"})
+                  with urlopen(request, timeout=12) as response:
+                      body = json.loads(response.read().decode("utf-8"))
+                  if body.get("status") != "ok" or body.get("database_driver") != "postgresql":
+                      raise RuntimeError("Production API health contract mismatch: " + json.dumps(body))
+                  print("Production API healthy: PostgreSQL persistence confirmed.")
+                  break
+              except Exception as exc:
+                  error = exc
+                  if attempt == 7:
+                      raise SystemExit("Production API health verification failed: " + repr(error))
+                  time.sleep(3)
+          PY
       - name: Build clean static-only publish artifact
         run: python scripts/build_pages.py --output dist
       - name: Configure Pages

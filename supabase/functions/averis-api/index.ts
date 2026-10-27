@@ -193,8 +193,13 @@ async function resolveIdentity(request: Request) {
   const token = requestToken(request);
   if (!token) fail(401, "Sign in required.");
   const tokenHash = await sha256(token);
-  const session = await dbResult(admin.from("auth_sessions").select("*").eq("token_hash", tokenHash).is("revoked_at", null).maybeSingle(), "Session expired. Sign in again.");
-  if (!session.expires_at || new Date(session.expires_at).getTime() <= Date.now()) fail(401, "Session expired. Sign in again.");
+  const sessionResult = await admin.from("auth_sessions").select("*").eq("token_hash", tokenHash).is("revoked_at", null).maybeSingle();
+  if (sessionResult.error) {
+    console.error("AVERIS session lookup failed:", sessionResult.error.code ?? "database_error");
+    fail(500, "The session could not be verified.");
+  }
+  const session = sessionResult.data;
+  if (!session || !session.expires_at || new Date(session.expires_at).getTime() <= Date.now()) fail(401, "Session expired. Sign in again.");
   const user = await dbResult(admin.from("users").select("*").eq("id", session.user_id).maybeSingle(), "Account is unavailable.");
   if (!user.is_active) fail(401, "Account is unavailable.");
   const org = await loadOrg(user.organization_id);
