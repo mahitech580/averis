@@ -9,11 +9,22 @@ AVERIS is a multi-tenant **healthcare operations coordination demo** with a resp
 - **Supabase project:** https://supabase.com/dashboard/project/zspustvmjtdsnfkprbvv
 - **Render Python ML service:** https://averis-platform-api-mahi.onrender.com
 
-GitHub Pages is the only intended public frontend host. Every push to `main` runs the repository's production checks, creates a static-only `dist/` artifact, publishes it with GitHub Pages Actions, and verifies that the served revision and core assets match the exact commit. Frontend publishing uses GitHub Actions' Pages deployment token and does not require a third-party hosting token.
+GitHub Pages is the public frontend host. Pushes to `main` trigger JavaScript/Python validation, backend and integration tests, Chromium browser smoke tests, production dependency checks, and a static-only `dist/` build. GitHub Actions publishes the static artifact and then compares the live HTML, JavaScript, CSS, service worker, and manifest with the tested source. When the active Pages source serves `build-revision.txt`, the workflow also checks that marker against the exact commit. Publishing uses GitHub's Pages deployment token; no third-party frontend-host token is required.
 
 The browser frontend calls the Supabase Edge Function directly at `https://zspustvmjtdsnfkprbvv.supabase.co/functions/v1/averis-api/api`. The GitHub Pages origin is already allowed by the Edge Function's CORS policy. GitHub Pages does not provide same-origin `/api/*` proxy rewrites, so the app does not rely on host-specific proxy configuration. Render remains a separate Python inference dependency.
 
 > **Data boundary:** use synthetic/demo data only. Never enter real patient information, diagnoses, treatment plans, production customer records, or other sensitive information into a public preview.
+
+## Try the live demo
+
+Open **[AVERIS on GitHub Pages](https://mahitech580.github.io/averis/)**.
+
+- **Open browser-only demo:** enters the sample workspace without an email or password. Its state is stored in that browser and is not shared with other users or synced to the server.
+- **Launch isolated cloud demo:** creates a separate server-backed demo organization and seeds 313 synthetic ERP records across 15 modules. Cloud-demo workspaces use server-side authentication and persistence.
+- **Cloud fallback:** if the cloud demo cannot be created, the app opens the browser-only demo and displays a notice rather than leaving the visitor stuck on the sign-in page.
+- **Create an account / sign in:** use this for a server-backed workspace that should persist and sync across sessions.
+
+The sign-in panel is responsive: the demo actions sit side by side on wider screens and stack on narrow screens. The live service dependencies (Supabase for authentication/data and Render for the isolated inference API) must be reachable for cloud-backed features. Browser-only preview is intended for exploration when those services are unavailable.
 
 ## Product capabilities
 
@@ -109,7 +120,7 @@ python scripts/validate_site.py
 python scripts/build_pages.py --output dist
 ~~~
 
-GitHub Actions validates JavaScript/Python, runs pytest and the Postman collection through Newman against a temporary SQLite database, smoke-tests Chromium, verifies the production Supabase API and Python ML endpoints, builds a static-only dist/ artifact, deploys it to GitHub Pages, and independently verifies the published revision and core assets.
+GitHub Actions validates JavaScript/Python, runs pytest and the Postman collection through Newman against a temporary SQLite database, smoke-tests Chromium, verifies the production Supabase API and Python ML endpoints, builds a static-only `dist/` artifact, deploys it to GitHub Pages, and compares the published core files with the tested source. The commit marker is verified when it is served by the active Pages source.
 
 Postman collection: postman/AVERIS-ERP.postman_collection.json
 
@@ -125,7 +136,7 @@ Postman collection: postman/AVERIS-ERP.postman_collection.json
 
 ## Operations dashboard
 
-The default route is an action-first command center. Queue counts, journey counts, schedule, stock alerts, capacity, activity and shortcuts are derived from the workspace state. Tasks and appointments can be inspected from the home screen; create actions link into the existing forms. Signed-in cloud workspaces poll for revision changes every five seconds. Browser-local preview is visibly separate and remains local. All seeded records are synthetic.
+The default route is an action-first command center. Queue counts, journey counts, schedule, stock alerts, capacity, activity and shortcuts are derived from the workspace state. Tasks and appointments can be inspected from the home screen; create actions link into the existing forms. Signed-in cloud workspaces poll for revision changes every five seconds. Browser-local preview is visibly separate and remains local. The browser demo is a fallback, not a cloud account; its data does not sync. All seeded records are synthetic.
 
 ## Visual design system
 
