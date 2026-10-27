@@ -18,23 +18,21 @@ def test_sticky_header_is_not_disabled_at_short_viewport_heights():
     assert re.search(r"html\s*,\s*body\s*\{[^}]*overflow-x:\s*clip", css)
 
 
-def test_dark_only_mode_is_enforced_across_shell_and_settings():
+def test_light_and_dark_themes_are_supported_across_shell_and_settings():
     app = read("app.js")
     html = read("index.html")
     css = read("styles.css")
     render_start = app.index("function render(){")
     render_end = app.index("function pulse(){", render_start)
     render = app[render_start:render_end]
-    assert 'state.theme="dark";document.documentElement.dataset.theme="dark"' in render
-    assert 'document.documentElement.style.colorScheme="dark"' in render
-    assert 'name="color-scheme" content="dark"' in html
     assert 'data-theme="dark"' in html
-    assert 'id="theme-trigger"' not in html
-    assert 'data-action="toggle-theme"' not in html
-    assert 'btn("toggle-theme"' not in app
-    assert 'if(a==="toggle-theme")' in app
-    assert 'state.theme="dark"' in app[app.index('if(a==="toggle-theme")'):app.index('if(a==="toggle-theme")') + 240]
-    assert 'html{color-scheme:dark!important}' in css
+    assert '--bg:#F5F2FF' in css and '--bg:#0E0B20' in css
+    assert "Space Grotesk" in html and "Manrope" in html and "DM+Mono" in html
+    assert "function initScrollExperience()" in app
+    assert 'window.addEventListener("scroll",update,{passive:true})' in app
+    assert 'topButton?.classList.toggle("visible",window.scrollY>620)' in app
+    assert 'if(a==="toggle-theme"){state.theme=state.theme==="dark"?"light":"dark"' in app
+    assert 'btn("toggle-theme",state.theme==="dark"?' in app
 
 
 def test_photo_backgrounds_and_images_have_bundled_fallbacks():

@@ -1,13 +1,12 @@
-# AVERIS — Operations ERP
+# AVERIS — Healthcare operations coordination SaaS
 
-AVERIS is a multi-tenant operations ERP demonstration built with a responsive HTML/CSS/JavaScript frontend and a FastAPI + SQLAlchemy API. It combines an operations overview with 15 ERP data modules, tenant-aware records, a server audit trail, automatic persistence, search, and a seeded synthetic demo.
+AVERIS is a multi-tenant healthcare **operations coordination** SaaS demo with a responsive web frontend, FastAPI REST API, SQLAlchemy persistence, PostgreSQL database, organization-scoped records, and authenticated operational ML endpoints. Every public sample is synthetic; it is not a clinical record system.
 
-**Hosted preview:** https://mahitech580.github.io/averis/  
-**Repository:** https://github.com/mahitech580/averis  
-**CI / release runs:** https://github.com/mahitech580/averis/actions
+**Main frontend:** https://averis-saas.netlify.app/  
+**Static showcase:** https://mahitech580.github.io/averis/  
+**Repository:** https://github.com/mahitech580/averis
 
-> **Data boundary:** all sample records are synthetic. Do not enter patient information, production customer information, real employee data, or other sensitive data into the public preview.
-
+> **Data boundary:** never enter real patient information, diagnoses, treatment plans, production customer records, or other sensitive data into the public preview.
 ## What is included
 
 - Responsive application shell with viewport-fixed navigation, a five-link primary bar with a More submenu, mobile layout, focus states, smooth transitions, reduced-motion support, and a dark-only appearance.
@@ -110,6 +109,32 @@ The dedicated Supabase project is named **averis-erp-prod** in the Mumbai region
 5. To publish Netlify updates through GitHub Actions, configure the repository secret NETLIFY_AUTH_TOKEN at https://github.com/mahitech580/averis/settings/secrets/actions.
 
 The Netlify production deploy is currently skipped when that secret is missing. GitHub Pages publishes the static preview; a Render service/database connection is separate and is not claimed as live until its health route is verified.
+
+
+
+## Production SaaS architecture
+
+- **Netlify frontend:** the `averis-saas` site serves the UI and proxies `/api/*` to FastAPI. GitHub Pages remains a static portfolio showcase; cross-site session cookies can be blocked by browsers.
+- **Python API:** FastAPI, SQLAlchemy, input validation, server-hashed passwords, revocable HttpOnly sessions, tenant-scoped access, audit events, revision-checked workspace sync, and OpenAPI docs at `/api/docs`.
+- **Database:** the existing Mumbai-region Supabase PostgreSQL project `averis-erp-prod`. Six application tables have RLS enabled with public API privileges revoked. The API must connect through the trusted server database URI.
+- **AI/ML:** local scikit-learn TF-IDF/logistic-regression classification of non-clinical synthetic operations notes; NumPy/Pandas and IsolationForest inventory anomaly detection. Triage text is not persisted or included in audit logs; only predicted category/priority/model are recorded. No external AI inference calls are made.
+- **Optional study stack:** `requirements-ai.txt` documents TensorFlow, PyTorch, LangChain, CrewAI, Sentence Transformers and Jupyter for experiments outside the default production server image.
+
+## ML endpoints
+
+| Method | Route | Purpose |
+| --- | --- | --- |
+| POST | `/api/ai/triage` | Classify a short synthetic operations note; raw text is not retained |
+| GET | `/api/ai/inventory/anomalies` | Tenant-scoped inventory anomaly and reorder-risk screen |
+| GET | `/api/ai/capabilities` | Enabled models and retention boundaries |
+
+## Visual design system
+
+Space Grotesk headlines, Manrope body copy and DM Mono metadata; light lavender/purple and dark midnight-violet themes; restrained medical blue/green/red accents; 8px-based spacing; 48px minimum buttons; passive scroll-progress tracking, IntersectionObserver reveals, subtle hero motion and a back-to-top button. Reduced-motion preferences are respected.
+
+## Deployment status and required database secret
+
+The frontend is deployed, but a production API has not yet been verified. The connected Render workspace had no Averis web-service resource when last inspected, while the existing Netlify proxy points to `https://averis-platform-api-mahi.onrender.com`; its health route returned 404. Provision the API from `render.yaml`, set the Supabase **Session pooler connection URI** as the secret `DATABASE_URL`, keep `APP_ENV=production`, and verify `/api/health` returns `status=ok` with `database_driver=postgresql`. Never commit the password or use ephemeral SQLite in production. Do not describe production as connected until signup/login and tenant-isolation tests pass.
 
 ## Official implementation references
 

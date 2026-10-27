@@ -12,6 +12,7 @@ from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, Uni
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship, sessionmaker
 from backend.services.prioritization import prioritize_inventory
+from backend.services.ai_engine import classify_operational_text, inventory_anomalies
 
 APP_ENV=os.getenv("APP_ENV","development").lower()
 COOKIE="averis_session"
@@ -189,6 +190,15 @@ class WorkspaceInput(BaseModel):
     revision:int=Field(ge=0)
     data:dict[str,Any]
 
+class AITextInput(BaseModel):
+    text:str=Field(min_length=4,max_length=2000)
+    @field_validator("text")
+    @classmethod
+    def clean_text(cls,v:str)->str:
+        v=v.strip()
+        if len(v)<4: raise ValueError("Enter at least four characters.")
+        return v
+
 def sanitize_workspace(data:dict[str,Any])->dict[str,Any]:
     out={}
     for key in COLLECTIONS:
@@ -345,6 +355,26 @@ ERP_PREFIX = {
 }
 
 
+
+
+@app.post("/api/ai/triage")
+def ai_triage(payload:AITextInput,db:Session=Depends(get_db),user:User=Depends(current_user)):
+    """Classify a synthetic, non-clinical operations note; submitted text is never persisted."""
+    result=classify_operational_text(payload.text)
+    audit(db,user.organization_id,user.id,"ai.operational_triage",{"category":result["category"],"priority":result["priority"],"model":result["model"]})
+    db.commit()
+    return result
+
+@app.get("/api/ai/inventory/anomalies")
+def ai_inventory_anomalies(db:Session=Depends(get_db),user:User=Depends(current_user)):
+    """Tenant-scoped statistical anomaly scan for synthetic ERP inventory."""
+    rows=db.scalars(select(BusinessRecord).where(BusinessRecord.organization_id==user.organization_id,BusinessRecord.collection=="products").order_by(BusinessRecord.updated_at.desc()).limit(2000)).all()
+    items=[{"id":r.record_key,**(r.payload or {})} for r in rows]
+    return inventory_anomalies(items)
+
+@app.get("/api/ai/capabilities")
+def ai_capabilities(user:User=Depends(current_user)):
+    return {"enabled":True,"models":[{"id":"tfidf-logistic-regression-v1","purpose":"synthetic operations-note routing"},{"id":"isolation-forest-v1","purpose":"inventory outlier screening"}],"libraries":["NumPy","Pandas","scikit-learn"],"external_inference":False,"clinical_decisioning":False,"data_retention":"Triage input text is not stored; only predicted category, priority and model identifier are recorded in the audit log.","notice":"Synthetic operational data only. Not for diagnosis, treatment, or clinical decisions."}
 
 # Public demo is isolated per visitor: no shared credentials, real patient data, or cross-visitor edits.
 _DEMO_WINDOW_SECONDS = 3600

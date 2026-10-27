@@ -1,3 +1,8 @@
-# Optional example only.
--r requirements-frameworks.txt
-tensorflow>=2.17,<3.0
+# Optional experimentation only; not installed in the default production API image.
+# Core production endpoints use NumPy, Pandas and scikit-learn from backend/requirements.txt.
+tensorflow>=2.16,<3
+torch>=2.5,<3
+langchain>=0.3,<2
+crewai>=0.100,<2
+sentence-transformers>=3,<6
+jupyterlab>=4,<5

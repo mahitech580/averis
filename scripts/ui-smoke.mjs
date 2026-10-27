@@ -59,14 +59,19 @@ try {
   const ancestorReport = await page.locator("#site-header").evaluate((node) => { const out=[]; for(let el=node;el;el=el.parentElement){const s=getComputedStyle(el);out.push({tag:el.tagName,id:el.id,cls:typeof el.className==="string"?el.className:"",position:s.position,overflowX:s.overflowX,overflowY:s.overflowY,height:Math.round(el.getBoundingClientRect().height)});} return out; });
   assert.ok(Math.abs(stickyTop) <= 2, "fixed header should remain visible; top=" + stickyTop + "; ancestors=" + JSON.stringify(ancestorReport));
 
-  // AVERIS is intentionally dark-only; no theme switch should remain in the shell.
+  // AVERIS offers both color schemes; the choice persists through reload.
   assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
   assert.equal(await page.locator("html").evaluate((node) => getComputedStyle(node).colorScheme), "dark");
-  assert.equal(await page.locator("#theme-trigger").count(), 0, "dark-only build must not show a theme switch");
+  await page.evaluate(() => { location.hash = "/settings"; });
+  await page.waitForFunction(() => location.hash === "#/settings");
+  await page.locator('#workspace-root [data-action="toggle-theme"]').click();
+  assert.equal(await page.locator("html").getAttribute("data-theme"), "light", "theme control should switch to light");
+  assert.equal(await page.locator("html").evaluate((node) => getComputedStyle(node).colorScheme), "light");
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.locator("#site-header").waitFor({ state: "visible" });
-  assert.equal(await page.locator("html").getAttribute("data-theme"), "dark", "dark-only theme should survive reload");
-  assert.equal(await page.locator("#theme-trigger").count(), 0, "theme switching must remain removed after reload");
+  assert.equal(await page.locator("html").getAttribute("data-theme"), "light", "light theme should persist after reload");
+  await page.locator('#workspace-root [data-action="toggle-theme"]').click();
+  assert.equal(await page.locator("html").getAttribute("data-theme"), "dark", "theme control should switch back to dark");
 
   // Enter the offline demo first so route checks test real protected screens, not login redirects.
   await page.evaluate(() => { location.hash = "/login"; });
@@ -204,7 +209,7 @@ try {
 
   assert.deepEqual(pageErrors, [], "uncaught browser exceptions: " + pageErrors.join(" | "));
   assert.equal(await page.locator("#site-nav-menu button[data-route]").count(), 4, "secondary navigation remains available");
-  console.log("OK: fixed header, five primary links + More submenu, dark-only theme, very subtle photo backgrounds, visible signup/sign-in, local signup + sign-out + sign-in, image fallbacks, " + landingActions.length + " card destinations, " + routes.length + " footer routes and mobile width.");
+  console.log("OK: fixed header, five primary links + More submenu, persistent light/dark themes, restrained photo backgrounds, visible signup/sign-in, local signup + sign-out + sign-in, image fallbacks, " + landingActions.length + " card destinations, " + routes.length + " footer routes and mobile width.");
 } finally {
   await browser.close();
 }

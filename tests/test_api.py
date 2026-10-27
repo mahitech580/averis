@@ -204,3 +204,40 @@ def test_local_static_preview_origin_can_preflight_api(client):
     assert response.status_code == 200
     assert response.headers.get("access-control-allow-origin") == "http://127.0.0.1:4173"
     assert "POST" in response.headers.get("access-control-allow-methods", "")
+
+def test_authenticated_ml_triage_does_not_echo_or_persist_input(client):
+    register(client, "ml-owner@example.test", "ML Team")
+    note = "Critical inventory shortage is blocking the morning schedule."
+    response = client.post("/api/ai/triage", json={"text": note})
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["category"] in {"inventory", "scheduling", "capacity", "workflow", "communications", "quality"}
+    assert body["priority"] in {"CRITICAL", "HIGH", "NORMAL"}
+    assert 0 <= body["confidence"] <= 100
+    assert body["clinical_decisioning"] is False
+    assert body["persisted"] is False
+    assert note not in response.text
+    activity = client.get("/api/activity").json()["items"]
+    assert any(row["action"] == "ai.operational_triage" for row in activity)
+    assert all(note not in str(row.get("details", {})) for row in activity)
+
+
+def test_inventory_anomaly_endpoint_is_authenticated_and_tenant_scoped(client):
+    assert client.get("/api/ai/inventory/anomalies").status_code == 401
+    register(client, "ml-inventory@example.test", "Inventory Team")
+    for i in range(10):
+        response = client.post("/api/erp/products", json={
+            "name": f"Synthetic item {i}", "sku": f"ML-SKU-{i:03}",
+            "quantity": 1 if i == 9 else 20 + i, "reorder_level": 5,
+            "unit_cost": 12 + i, "selling_price": 20 + i, "status": "Active"
+        })
+        assert response.status_code == 201, response.text
+    scanned = client.get("/api/ai/inventory/anomalies")
+    assert scanned.status_code == 200, scanned.text
+    body = scanned.json()
+    assert body["scanned"] == 10
+    assert body["reorder_risk_count"] >= 1
+    assert body["clinical_decisioning"] is False
+    client.post("/api/auth/logout")
+    register(client, "other-inventory@example.test", "Other Team")
+    assert client.get("/api/ai/inventory/anomalies").json()["scanned"] == 0
