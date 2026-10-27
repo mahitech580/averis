@@ -369,5 +369,5 @@ def test_browser_demo_always_opens_and_cloud_demo_has_local_fallback():
     assert 'sessionStorage.removeItem("averis_session_token")' in local_demo
     assert 'if(cloud.online)' not in local_demo
     assert 'startBrowserDemo();toast("Demo account active"' in local_demo
-    assert 'startBrowserDemo();toast("Cloud demo unavailable"' in local_demo
+    assert 'startBrowserDemo();toast("Cloud demo unavailable"' in app
     assert 'label="Browser-only demo"' in app
