@@ -2047,7 +2047,7 @@ p,.page-copy,.page-description,.landing-lead,.section-description{line-height:1.
 }
 
 
-/* AVERIS v48 — the requested clinical editorial system, applied across every route. */
+/* AVERIS v49 — the requested clinical editorial system, applied across every route. */
 :root{
   --accent-purple:#5F3EE8;
   --accent-purple-strong:#5B35D5;
@@ -2441,3 +2441,11 @@ html[data-theme="light"] .website-shell .website-section-bg>.section-overlay{
   background:none!important;
   opacity:0!important;
 }
+
+
+/* The public overview is a product entry point, not an already-authenticated workspace. */
+body.public-mode #quick-add,
+body.public-mode #notification-button,
+body.public-mode #profile-button{display:none!important}
+body.public-mode .site-header .top-actions{gap:12px}
+body.public-mode .site-header .connection-chip{font-size:.62rem}
