@@ -160,21 +160,21 @@ jobs:
                       raise RuntimeError("Published HTML is missing versioned app.js or styles.css.")
                   app_ref, app_version = app_match.group(1), app_match.group(2)
                   css_ref, css_version = css_match.group(1), css_match.group(2)
-                  if app_version != "47" or css_version != "47" or app_version != css_version:
-                      raise RuntimeError(f"Netlify is not serving the expected v47 asset set (app={app_version}, css={css_version}).")
+                  if app_version != "48" or css_version != "48" or app_version != css_version:
+                      raise RuntimeError(f"Netlify is not serving the expected v48 asset set (app={app_version}, css={css_version}).")
                   app_js = fetch(urljoin(base, app_ref))
                   css = fetch(urljoin(base, css_ref))
                   sw = fetch(urljoin(base, "sw.js"))
                   cache_match = re.search(r"""const CACHE=['"]averis-by-mahi-v(\d+)['"]""", sw)
-                  if not cache_match or cache_match.group(1) != "47":
-                      raise RuntimeError("Netlify service-worker cache is not v47.")
+                  if not cache_match or cache_match.group(1) != "48":
+                      raise RuntimeError("Netlify service-worker cache is not v48.")
                   if len(app_js) < 10000 or len(css) < 10000 or "AVERIS" not in app_js:
                       raise RuntimeError("Published Netlify assets are incomplete.")
                   health_raw = fetch(urljoin(base, "api/health"), {"apikey": public_key, "accept": "application/json"})
                   health = json.loads(health_raw)
                   if health.get("status") != "ok" or health.get("database_driver") != "postgresql":
                       raise RuntimeError("Netlify API rewrite did not return the PostgreSQL health contract.")
-                  print("Netlify production verified: app.js/css v47, service-worker v47, and same-origin API rewrite to PostgreSQL are healthy.")
+                  print("Netlify production verified: app.js/css v48, service-worker v48, and same-origin API rewrite to PostgreSQL are healthy.")
                   break
               except Exception as exc:
                   last_error = exc
