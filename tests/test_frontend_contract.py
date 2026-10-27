@@ -224,9 +224,9 @@ def test_requested_editorial_healthcare_design_system_is_used_by_live_overview()
     assert 'topButton?.addEventListener("click"' in app
     assert ".reveal-on-scroll.is-revealed" in css
     assert "prefers-reduced-motion:reduce" in css
-    assert "styles.css?v=50" in html
-    assert "app.js?v=50" in html
-    assert "averis-by-mahi-v50" in read("sw.js")
+    assert "styles.css?v=51" in html
+    assert "app.js?v=51" in html
+    assert "averis-by-mahi-v51" in read("sw.js")
 
 
 def test_home_page_copy_distinguishes_cloud_persistence_from_local_preview():
@@ -268,3 +268,20 @@ def test_netlify_cache_api_and_build_revision_contract():
     assert 'os.environ.get("GITHUB_SHA")' in build
     assert "build-revision.txt" in workflow
     assert "NETLIFY_AUTH_TOKEN is absent; no CLI deployment was performed" in workflow
+
+
+
+def test_workspace_html_interpolation_is_escaped_and_dynamic_sinks_are_sanitized():
+    app = read("app.js")
+    assert "function sanitizeMarkup(markup)" in app
+    assert 'innerHTML=sanitizeMarkup(view())' in app
+    assert 'innerHTML=sanitizeMarkup(body)' in app
+    assert 'body.innerHTML=sanitizeMarkup(content)' in app
+    assert 'document.addEventListener("error",event=>' in app
+    for expression in (
+        "esc(p.name)", "esc(p.owner)", "esc(t.title)", "esc(t.person)",
+        "esc(a.person)", "esc(r.name)", "esc(w.name)", "esc(d.value)",
+        "esc(p.item)", "esc(f.label)", "esc(m.from)", "esc(i.title)",
+        "esc(a.target)",
+    ):
+        assert expression in app, f"missing escaped UI value: {expression}"

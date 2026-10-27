@@ -212,6 +212,22 @@ try {
   const persistedAfterLogin = await page.evaluate(() => JSON.parse(localStorage.getItem("averis-neon-v8") || "{}"));
   assert.equal(persistedAfterLogin.session?.authenticated, true, "successful local sign-in should persist the session");
 
+  // Stored workspace values are text, never executable HTML, in list views and drawers.
+  await page.evaluate(() => { window.__averisXssCanary = 0; location.hash = "/people"; });
+  await page.waitForFunction(() => location.hash === "#/people");
+  await page.locator('#workspace-root [data-action="new-person"]').click();
+  const xssPayload = '<img src=x onerror="window.__averisXssCanary=1"><svg onload="window.__averisXssCanary=2"></svg>';
+  await page.locator("#f-name").fill(xssPayload);
+  await page.locator('#modal-foot [data-action="save-person"]').click();
+  const injectedPerson = page.locator("#workspace-root .person-card").filter({ hasText: xssPayload });
+  assert.equal(await injectedPerson.count(), 1, "the entered name should display as plain text");
+  assert.equal(await page.evaluate(() => window.__averisXssCanary), 0, "user-controlled HTML must not execute");
+  assert.equal(await page.locator('#workspace-root img[src="x"], #workspace-root svg[onload], #workspace-root script').count(), 0, "list view must not contain injected executable nodes");
+  await injectedPerson.locator('button[data-open-person]').click();
+  assert.equal(await page.evaluate(() => window.__averisXssCanary), 0, "profile drawer must not execute stored HTML");
+  assert.equal(await page.locator('#drawer-body img[src="x"], #drawer-body svg[onload], #drawer-body script').count(), 0, "profile drawer must not contain injected executable nodes");
+  await page.locator("#drawer-close").click();
+
   // A narrow viewport must not force the whole page to be wider than the screen.
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(150);
