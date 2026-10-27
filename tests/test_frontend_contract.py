@@ -227,9 +227,9 @@ def test_operations_dashboard_uses_workspace_state_and_live_sync_contract():
     assert 'topButton?.addEventListener("click"' in app
     assert ".reveal-on-scroll.is-revealed" in css
     assert "prefers-reduced-motion:reduce" in css
-    assert "styles.css?v=59" in html
-    assert "app.js?v=59" in html
-    assert "averis-by-mahi-v59" in read("sw.js")
+    assert "styles.css?v=60" in html
+    assert "app.js?v=60" in html
+    assert "averis-by-mahi-v60" in read("sw.js")
 
 
 def test_dashboard_shows_operational_state_without_technology_marketing_copy():
@@ -335,9 +335,9 @@ def test_service_worker_never_persists_local_or_supabase_api_responses():
     assert production_api_guard in sw
     assert "fetch(e.request,{cache:'no-store'})" in sw
     assert sw.index("if(localApi||productionApi)") < sw.index("const dynamic=")
-    assert "averis-by-mahi-v59" in sw
+    assert "averis-by-mahi-v60" in sw
     html = read("index.html")
-    assert "app.js?v=59" in html and "styles.css?v=59" in html
+    assert "app.js?v=60" in html and "styles.css?v=60" in html
 
 def test_operations_dashboard_layout_collapses_cleanly_on_tablet_and_mobile():
     css = read("styles.css")
@@ -346,3 +346,28 @@ def test_operations_dashboard_layout_collapses_cleanly_on_tablet_and_mobile():
     assert "@media(max-width:760px)" in css
     assert "@media(max-width:420px)" in css
     assert ".ops-quick-grid{grid-template-columns:minmax(0,1fr)}" in css
+
+
+def test_auth_demo_buttons_have_non_colliding_layout_and_clear_palette():
+    css = read("styles.css")
+    app = read("app.js")
+    assert ".auth-demo-actions{" in css
+    assert "grid-template-columns:repeat(2,minmax(0,1fr))" in css
+    assert "gap:12px" in css
+    assert "@media(max-width:560px)" in css
+    assert "grid-template-columns:minmax(0,1fr)" in css
+    assert "#d8ccff" in css and "#21163c" in css
+    assert "No login details are needed." in app
+
+
+def test_browser_demo_always_opens_and_cloud_demo_has_local_fallback():
+    app = read("app.js")
+    local_start = app.index("function startBrowserDemo()")
+    local_end = app.index("async function registerNow()", local_start)
+    local_demo = app[local_start:local_end]
+    assert "cloud.localDemo=true" in local_demo
+    assert 'sessionStorage.removeItem("averis_session_token")' in local_demo
+    assert 'if(cloud.online)' not in local_demo
+    assert 'startBrowserDemo();toast("Demo account active"' in local_demo
+    assert 'startBrowserDemo();toast("Cloud demo unavailable"' in local_demo
+    assert 'label="Browser-only demo"' in app
