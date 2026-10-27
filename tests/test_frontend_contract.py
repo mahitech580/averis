@@ -184,3 +184,54 @@ def test_cloud_auth_uses_a_server_session_token_and_durable_edge_api():
     assert 'request.headers.get("authorization")' in edge
     assert "verify_jwt = false" in config
     assert "/api/auth/register" in edge and "/api/erp/summary" in edge and "/api/ai/triage" in edge
+
+
+def test_requested_editorial_healthcare_design_system_is_used_by_live_overview():
+    html = read("index.html")
+    app = read("app.js")
+    css = read("styles.css")
+
+    # The visible first-screen headline must be editorial content, not just a logo.
+    assert '<div class="overview-heading"><h1><span>CARE.</span><em>Operations,<br> connected.</em></h1>' in app
+    assert "One calm command layer for the people who keep care moving." in app
+
+    # Load the requested type system from the HTML shell and define its CSS tokens.
+    for font in ("Space+Grotesk", "Manrope", "DM+Mono"):
+        assert font in html
+    for token in (
+        "--font-display:\"Space Grotesk\"",
+        "--font-body:\"Manrope\"",
+        "--font-mono:\"DM Mono\"",
+        "--accent-purple:#5F3EE8",
+        "--accent-purple-strong:#5B35D5",
+        "--accent-lavender:#D8CCFF",
+        "--healthcare-green:#16834A",
+        "--healthcare-red:#CF3E5D",
+        "--healthcare-sky:#087EAE",
+        "--healthcare-pink:#BE397C",
+        "font-size:clamp(3rem,6.8vw,7.4rem)",
+        "line-height:.94",
+        "letter-spacing:-.078em",
+        "scroll-padding-top:90px",
+        ".scroll-progress",
+        ".back-to-top",
+        "IntersectionObserver",
+    ):
+        assert token in css or token in app, f"missing design or interaction contract: {token}"
+
+    assert "requestAnimationFrame" in app
+    assert 'window.addEventListener("scroll",update,{passive:true})' in app
+    assert 'topButton?.addEventListener("click"' in app
+    assert ".reveal-on-scroll.is-revealed" in css
+    assert "prefers-reduced-motion:reduce" in css
+    assert "styles.css?v=48" in html
+    assert "app.js?v=48" in html
+    assert "averis-by-mahi-v48" in read("sw.js")
+
+
+def test_home_page_copy_distinguishes_cloud_persistence_from_local_preview():
+    app = read("app.js")
+    assert "Authenticated workspace changes persist to PostgreSQL" in app
+    assert "the browser-only preview remains local" in app
+    assert "PostgreSQL + Python APIs" in app
+    assert "Human-reviewed ML signals" in app
